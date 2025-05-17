@@ -1,9 +1,12 @@
 import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
 import React from 'react';
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from 'expo-router';
 import LinearGradient from 'expo-linear-gradient';
 
 export default function Shop() {
+  const router = useRouter();
+  
   // Sample product data
   const products = [
     {
@@ -40,8 +43,20 @@ export default function Shop() {
     }
   ];
 
+  // Function to handle product press
+  const handleProductPress = (productId) => {
+    console.log(`Navigating to product ${productId}`);
+    router.push({
+      pathname: `/shop/${productId}`,
+    });
+  };
+
   const renderProductItem = ({ item }) => (
-    <View className="flex-row bg-white border border-gray-200 rounded-lg mb-3 overflow-hidden">
+    <TouchableOpacity 
+      onPress={() => handleProductPress(item.id)}
+      activeOpacity={0.7}
+      className="flex-row bg-white border border-gray-200 rounded-lg mb-3 overflow-hidden"
+    >
       <Image 
         source={{ uri: item.image }} 
         className="w-24 h-24"
@@ -61,12 +76,12 @@ export default function Shop() {
           <Text className="text-white text-xs font-bold">{item.tag}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header with back button, search and cart */}
+      {/* Header with search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
         <View className="flex-1 mx-3 flex-row items-center bg-gray-100 rounded-full px-3 py-1">
           <TextInput className="text-gray-400 flex-1" placeholder='Search for products...'></TextInput>
