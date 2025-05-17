@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+
 export default function TabLayout() {
   return (
     <>
@@ -11,16 +12,18 @@ export default function TabLayout() {
           headerShown: false,
           tabBarStyle: {
             paddingBottom: 5,
-            height: 60,
+            height: 70,
           },
         }}
       >
         <Tabs.Screen
           name="index"
+          
           options={{
+            
             title: "Home",
             tabBarIcon: ({ color }) => (
-              <Ionicons name="home" size={24} color={color} />
+              <Ionicons name="home" size={20} color={color} />
             ),
           }}
         />
@@ -30,7 +33,7 @@ export default function TabLayout() {
           options={{
             title: "Shop",
             tabBarIcon: ({ color }) => (
-              <Ionicons name="bag-handle" size={24} color={color} />
+              <Ionicons name="bag-handle" size={20} color={color} />
             ),
           }}
         />
@@ -40,17 +43,17 @@ export default function TabLayout() {
           options={{
             title: "Service",
             tabBarIcon: ({ color }) => (
-              <Ionicons name="logo-dropbox" size={24} color={color} />
+              <Ionicons name="logo-dropbox" size={20} color={color} />
             ),
           }}
         />
         
         <Tabs.Screen
-          name="cart"
+          name="(profile)"
           options={{
-            title: "Cart",
+            title: "Profile",
             tabBarIcon: ({ color }) => (
-              <Ionicons name="cart" size={24} color={color} />
+              <Ionicons name="person-sharp" size={20} color={color} />
             ),
           }}
         />

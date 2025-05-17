@@ -1,4 +1,4 @@
-package com.xyaistic.rentroApp
+package com.rentroapp
 
 import android.os.Build
 import android.os.Bundle

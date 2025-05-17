@@ -16,7 +16,7 @@ module.exports = {
       },
       
       colors: {
-        primary: '#3c8b27',
+        primary: '#3671E7',
         secondary: '#000000',
         cars: '#106099',
         garage: '#EF4444',

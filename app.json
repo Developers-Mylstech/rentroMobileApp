@@ -8,8 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
-      "expo-router"
-    ],
+      "expo-router"    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -31,7 +30,7 @@
       "package": "com.xyaistic.rentroApp"
     },
     "web": {
-         "bundler": "metro",
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
     },
     "extra": {
