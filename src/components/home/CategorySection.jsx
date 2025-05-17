@@ -6,18 +6,18 @@ export default function CategorySection({ onCategoryPress = () => {} }) {
   const categories = [
     { id: 'rent', name: 'Rent', icon: 'cart', route: '/shop', color: 'text-cars' },
     { id: 'sell', name: 'Sell', icon: 'pricetag', route: '/shop', color: 'text-spareparts' },
-    { id: 'service', name: 'Service', icon: 'construct', route: '/service', color: 'text-otherservice' }
+    { id: 'service', name: 'Service', icon: 'logo-dropbox', route: '/service', color: 'text-otherservice' }
   ];
   
   return (
-    <View className="py-2">
-      <Text className="text-subheading font-bold text-heading-2 mb-3">Product By Category</Text>
+    <View className="my-5">
+      <Text className=" font-bold text-heading-4 uppercase mb-3">Product By Category</Text>
 
-      <View className="flex-row justify-between">
+      <View className="flex-row flex-wrap justify-between">
         {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
-            className="border border-gray-200 rounded-lg py-2 px-4 flex-row items-center w-[30%] justify-center"
+            className="border border-gray-200 rounded-lg py-2 px-4 flex-row items-center w-[32%] justify-center"
             onPress={() => onCategoryPress(category.route, category.id)}
           >
             <Ionicons 
