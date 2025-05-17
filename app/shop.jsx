@@ -4,7 +4,7 @@ import React from 'react'
 export default function shop() {
   return (
     <View>
-      <Text className="text-3xl">shop</Text>
+      <Text style className="text-3xl text-red-400">shop</Text>
     </View>
   )
 }
