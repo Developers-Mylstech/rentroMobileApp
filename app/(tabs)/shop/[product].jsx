@@ -1,60 +1,46 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function ProductDetails() {
-  const { product: productId } = useLocalSearchParams();
   const router = useRouter();
-  const [product, setProduct] = useState(null);
-
-  // In a real app, you would fetch product details from an API
-  // For now, we'll simulate this with a mock data fetch
-  useEffect(() => {
-    // Simulate API call to get product details
-    const fetchProductDetails = () => {
-      // Mock product data based on ID
-      const productData = {
-        id: productId,
-        name: 'HUL Pureit Eco Water Saver Purifier',
-        category: 'Best No. 1 Water Purifier',
-        price: '500.00 AED/Month',
-        originalPrice: '600.00 AED',
-        image: 'https://5.imimg.com/data5/SELLER/Default/2022/9/QL/OM/DP/7621731/pureit-eco-water-saver-mineral-ro-uv-mf-6-stage-table-top-wall-mountable-black-8l-water-purifier.jpg',
-        rating: 4.5,
-        reviews: 245,
-        description: 'Advanced water purifier with eco-friendly technology to save water while providing clean drinking water.',
-        features: ['RO Purification', 'UV Sterilization', 'Water Saving Technology', '8L Capacity'],
-        tag: 'NEW'
-      };
-      
-      setProduct(productData);
-    };
-
-    fetchProductDetails();
-  }, [productId]);
-
-  // Show loading state while product data is being fetched
-  if (!product) {
-    return (
-      <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <Text>Loading product details...</Text>
-      </SafeAreaView>
-    );
-  }
+  const params = useLocalSearchParams();
+  
+  console.log("Received params:", params);
+  
+  // Parse the features array from the string
+  const features = params.features ? JSON.parse(params.features) : [];
+  
+  // Create a product object from the params
+  const product = {
+    id: params.product,
+    name: params.name || 'Product Name',
+    category: params.category || 'Category',
+    price: params.price || '0.00 AED',
+    originalPrice: params.originalPrice || '0.00 AED',
+    image: params.image || 'https://via.placeholder.com/400',
+    rating: parseFloat(params.rating) || 0,
+    reviews: parseInt(params.reviews) || 0,
+    description: params.description || 'No description available',
+    features: features,
+    tag: params.tag || ''
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with back button, search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-       
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
         
         <View className="flex-1 mx-3 flex-row items-center bg-gray-100 rounded-full px-3 py-1">
-          <TextInput placeholder='Search...' className="text-gray-400 flex-1"></TextInput>
+          <Text className="text-gray-400 flex-1">Search...</Text>
           <Ionicons name="search" size={20} color="gray" />
         </View>
         
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/cart')}>
           <Ionicons name="cart-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -116,8 +102,27 @@ export default function ProductDetails() {
             <Text className="text-gray-400 text-sm line-through">{product.originalPrice}</Text>
           </View>
           
+          {/* Description */}
+          <View className="mt-4">
+            <Text className="font-bold text-lg text-gray-800">Description</Text>
+            <Text className="text-gray-600 mt-1">{product.description}</Text>
+          </View>
+          
+          {/* Features */}
+          {product.features.length > 0 && (
+            <View className="mt-4">
+              <Text className="font-bold text-lg text-gray-800">Features</Text>
+              {product.features.map((feature, index) => (
+                <View key={index} className="flex-row items-center mt-1">
+                  <View className="h-2 w-2 rounded-full bg-blue-500 mr-2" />
+                  <Text className="text-gray-600">{feature}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+          
           {/* Action Buttons */}
-          <View className="flex-row mt-4 space-x-3">
+          <View className="flex-row mt-6 space-x-3">
             <TouchableOpacity className="flex-1 bg-blue-500 py-3 rounded-md items-center">
               <Text className="text-white font-bold">Buy Now</Text>
             </TouchableOpacity>

@@ -15,45 +15,80 @@ export default function Shop() {
       price: '500.00 AED',
       originalPrice: '600.00 AED',
       image: 'https://www.kent.co.in/images/png/Grand-New-11076.png',
-      tag: 'NEW'
+      tag: 'NEW',
+      category: 'Water Purifier',
+      rating: 4.5,
+      reviews: 120,
+      description: 'Advanced water purifier with RO technology for clean drinking water.',
+      features: ['RO Purification', 'UV Sterilization', 'Water Saving Technology', '8L Capacity']
     },
     {
       id: 2,
-      name: 'Kent Supreme Extra',
-      price: '500.00 AED',
-      originalPrice: '600.00 AED',
+      name: 'Kent Grand Plus',
+      price: '450.00 AED',
+      originalPrice: '550.00 AED',
       image: 'https://www.kent.co.in/images/png/KENT-Grand-Star-400x400px.png',
-      tag: 'NEW'
+      tag: 'NEW',
+      category: 'Water Purifier',
+      rating: 4.3,
+      reviews: 95,
+      description: 'Compact water purifier with advanced filtration system.',
+      features: ['RO Purification', 'UV Sterilization', '7L Capacity']
     },
     {
       id: 3,
-      name: 'Kent Supreme Extra',
-      price: '500.00 AED',
-      originalPrice: '600.00 AED',
+      name: 'Kent Black Star',
+      price: '600.00 AED',
+      originalPrice: '700.00 AED',
       image: 'https://www.kent.co.in/images/png/grand-star-black-400x400px.png',
-      tag: 'NEW'
+      tag: 'NEW',
+      category: 'Premium Water Purifier',
+      rating: 4.7,
+      reviews: 150,
+      description: 'Premium water purifier with elegant design and advanced features.',
+      features: ['RO Purification', 'UV Sterilization', 'Mineral RO Technology', '10L Capacity']
     },
     {
       id: 4,
-      name: 'Kent Supreme Extra',
-      price: '500.00 AED',
-      originalPrice: '600.00 AED',
+      name: 'Kent Sapphire',
+      price: '550.00 AED',
+      originalPrice: '650.00 AED',
       image: 'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
-      tag: 'NEW'
+      tag: 'NEW',
+      category: 'Designer Water Purifier',
+      rating: 4.6,
+      reviews: 130,
+      description: 'Designer water purifier with advanced purification technology.',
+      features: ['RO Purification', 'UV Sterilization', 'Designer Look', '9L Capacity']
     }
   ];
 
-  // Function to handle product press
-  const handleProductPress = (productId) => {
-    console.log(`Navigating to product ${productId}`);
+  // Function to handle product press - navigate with all product details
+  const handleProductPress = (product) => {
+    console.log(`Navigating to product ${product.id}`);
+    
+    // Navigate to product details with all product data as params
     router.push({
-      pathname: `/shop/${productId}`,
+      pathname: `/shop/${product.id}`,
+      params: {
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.image,
+        tag: product.tag,
+        category: product.category,
+        rating: product.rating,
+        reviews: product.reviews,
+        description: product.description,
+        // We can't pass arrays directly, so convert features to a string
+        features: JSON.stringify(product.features)
+      }
     });
   };
 
   const renderProductItem = ({ item }) => (
     <TouchableOpacity 
-      onPress={() => handleProductPress(item.id)}
+      onPress={() => handleProductPress(item)}
       activeOpacity={0.7}
       className="flex-row bg-white border border-gray-200 rounded-lg mb-3 overflow-hidden"
     >
@@ -88,7 +123,7 @@ export default function Shop() {
           <Ionicons name="search" size={20} color="gray" />
         </View>
         
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/cart')}>
           <Ionicons name="cart-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
