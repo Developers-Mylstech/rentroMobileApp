@@ -7,7 +7,7 @@ export default function ProductCard({
 }) {
   return (
     <TouchableOpacity
-      className="bg-white rounded-lg overflow-hidden w-[31%] mb-3 border border-gray-200"
+      className="bg-white rounded-lg overflow-hidden   border border-gray-200 shadow-sm"
       onPress={onPress}
     >
       <Image
@@ -15,12 +15,12 @@ export default function ProductCard({
         className="w-full h-24"
         resizeMode="cover"
       />
-      <View className="p-2">
-        <Text className="text-blue-500 text-xs">{item.category || 'Service - 1'}</Text>
-        <Text className="text-gray-500 text-xs" numberOfLines={2}>
+      <View className="p-2 flex gap-1">
+        <Text className=" text-heading-3">{item.category || 'Service - 1'}</Text>
+        <Text className=" text-subheading text-gray-900 font-light" numberOfLines={2}>
           {item.description || 'Description Description Description'}
         </Text>
-        <Text className="font-bold mt-1">{item.price || 'AED 56'}</Text>
+        <Text className="text-heading-3 text-primary">{item.price || 'AED 56'}</Text>
       </View>
     </TouchableOpacity>
   );
