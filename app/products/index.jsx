@@ -1,10 +1,10 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
 import React from 'react';
 import { Ionicons } from "@expo/vector-icons";
-import "../global.css";
+// import "../global.css";
 import  LinearGradient  from 'expo-linear-gradient'; 
 
-export default function Shop() {
+export default function Products() {
   // Sample product data
   const products = [
     {
