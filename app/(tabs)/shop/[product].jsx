@@ -1,16 +1,22 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, FlatList, Dimensions, TextInput } from 'react-native';
+import React, { useState } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
+
+const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   
   console.log("Received params:", params);
   
-  // Parse the features array from the string
+  // Parse the arrays from strings
+  const images = params.images ? JSON.parse(params.images) : [];
   const features = params.features ? JSON.parse(params.features) : [];
+
+  const [activeTab, setActiveTab] = useState('rent');
   
   // Create a product object from the params
   const product = {
@@ -19,7 +25,7 @@ export default function ProductDetails() {
     category: params.category || 'Category',
     price: params.price || '0.00 AED',
     originalPrice: params.originalPrice || '0.00 AED',
-    image: params.image || 'https://via.placeholder.com/400',
+    images: images.length > 0 ? images : ['https://via.placeholder.com/400'],
     rating: parseFloat(params.rating) || 0,
     reviews: parseInt(params.reviews) || 0,
     description: params.description || 'No description available',
@@ -27,59 +33,82 @@ export default function ProductDetails() {
     tag: params.tag || ''
   };
 
+  // Handle image scroll
+  const handleImageScroll = (event) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const index = Math.round(scrollPosition / width);
+    setActiveImageIndex(index);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with back button, search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
+       
         
         <View className="flex-1 mx-3 flex-row items-center bg-gray-100 rounded-full px-3 py-1">
-          <Text className="text-gray-400 flex-1">Search...</Text>
+          <TextInput className="text-gray-400 flex-1" placeholder='Search...'></TextInput>
           <Ionicons name="search" size={20} color="gray" />
         </View>
         
-        <TouchableOpacity onPress={() => router.push('/cart')}>
-          <Ionicons name="cart-outline" size={24} color="black" />
-        </TouchableOpacity>
+       
       </View>
 
       <ScrollView className="flex-1">
-        {/* Product Image Section */}
-        <View className="relative bg-white p-4 items-center">
-          <Image 
-            source={{ uri: product.image }} 
-            className="w-full h-80"
-            resizeMode="contain"
+        {/* Product Image Carousel */}
+        <View className="relative bg-white">
+          <FlatList
+            data={product.images}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleImageScroll}
+            snapToAlignment="center"
+            decelerationRate="fast"
+            snapToInterval={width}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={{ width, height: 300 }} className="items-center justify-center p-4">
+                <Image 
+                  source={{ uri: item }} 
+                  style={{ width: width - 80, height: 250 }}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
           />
           
           {/* Wishlist Heart Button */}
-          <TouchableOpacity className="absolute top-4 right-4 bg-white rounded-full p-2 shadow">
+          <TouchableOpacity className="absolute top-4 right-4 bg-white rounded-full p-2 shadow z-10">
             <Ionicons name="heart-outline" size={24} color="#999" />
           </TouchableOpacity>
           
           {/* Pagination Dots */}
-          <View className="flex-row justify-center mt-2">
-            <View className="h-2 w-2 rounded-full bg-blue-500 mx-1" />
-            <View className="h-2 w-2 rounded-full bg-gray-300 mx-1" />
-            <View className="h-2 w-2 rounded-full bg-gray-300 mx-1" />
-            <View className="h-2 w-2 rounded-full bg-gray-300 mx-1" />
+          <View className="flex-row justify-center my-2">
+            {product.images.map((_, index) => (
+              <View 
+                key={index} 
+                className={`h-2 w-2 rounded-full mx-1 ${
+                  index === activeImageIndex ? 'bg-blue-500' : 'bg-gray-300'
+                }`} 
+              />
+            ))}
           </View>
         </View>
         
         {/* Action Buttons */}
-        <View className="flex-row justify-center py-3 border-b border-t border-gray-200">
-          <TouchableOpacity className="items-center px-6">
-            <Text className="text-blue-500 font-medium">Rent</Text>
+              <View className="bg-blue-50 rounded-t-[50px]">
+                        <View className=" flex-row justify-center py-3 border-b border-gray-200  w-[100%]">
+          <TouchableOpacity onPress={() => setActiveTab('rent')} className="items-center ">
+            <Text className={` ${activeTab === 'rent' ? 'text-blue-500  border-b-2 border-blue-500' : 'text-gray-400  border-b-2 border-gray-400'}  font-medium px-10 py-3`}>Rent</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="items-center px-6">
-            <Text className="text-gray-400 font-medium">Sell</Text>
+          <TouchableOpacity onPress={() => setActiveTab('sell')} className="items-center ">
+            <Text className={` ${activeTab === 'sell' ? 'text-blue-500  border-b-2 border-blue-500' : 'text-gray-400  border-b-2 border-gray-400'}  font-medium px-10 py-3`}>Sell</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="items-center px-6">
-            <Text className="text-gray-400 font-medium">Service</Text>
+          <TouchableOpacity   onPress={() => setActiveTab('service')} className="items-center">
+            <Text className={` ${activeTab === 'service' ? 'text-blue-500  border-b-2 border-blue-500' : 'text-gray-400  border-b-2 border-gray-400'}  font-medium px-10 py-3`}>Service</Text>
           </TouchableOpacity>
         </View>
         
@@ -87,10 +116,15 @@ export default function ProductDetails() {
         <View className="p-4">
           <Text className="font-bold text-xl text-gray-800">{product.name}</Text>
           <Text className="text-gray-500 text-sm">{product.category}</Text>
+           
+
+           <View className="flex-row flex-wrap gap-1">
+            <Text className="text-white text-sm font-bold p-[1.5px] bg-blue-500 rounded-md ">#{product?.tags ||'Purifier' }</Text>
+           </View>
           
           {/* Ratings */}
           <View className="flex-row items-center mt-1">
-            <View className="flex-row bg-blue-500 rounded px-2 py-0.5 mr-2">
+            <View className="flex-row bg-green-500 rounded px-2 py-0.5 mr-2">
               <Text className="text-white text-xs font-bold">{product.rating} ★</Text>
             </View>
             <Text className="text-gray-500 text-xs">{product.reviews} reviews</Text>
@@ -98,7 +132,7 @@ export default function ProductDetails() {
           
           {/* Price */}
           <View className="mt-3">
-            <Text className="font-bold text-xl text-gray-800">{product.price}</Text>
+            <Text className="font-bold text-xl text-gray-800">{ activeTab === 'rent' ? product.price+'/ month' : product.price }</Text>
             <Text className="text-gray-400 text-sm line-through">{product.originalPrice}</Text>
           </View>
           
@@ -122,7 +156,7 @@ export default function ProductDetails() {
           )}
           
           {/* Action Buttons */}
-          <View className="flex-row mt-6 space-x-3">
+          <View className="flex-row mt-6 space-x-6 gap-4">
             <TouchableOpacity className="flex-1 bg-blue-500 py-3 rounded-md items-center">
               <Text className="text-white font-bold">Buy Now</Text>
             </TouchableOpacity>
@@ -132,6 +166,7 @@ export default function ProductDetails() {
             </TouchableOpacity>
           </View>
         </View>
+              </View>
       </ScrollView>
     </SafeAreaView>
   );

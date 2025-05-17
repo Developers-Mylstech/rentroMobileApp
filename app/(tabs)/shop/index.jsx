@@ -7,14 +7,18 @@ import LinearGradient from 'expo-linear-gradient';
 export default function Shop() {
   const router = useRouter();
   
-  // Sample product data
+  // Sample product data with multiple images
   const products = [
     {
       id: 1,
       name: 'Kent Supreme Extra',
       price: '500.00 AED',
       originalPrice: '600.00 AED',
-      image: 'https://www.kent.co.in/images/png/Grand-New-11076.png',
+      images: [
+        'https://www.kent.co.in/images/png/Grand-New-11076.png',
+        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
+        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png'
+      ],
       tag: 'NEW',
       category: 'Water Purifier',
       rating: 4.5,
@@ -27,7 +31,11 @@ export default function Shop() {
       name: 'Kent Grand Plus',
       price: '450.00 AED',
       originalPrice: '550.00 AED',
-      image: 'https://www.kent.co.in/images/png/KENT-Grand-Star-400x400px.png',
+      images: [
+        'https://www.kent.co.in/images/png/KENT-Grand-Star-400x400px.png',
+        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
+        'https://www.kent.co.in/images/png/grand-star-front-view-400x400px.png'
+      ],
       tag: 'NEW',
       category: 'Water Purifier',
       rating: 4.3,
@@ -40,7 +48,11 @@ export default function Shop() {
       name: 'Kent Black Star',
       price: '600.00 AED',
       originalPrice: '700.00 AED',
-      image: 'https://www.kent.co.in/images/png/grand-star-black-400x400px.png',
+      images: [
+        'https://www.kent.co.in/images/png/grand-star-black-400x400px.png',
+        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
+        'https://www.kent.co.in/images/png/grand-star-black-front-view-400x400px.png'
+      ],
       tag: 'NEW',
       category: 'Premium Water Purifier',
       rating: 4.7,
@@ -53,7 +65,11 @@ export default function Shop() {
       name: 'Kent Sapphire',
       price: '550.00 AED',
       originalPrice: '650.00 AED',
-      image: 'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
+      images: [
+        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
+        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
+        'hhttps://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png'
+      ],
       tag: 'NEW',
       category: 'Designer Water Purifier',
       rating: 4.6,
@@ -74,13 +90,12 @@ export default function Shop() {
         name: product.name,
         price: product.price,
         originalPrice: product.originalPrice,
-        image: product.image,
+        images: JSON.stringify(product.images), // Convert images array to string
         tag: product.tag,
         category: product.category,
         rating: product.rating,
         reviews: product.reviews,
         description: product.description,
-        // We can't pass arrays directly, so convert features to a string
         features: JSON.stringify(product.features)
       }
     });
@@ -93,13 +108,16 @@ export default function Shop() {
       className="flex-row bg-white border border-gray-200 rounded-lg mb-3 overflow-hidden"
     >
       <Image 
-        source={{ uri: item.image }} 
+        source={{ uri: item.images[0] }} // Use the first image from the array
         className="w-24 h-24"
         resizeMode="contain"
       />
       
       <View className="flex-1 p-3 justify-center">
         <Text className="font-semibold text-base">{item.name}</Text>
+        <Text className="text-blue-500 text-sm   ">{item?.brand || "Rent Ro"}</Text>
+        <Text className="text-gray-500 rounded-lg  text-sm ">{item.category}</Text>
+
         <View className="flex-row items-center mt-1">
           <Text className="font-bold text-base">{item.price}</Text>
           <Text className="text-gray-400 text-xs ml-2 line-through">{item.originalPrice}</Text>
