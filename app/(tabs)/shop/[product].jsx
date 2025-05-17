@@ -3,8 +3,11 @@ import React from 'react';
 import { Ionicons } from "@expo/vector-icons";
 // import "../global.css";
 import  LinearGradient  from 'expo-linear-gradient'; 
+import {userLocalSearchParams} from 'expo-router';
 
-export default function Shop() {
+export default function ProductDetails() {
+  const { id } = userLocalSearchParams();
+
   // Sample product data
   const products = [
     {
