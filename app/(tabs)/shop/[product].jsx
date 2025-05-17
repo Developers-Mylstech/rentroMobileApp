@@ -46,9 +46,9 @@ export default function ProductDetails() {
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
        
         
-        <View className="flex-1 mx-3 flex-row items-center bg-gray-100 rounded-full px-3 py-1">
-          <TextInput className="text-gray-400 flex-1" placeholder='Search...'></TextInput>
-          <Ionicons name="search" size={20} color="gray" />
+        <View className="flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1">
+          <TextInput className="text-gray-400  flex-1" placeholder='Search...'></TextInput>
+          <Ionicons name="search" size={20} color="#007AFF" />
         </View>
         
        
@@ -138,14 +138,14 @@ export default function ProductDetails() {
           
           {/* Description */}
           <View className="mt-4">
-            <Text className="font-bold text-lg text-gray-800">Description</Text>
+            <Text className="font-bold text-lg text-gray-800my-2">Description</Text>
             <Text className="text-gray-600 mt-1">{product.description}</Text>
           </View>
           
           {/* Features */}
           {product.features.length > 0 && (
             <View className="mt-4">
-              <Text className="font-bold text-lg text-gray-800">Features</Text>
+              <Text className="font-bold text-lg text-gray-800 my-2">Features</Text>
               {product.features.map((feature, index) => (
                 <View key={index} className="flex-row items-center mt-1">
                   <View className="h-2 w-2 rounded-full bg-blue-500 mr-2" />
@@ -157,11 +157,23 @@ export default function ProductDetails() {
 
            {product.features.length > 0 && (
             <View className="mt-4">
-              <Text className="font-bold text-lg text-gray-800">Benefits</Text>
+              <Text className="font-bold text-lg text-gray-800 my-2">Benefits</Text>
               {product.features.map((feature, index) => (
                 <View key={index} className="flex-row items-center mt-1  p-2 rounded-lg my-1 border border-blue-400">
-                  {/* <View className="h-2 w-2 rounded-full bg-blue-500 mr-2" /> */}
+                  <Ionicons name="checkmark" size={14} color="blue"  className="mr-2 h-6 w-6 rounded-full bg-blue-200 p-1" />
                   <Text className="text-blue-600 text-sm font-semibold">{feature}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {product.features.length > 0 && (
+            <View className="mt-4">
+              <Text className="font-bold text-lg text-gray-800 my-2">Specifications</Text>
+              {product.features.map((feature, index) => (
+                <View key={index} className="flex-row items-center mt-1  border-b border-gray-200 py-2">
+                  {/* <View className="h-2 w-2 rounded-full bg-blue-500 mr-2" /> */}
+                  <Text className="text-gray-600">Title: {feature}</Text>
                 </View>
               ))}
             </View>
