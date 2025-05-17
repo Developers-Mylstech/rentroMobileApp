@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { Platform } from 'react-native';
 
 export default function Header({ 
   profileImage = "https://randomuser.me/api/portraits/men/1.jpg",
@@ -9,7 +10,7 @@ export default function Header({
   onSearchPress = () => {}
 }) {
   return (
-    <View className="flex-row justify-between items-center py-3 mb-2 border-gray-200 border-b">
+    <View className={`flex-row justify-between items-center py-3 mb-2 border-gray-200 border-b ${Platform.OS === 'android' ? 'pt-8' : ''}`}>
       <TouchableOpacity onPress={onProfilePress}>
         <Image
           source={{ uri: profileImage }}
