@@ -113,7 +113,7 @@ export default function ProductDetails() {
         </View>
         
         {/* Product Info */}
-        <View className="p-4">
+        <View className="p-4 ">
           <Text className="font-bold text-xl text-gray-800">{product.name}</Text>
           <Text className="text-gray-500 text-sm">{product.category}</Text>
            
@@ -154,9 +154,24 @@ export default function ProductDetails() {
               ))}
             </View>
           )}
+
+           {product.features.length > 0 && (
+            <View className="mt-4">
+              <Text className="font-bold text-lg text-gray-800">Benefits</Text>
+              {product.features.map((feature, index) => (
+                <View key={index} className="flex-row items-center mt-1  p-2 rounded-lg my-1 border border-blue-400">
+                  {/* <View className="h-2 w-2 rounded-full bg-blue-500 mr-2" /> */}
+                  <Text className="text-blue-600 text-sm font-semibold">{feature}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+
+
           
           {/* Action Buttons */}
-          <View className="flex-row mt-6 space-x-6 gap-4">
+          <View className=" flex-row mt-6 space-x-6 gap-4 bg-blue-50 py-4">
             <TouchableOpacity className="flex-1 bg-blue-500 py-3 rounded-md items-center">
               <Text className="text-white font-bold">Buy Now</Text>
             </TouchableOpacity>
