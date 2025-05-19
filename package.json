@@ -30,14 +30,16 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
+    "react-native-linear-gradient": "^2.8.3",
+  
     "react-native-screens": "^4.10.0",
-    "zustand": "^5.0.4"
+    "tailwindcss": "^3.4.17",
+    "yarn": "^1.22.22",
+    "zustand": "^5.0.4",
+    "expo-linear-gradient": "~14.1.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "autoprefixer": "10.4.17",
-    "postcss": "8.4.35",
-    "tailwindcss": "^3.4.17"
+    "@babel/core": "^7.20.0"
   },
   "private": true
 }

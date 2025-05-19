@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
+import "../../../global.css"
 
 export default function Banner({ 
   title = "New Year Offer", 
@@ -19,10 +20,10 @@ export default function Banner({
           <Text className="text-subheading text-subheading-default mb-2">{period}</Text>
 
           <TouchableOpacity 
-            className="bg-primary rounded-full px-4 py-1 self-start"
+            className="text-red-500 rounded-full px-4 py-1 self-start"
             onPress={onPress}
           >
-            <Text className="text-white font-medium">{buttonText}</Text>
+            <Text className="text-white font-medium ">{buttonText}</Text>
           </TouchableOpacity>
         </View>
 
