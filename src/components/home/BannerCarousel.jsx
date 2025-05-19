@@ -1,60 +1,43 @@
-import React, { useState, useRef } from 'react';
-import { View, FlatList, Dimensions } from 'react-native';
-import Banner from './Banner';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, FlatList, Dimensions, Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function BannerCarousel({ 
   banners = [], 
   onBannerPress = () => {},
-  renderPagination
+  renderPagination,
+  autoplayInterval = 3000 
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef(null);
-
-  // Default banners with custom colors
-  const defaultBanners = [
-    {
-      id: '1',
-      title: "New Year Offer",
-      discount: "30% OFF",
-      period: "16-31 Dec",
-      buttonText: "Get Now",
-      imageUrl: "https://via.placeholder.com/150",
-      bgColor: "bg-cars/10" // Cars section color
-    },
-    {
-      id: '2',
-      title: "Summer Sale",
-      discount: "25% OFF",
-      period: "1-15 Jun",
-      buttonText: "Shop Now",
-      imageUrl: "https://via.placeholder.com/150",
-      bgColor: "bg-garage/10" // Garage section color
-    },
-    {
-      id: '3',
-      title: "Flash Deal",
-      discount: "50% OFF",
-      period: "Today Only",
-      buttonText: "Grab Now",
-      imageUrl: "https://via.placeholder.com/150",
-      bgColor: "bg-spareparts/10" // Spare parts section color
-    }
-  ];
-
-  const items = banners.length > 0 ? banners : defaultBanners;
-
+  
+  // Autoplay functionality
+  useEffect(() => {
+    if (banners.length <= 1) return; 
+    
+    const autoplayTimer = setTimeout(() => {
+      const nextIndex = (activeIndex + 1) % banners.length;
+      flatListRef.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true
+      });
+      setActiveIndex(nextIndex);
+    }, autoplayInterval);
+    
+    return () => clearTimeout(autoplayTimer);
+  }, [activeIndex, banners.length, autoplayInterval]);
+ 
   const handleScroll = (event) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const index = Math.round(scrollPosition / width);
+    const index = Math.round(scrollPosition / (width - 40));
     setActiveIndex(index);
   };
 
-  // Default pagination dots with custom colors
+  
   const PaginationDots = () => (
     <View className="flex-row justify-center my-2">
-      {items.map((_, index) => (
+      {banners.map((_, index) => (
         <View 
           key={index} 
           className={`h-2 w-2 rounded-full mx-1 ${
@@ -69,24 +52,21 @@ export default function BannerCarousel({
     <View>
       <FlatList
         ref={flatListRef}
-        data={items}
+        data={banners || []}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         snapToAlignment="center"
         decelerationRate="fast"
-        snapToInterval={width - 40} // Adjust for padding
-        keyExtractor={(item) => item.id.toString()}
+        snapToInterval={width - 40}
+        keyExtractor={(item,index) => index.toString()}
         renderItem={({ item }) => (
           <View style={{ width: width - 40 }}>
             <Banner
-              title={item.title}
-              discount={item.discount}
-              period={item.period}
-              buttonText={item.buttonText}
+              
               imageUrl={item.imageUrl}
-              bgColor={item.bgColor}
+            
               onPress={() => onBannerPress(item)}
             />
           </View>
@@ -97,3 +77,26 @@ export default function BannerCarousel({
     </View>
   );
 }
+
+
+import { ImageBackground, TouchableOpacity, Text } from 'react-native';
+
+const Banner = ({ imageUrl, onPress }) => {
+  return (
+    <TouchableOpacity 
+      onPress={onPress} 
+      className="my-3 rounded-xl mx-2 overflow-hidden"
+      activeOpacity={0.8}
+    >
+      <ImageBackground
+        source={{ uri: imageUrl }}
+        className="w-full h-40 justify-end"
+        imageStyle={{ borderRadius: 12 }}
+        resizeMode="cover"
+      >
+        
+      </ImageBackground>
+    </TouchableOpacity>
+  );
+};
+
