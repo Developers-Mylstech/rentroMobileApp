@@ -30,7 +30,7 @@ export default function ProductCard({ item, }) {
         <Text className="text-subheading text-gray-900 font-light" numberOfLines={2}>
           {description}
         </Text>
-        <Text className="text-heading-3 text-primary">{price}</Text>
+        <Text className="text-heading-3 text-primary">{typeof price === 'string' && price.startsWith('AED') ? `AED ${parseFloat(price.replace('AED', '')).toFixed(2)}` : price}</Text>
       </View>
     </TouchableOpacity>
   );
