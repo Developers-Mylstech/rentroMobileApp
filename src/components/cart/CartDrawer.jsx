@@ -7,8 +7,7 @@ import {
   FlatList, 
   Dimensions,
   Animated,
-  Easing,
-  StatusBar
+  Easing
 } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 
@@ -73,7 +72,7 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
         {/* Product Details */}
         <View className="flex-1 ml-3">
           <Text className="font-semibold text-base">{item.name}</Text>
-          <Text className="text-blue-500 text-sm">Total: {item.price} AED</Text>
+          <Text className="text-blue-500 text-sm">Total: {item.price.toFixed(2)} AED</Text>
         </View>
         
         {/* Quantity Controls */}
@@ -111,34 +110,49 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
   if (!isVisible && fadeAnim._value === 0) return null;
 
   return (
-    <Animated.View 
-      className="absolute top-0 right-0 bottom-0 left-0 z-50"
-      style={{ 
-        opacity: fadeAnim,
-        backgroundColor: 'rgba(0,0,0,0.5)'
-      }}
-    >
-      {/* Drawer Content - Now slides up from bottom instead of from right */}
+    <View className="absolute top-0 right-0 bottom-0 left-0 z-50">
+      {/* Background overlay - tap to close */}
       <Animated.View 
-        className="absolute bottom-0 left-0 right-0 bg-white shadow-xl rounded-t-3xl"
         style={{ 
-          maxHeight: height * 0.9, // 90% of screen height
-          transform: [{ translateY: slideAnim }]
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          opacity: fadeAnim
+        }}
+      >
+        <TouchableOpacity 
+          style={{ flex: 1 }}
+          onPress={onClose}
+          activeOpacity={1}
+        />
+      </Animated.View>
+      
+      {/* Bottom Sheet Content */}
+      <Animated.View 
+        className="absolute left-0 right-0 bg-white shadow-xl rounded-t-2xl"
+        style={{ 
+          height: height * 0.7, // 70% of screen height
+          bottom: 0,
+          transform: [{ translateY: slideAnim }],
+          zIndex: 1 // Ensure drawer is above the overlay
         }}
       >
         {/* Handle bar for better UX */}
-        <View className="w-full items-center pt-2 pb-4">
+        <View className="w-full items-center pt-2 pb-1">
           <View className="w-16 h-1 bg-gray-300 rounded-full" />
         </View>
         
         {/* Header */}
-        <View className="flex-row justify-between items-center px-4 pb-4 border-b border-gray-200">
+        <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
           <View className="flex-row items-center">
             <Text className="text-xl font-bold">Shopping Cart</Text>
             <Ionicons name="cart" size={20} color="#3b82f6" style={{ marginLeft: 5 }} />
           </View>
           
-          <View className="flex-row">
+          <View className="flex-row items-center">
             <TouchableOpacity 
               onPress={onClearAll}
               className="mr-4"
@@ -157,9 +171,9 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
           data={cartItems}
           renderItem={renderCartItem}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 10 }}
+          contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
-          style={{ maxHeight: height * 0.6 }} // Limit height to 60% of screen
+          style={{ flex: 1 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-10">
               <Ionicons name="cart-outline" size={60} color="#d1d5db" />
@@ -186,15 +200,11 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
           </View>
         )}
       </Animated.View>
-      
-      {/* Background overlay - tap to close */}
-      <TouchableOpacity 
-        className="absolute top-0 left-0 right-0 bottom-0"
-        onPress={onClose}
-        activeOpacity={1}
-      />
-    </Animated.View>
+    </View>
   );
 }
+
+
+
 
 

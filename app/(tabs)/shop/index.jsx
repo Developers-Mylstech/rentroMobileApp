@@ -68,16 +68,16 @@ export default function Shop() {
     if (product.productFor.sell) {
       const sell = product.productFor.sell;
       return {
-        price: `${sell.discountPrice || sell.actualPrice} AED`,
-        originalPrice: sell.discountPrice ? `${sell.actualPrice} AED` : null
+        price: `${sell.discountPrice.toFixed(2) || sell.actualPrice.toFixed(2)} AED`,
+        originalPrice: sell.discountPrice.toFixed(2) ? `${sell.actualPrice.toFixed(2)} AED` : null
       };
     } 
     // Check if product is for rent
     else if (product.productFor.rent) {
       const rent = product.productFor.rent;
       return {
-        price: `${rent.discountPrice || rent.monthlyPrice} AED/month`,
-        originalPrice: rent.discountPrice ? `${rent.monthlyPrice} AED/month` : null
+        price: `${rent.discountPrice.toFixed(2) || rent.monthlyPrice.toFixed(2)} AED/month`,
+        originalPrice: rent.discountPrice.toFixed(2) ? `${rent.monthlyPrice.toFixed(2)} AED/month` : null
       };
     }
     
