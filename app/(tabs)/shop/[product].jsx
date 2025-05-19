@@ -1,15 +1,30 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, FlatList, Dimensions, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { Platform } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const router = useRouter();
+  const navigation = useNavigation();
   const params = useLocalSearchParams();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  
+  // Hide bottom tab navigation when this screen is focused
+  useEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: { display: 'none' }
+    });
+    
+    // Restore tab bar when leaving this screen
+    return () => {
+      navigation.setOptions({
+        tabBarStyle: { display: 'flex', paddingBottom: 5, height: 60 }
+      });
+    };
+  }, [navigation]);
   
   console.log("Received params:", params);
   
@@ -47,15 +62,17 @@ export default function ProductDetails() {
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
        
         
-        <View className={`flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1 `}>
-          <TextInput className="text-gray-400  flex-1" placeholder='Search...'></TextInput>
+        <View className={`flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1 mx-3`}>
+          <TextInput className="text-gray-400 flex-1" placeholder='Search...'></TextInput>
           <Ionicons name="search" size={20} color="#007AFF" />
         </View>
         
-       
+        <TouchableOpacity onPress={() => router.push('/cart')}>
+          <Ionicons name="cart-outline" size={24} color="black" />
+        </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1 mb-16">
         {/* Product Image Carousel */}
         <View className="relative bg-white">
           <FlatList
@@ -116,12 +133,14 @@ export default function ProductDetails() {
         {/* Product Info */}
         <View className="p-4 ">
           <Text className="font-bold text-xl text-gray-800">{product.name}</Text>
-          <Text className="text-gray-500 text-sm">{product.category}</Text>
            
 
+         <View className="flex-row items-center mt-1 gap-2">
+           <Text className="text-gray-500 text-sm pr-2 border-r border-gray-200">{product.category}</Text>
            <View className="flex-row flex-wrap gap-1">
             <Text className="text-white text-sm font-bold p-[1.5px] bg-blue-500 rounded-md ">#{product?.tags ||'Purifier' }</Text>
            </View>
+         </View>
           
           {/* Ratings */}
           <View className="flex-row items-center mt-1">
@@ -184,18 +203,27 @@ export default function ProductDetails() {
 
           
           {/* Action Buttons */}
-          <View className=" flex-row mt-6 space-x-6 gap-4 bg-blue-50 py-4">
-            <TouchableOpacity className="flex-1 bg-blue-500 py-3 rounded-md items-center">
-              <Text className="text-white font-bold">Buy Now</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity className="flex-1 bg-white border border-blue-500 py-3 rounded-md items-center">
-              <Text className="text-blue-500 font-bold">Add To Cart</Text>
-            </TouchableOpacity>
-          </View>
+         
         </View>
               </View>
       </ScrollView>
+      
+      {/* Sticky bottom action buttons */}
+      <View className="absolute bottom-0 left-0 right-0 flex-row bg-white border-t border-gray-200 px-4 py-3 shadow-lg">
+        <TouchableOpacity 
+          className="flex-1 bg-white border border-blue-500 rounded-md mr-2 items-center justify-center py-3"
+          onPress={() => console.log('Add to cart')}
+        >
+          <Text className="text-blue-500 font-bold">Add To Cart</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          className="flex-1 bg-blue-500 rounded-md ml-2 items-center justify-center py-3"
+          onPress={() => console.log('Buy now')}
+        >
+          <Text className="text-white font-bold">Buy Now</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

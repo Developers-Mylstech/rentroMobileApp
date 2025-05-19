@@ -114,21 +114,29 @@ export default function Shop() {
       />
       
       <View className="flex-1 p-3 justify-center">
-        <Text className="font-semibold text-base">{item.name}</Text>
-        <Text className="text-blue-500 text-sm   ">{item?.brand || "Rent Ro"}</Text>
+       <View className="flex-row justify-between">
+         <Text className="font-semibold text-base ">{item.name}</Text>
+        <View className="bg-green-500 px-2 py-1 rounded ">
+          <Text className="text-white text-xs font-bold">{item.tag}</Text>
+        </View>
+       </View>
+        <View className="flex-row items-center mt-0.5  gap-2">
+            <Text className="text-blue-500 text-sm  pr-1 border-r border-gray-200 ">{item?.brand || "Rent Ro"}</Text>
         <Text className="text-gray-500 rounded-lg  text-sm ">{item.category}</Text>
+        </View>
 
         <View className="flex-row items-center mt-1">
           <Text className="font-bold text-base">{item.price}</Text>
           <Text className="text-gray-400 text-xs ml-2 line-through">{item.originalPrice}</Text>
         </View>
       </View>
-      
       <View className="justify-center items-center pr-3">
-        <View className="bg-green-500 px-2 py-1 rounded mb-2">
+        {/* <View className="bg-green-500 px-2 py-1 rounded mb-2">
           <Text className="text-white text-xs font-bold">{item.tag}</Text>
-        </View>
+        </View> */}
       </View>
+      
+      
     </TouchableOpacity>
   );
 

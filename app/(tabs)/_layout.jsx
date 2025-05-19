@@ -1,7 +1,13 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { usePathname } from "expo-router";
 
 export default function TabLayout() {
+  const pathname = usePathname();
+  
+  // Check if the current path is a product details page
+  const isProductDetailsPage = pathname.includes('/shop/') && !pathname.endsWith('/shop');
+  
   return (
     <>
       <Tabs
@@ -12,6 +18,8 @@ export default function TabLayout() {
           tabBarStyle: {
             paddingBottom: 5,
             height: 60,
+            // Hide the tab bar on product details pages
+            display: isProductDetailsPage ? 'none' : 'flex',
           },
         }}
       >
