@@ -27,6 +27,7 @@ export default function ProductDetails() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('rent');
   const [selectedAmcPlan, setSelectedAmcPlan] = useState('basic'); // 'basic' or 'gold'
+  const [productQuantity, setProductQuantity] = useState(1); // Add quantity state
   
   useEffect(() => {
     if (productId) {
@@ -39,6 +40,18 @@ export default function ProductDetails() {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const index = Math.round(scrollPosition / width);
     setActiveImageIndex(index);
+  };
+
+  // Function to increase quantity
+  const increaseQuantity = () => {
+    setProductQuantity(prev => prev + 1);
+  };
+
+  // Function to decrease quantity
+  const decreaseQuantity = () => {
+    if (productQuantity > 1) {
+      setProductQuantity(prev => prev - 1);
+    }
   };
 
   // Function to get price display based on active tab
@@ -296,11 +309,9 @@ export default function ProductDetails() {
       />
       
       {/* Header with back button */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-lg font-medium">{currentProduct?.name}</Text>
+      <View className="flex-row items-center justify-end px-4 py-3 border-b border-gray-200">
+      
+       
         <TouchableOpacity onPress={openCart} className="relative">
           <Ionicons name="cart-outline" size={24} color="black" />
           {cartItemCount > 0 && (
@@ -342,7 +353,7 @@ export default function ProductDetails() {
           
           {/* Pagination Dots */}
           <View className="flex-row justify-center my-2">
-            {images.map((_, index) => (
+            { images.length > 1 &&  images.map((_, index) => (
               <View 
                 key={index} 
                 className={`h-2 w-2 rounded-full mx-1 ${
@@ -385,9 +396,9 @@ export default function ProductDetails() {
           <View className="p-4">
             <Text className="font-bold text-xl text-gray-800">{currentProduct.name}</Text>
              
-            <View className="flex-row items-center mt-1 gap-2">
+            <View className="flex-row items-start mt-1 gap-2">
               <Text className="text-gray-500 text-sm pr-2 border-r border-gray-200">
-                {currentProduct.category?.name || 'Category'}
+                {currentProduct.category?.name || 'Purifier'}
               </Text>
               <View className="flex-row flex-wrap gap-1">
                 {currentProduct.tagNKeywords && currentProduct.tagNKeywords.map((tag, index) => (
@@ -407,11 +418,37 @@ export default function ProductDetails() {
             
             {/* Price - Only show for Rent and Sell tabs */}
             {activeTab !== 'service' && (
-              <View className="mt-3">
-                <Text className="font-bold text-xl text-gray-800">{price}</Text>
-                {originalPrice && (
-                  <Text className="text-gray-400 text-sm line-through">{originalPrice}</Text>
-                )}
+              <View className="mt-3 flex-row justify-between items-center">
+                <View>
+                  <Text className="font-bold text-xl text-gray-800">{price}</Text>
+                  {originalPrice && (
+                    <Text className="text-gray-400 text-sm line-through">{originalPrice}</Text>
+                  )}
+                </View>
+                
+                {/* Quantity Selector */}
+                <View className="flex-row items-center bg-white border border-gray-200 rounded-lg px-2 py-1">
+                  <TouchableOpacity 
+                    onPress={decreaseQuantity}
+                    disabled={productQuantity <= 1}
+                    className="p-1"
+                  >
+                    <Ionicons 
+                      name="remove-circle" 
+                      size={24} 
+                      color={productQuantity <= 1 ? "#d1d5db" : "#3b82f6"} 
+                    />
+                  </TouchableOpacity>
+                  
+                  <Text className="mx-3 font-semibold text-lg">{productQuantity}</Text>
+                  
+                  <TouchableOpacity 
+                    onPress={increaseQuantity}
+                    className="p-1"
+                  >
+                    <Ionicons name="add-circle" size={24} color="#3b82f6" />
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
             
@@ -518,7 +555,7 @@ export default function ProductDetails() {
             }`}
             onPress={() => {
               if (priceInfo.isAvailable && currentProduct) {
-                addToCart(currentProduct);
+                addToCart(currentProduct, productQuantity);
               }
             }}
             disabled={!priceInfo.isAvailable}
@@ -534,7 +571,7 @@ export default function ProductDetails() {
             }`}
             onPress={() => {
               if (priceInfo.isAvailable && currentProduct) {
-                addToCart(currentProduct);
+                addToCart(currentProduct, productQuantity);
                 openCart();
               }
             }}
