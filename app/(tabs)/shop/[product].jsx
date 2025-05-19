@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
+import { useCartStore } from '../../../src/store/cartStore';
+import CartDrawer from '../../../src/components/cart/CartDrawer';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +13,17 @@ export default function ProductDetails() {
   const params = useLocalSearchParams();
   const productId = params.product;
   const { fetchProductById, currentProduct, isLoading, error } = useProductStore();
+  const { 
+    addToCart, 
+    cartItems, 
+    isCartOpen, 
+    openCart, 
+    closeCart, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart,
+    getCartItemCount 
+  } = useCartStore();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('rent');
   const [selectedAmcPlan, setSelectedAmcPlan] = useState('basic'); // 'basic' or 'gold'
@@ -250,17 +263,51 @@ export default function ProductDetails() {
   const specifications = currentProduct.specifications || [];
   const keyFeatures = currentProduct.keyFeatures || [];
   const service = currentProduct.productFor?.service;
+  const cartItemCount = getCartItemCount();
+
+  const getPriceInfo = () => {
+    if (!currentProduct?.productFor) return { isAvailable: false };
+    
+    if (activeTab === 'sell' && currentProduct.productFor.sell) {
+      return { isAvailable: true };
+    } 
+    else if (activeTab === 'rent' && currentProduct.productFor.rent) {
+      return { isAvailable: true };
+    }
+    else if (activeTab === 'service' && currentProduct.productFor.service) {
+      return { isAvailable: true };
+    }
+    
+    return { isAvailable: false };
+  };
+
+  const priceInfo = getPriceInfo();
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {/* Cart Drawer */}
+      <CartDrawer 
+        isVisible={isCartOpen}
+        onClose={closeCart}
+        cartItems={cartItems}
+        onClearAll={clearCart}
+        onRemoveItem={removeFromCart}
+        onUpdateQuantity={updateQuantity}
+      />
+      
       {/* Header with back button */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text className="text-lg font-medium">{currentProduct.name}</Text>
-        <TouchableOpacity onPress={() => router.push('/cart')}>
+        <Text className="text-lg font-medium">{currentProduct?.name}</Text>
+        <TouchableOpacity onPress={openCart} className="relative">
           <Ionicons name="cart-outline" size={24} color="black" />
+          {cartItemCount > 0 && (
+            <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center">
+              <Text className="text-white text-xs font-bold">{cartItemCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -464,15 +511,34 @@ export default function ProductDetails() {
       {activeTab !== 'service' && (
         <View className="absolute bottom-0 left-0 right-0 flex-row bg-white border-t border-gray-200 px-4 py-3 shadow-lg">
           <TouchableOpacity 
-            className="flex-1 bg-white border border-blue-500 rounded-md mr-2 items-center justify-center py-3"
-            onPress={() => console.log('Add to cart')}
+            className={`flex-1 border rounded-md mr-2 items-center justify-center py-3 ${
+              priceInfo.isAvailable 
+                ? 'bg-white border-blue-500' 
+                : 'bg-gray-100 border-gray-300'
+            }`}
+            onPress={() => {
+              if (priceInfo.isAvailable && currentProduct) {
+                addToCart(currentProduct);
+              }
+            }}
+            disabled={!priceInfo.isAvailable}
           >
-            <Text className="text-blue-500 font-bold">Add To Cart</Text>
+            <Text className={`font-bold ${priceInfo.isAvailable ? 'text-blue-500' : 'text-gray-400'}`}>
+              Add To Cart
+            </Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="flex-1 bg-blue-500 rounded-md ml-2 items-center justify-center py-3"
-            onPress={() => console.log('Buy now')}
+            className={`flex-1 rounded-md ml-2 items-center justify-center py-3 ${
+              priceInfo.isAvailable ? 'bg-blue-500' : 'bg-gray-300'
+            }`}
+            onPress={() => {
+              if (priceInfo.isAvailable && currentProduct) {
+                addToCart(currentProduct);
+                openCart();
+              }
+            }}
+            disabled={!priceInfo.isAvailable}
           >
             <Text className="text-white font-bold">
               {activeTab === 'rent' ? 'Rent Now' : 'Buy Now'}

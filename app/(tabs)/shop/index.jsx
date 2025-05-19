@@ -2,17 +2,45 @@ import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput 
 import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
-import {useProductStore} from '../../../src/store/productStore';
+import { useProductStore } from '../../../src/store/productStore';
+import { useCartStore } from '../../../src/store/cartStore';
+import CartDrawer from '../../../src/components/cart/CartDrawer';
 
 export default function Shop() {
   const router = useRouter();
   const { fetchProducts, products, isLoading, error } = useProductStore();
+  const { 
+    cartItems, 
+    isCartOpen, 
+    openCart, 
+    closeCart, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart,
+    getCartItemCount,
+    addToCart
+  } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
     fetchProducts();
   }, []);
+  
+  // Add sample items to cart for testing
+  useEffect(() => {
+    // Only add sample items if cart is empty
+    if (cartItems.length === 0) {
+      // Add sample items when products are loaded
+      if (products.length > 0) {
+        // Add first 2 products to cart
+        const sampleProducts = products.slice(0, 2);
+        sampleProducts.forEach(product => {
+          addToCart(product, 1);
+        });
+      }
+    }
+  }, [products]);
   
   // Filter products when search query changes
   useEffect(() => {
@@ -40,16 +68,16 @@ export default function Shop() {
     if (product.productFor.sell) {
       const sell = product.productFor.sell;
       return {
-        price: `${sell.discountPrice.toFixed(2) || sell.actualPrice} AED`,
-        originalPrice: sell.discountPrice.toFixed(2) ? `${sell.actualPrice} AED` : null
+        price: `${sell.discountPrice || sell.actualPrice} AED`,
+        originalPrice: sell.discountPrice ? `${sell.actualPrice} AED` : null
       };
     } 
     // Check if product is for rent
     else if (product.productFor.rent) {
       const rent = product.productFor.rent;
       return {
-        price: `${rent.discountPrice.toFixed(2) || rent.monthlyPrice} AED/month`,
-        originalPrice: rent.discountPrice.toFixed(2) ? `${rent.monthlyPrice} AED/month` : null
+        price: `${rent.discountPrice || rent.monthlyPrice} AED/month`,
+        originalPrice: rent.discountPrice ? `${rent.monthlyPrice} AED/month` : null
       };
     }
     
@@ -79,11 +107,6 @@ export default function Shop() {
         <View className="flex-1 p-3 justify-center relative">
           <View className="flex-row justify-between">
             <Text className="font-semibold text-base ">{item.name}</Text>
-            {/* {item.tagNKeywords && item.tagNKeywords.length > 0 && (
-              <View className=" absolute -top-2 -right-1 bg-green-500 px-2  py-1 rounded ">
-                <Text className="text-white text-xs font-bold">{item.tagNKeywords[0]}</Text>
-              </View>
-            )} */}
           </View>
           
           <View className="flex-row items-center mt-0.5 gap-2">
@@ -106,8 +129,20 @@ export default function Shop() {
     );
   };
 
+  const cartItemCount = getCartItemCount();
+
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {/* Cart Drawer */}
+      <CartDrawer 
+        isVisible={isCartOpen}
+        onClose={closeCart}
+        cartItems={cartItems}
+        onClearAll={clearCart}
+        onRemoveItem={removeFromCart}
+        onUpdateQuantity={updateQuantity}
+      />
+      
       {/* Header with search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
         <View className="flex-1 mx-3 flex-row items-center border border-gray-200 rounded-lg px-3 py-1">
@@ -120,8 +155,13 @@ export default function Shop() {
           <Ionicons name="search" size={20} color="#007AFF" />
         </View>
         
-        <TouchableOpacity onPress={() => router.push('/cart')}>
+        <TouchableOpacity onPress={openCart} className="relative">
           <Ionicons name="cart-outline" size={24} color="black" />
+          {cartItemCount > 0 && (
+            <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center">
+              <Text className="text-white text-xs font-bold">{cartItemCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
