@@ -1,10 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-export default function cart() {
+export default function security() {
   return (
     <View>
-      <Text>cart</Text>
+      <Text>security</Text>
     </View>
   )
 }
