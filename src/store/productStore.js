@@ -67,7 +67,9 @@ export const useProductStore = create((set, get) => ({
   
   // Helper methods
   getProductsByCategory: (categoryId) => {
-    return get().products.filter(product => product.categoryId === categoryId);
+    return get().products.filter(product => 
+      product.category && product.category.categoryId === categoryId
+    );
   },
   
   searchProducts: (query) => {

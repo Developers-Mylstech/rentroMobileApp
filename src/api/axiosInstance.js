@@ -1,12 +1,12 @@
 import axios from 'axios';
 // import { API_BASE_URL, API_TIMEOUT } from '@env';
 import { useAuthStore } from '../store/authStore';
-import { API_URL } from '@env';
+// import { API_URL } from '@env';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
   // Use hardcoded values as fallbacks
-  baseURL: API_URL || "https://x5ham8a7nm5c.share.zrok.io/api/v1",
+  baseURL: "https://x5ham8a7nm5c.share.zrok.io/api/v1" || "https://x5ham8a7nm5c.share.zrok.io/api/v1",
   
   headers: {
     'Content-Type': 'application/json',
