@@ -49,10 +49,8 @@ export default function ProductDetails() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with back button, search and cart */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
+      {/* <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
+      
         
         <View className={`flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1 mx-3`}>
           <TextInput className="text-gray-400 flex-1" placeholder='Search...'></TextInput>
@@ -62,7 +60,7 @@ export default function ProductDetails() {
         <TouchableOpacity onPress={() => router.push('/cart')}>
           <Ionicons name="cart-outline" size={24} color="black" />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <ScrollView className="flex-1 mb-16">
         {/* Product Image Carousel */}

@@ -144,9 +144,9 @@ export default function Shop() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <View className="flex-1 mx-3 flex-row items-center bg-gray-100 rounded-full px-3 py-1">
+        <View className="flex-1 mx-3 flex-row items-center border border-gray-200 rounded-lg px-3 py-1">
           <TextInput className="text-gray-400 flex-1" placeholder='Search for products...'></TextInput>
-          <Ionicons name="search" size={20} color="gray" />
+          <Ionicons name="search" size={20} color="#007AFF" />
         </View>
         
         <TouchableOpacity onPress={() => router.push('/cart')}>
@@ -155,14 +155,14 @@ export default function Shop() {
       </View>
 
       {/* Banner */}
-      <View className="bg-blue-500 mx-4 my-3 rounded-lg p-4">
+      {/* <View className="bg-blue-500 mx-4 my-3 rounded-lg p-4">
         <Text className="text-white font-bold text-lg text-center">Pure Water, Pure Trust - Discover the Perfect Purifier for Every Home.</Text>
         <Image
           source={{ uri: 'https://www.kent.co.in/images/v3/ro-water-purifiers-updated.png' }}
           className="w-full h-28 mt-3"
           resizeMode="contain"
         />
-      </View>
+      </View> */}
 
       {/* Product List */}
       <FlatList
