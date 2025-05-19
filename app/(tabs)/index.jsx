@@ -9,7 +9,7 @@ import CategorySection from '../../src/components/home/CategorySection';
 import ProductGrid from '../../src/components/home/ProductGrid';
 import BannerCarousel from '../../src/components/home/BannerCarousel';
 import { useProductStore } from '../../src/context/ProductStore';
-import { useBannerStore } from '../../src/context/Banner';
+import { useBannerStore } from '../../src/context/BannerStore';
 import ProductSkeleton from '../../src/components/Skeleton/ProductSkeleton';
 import BannerCarouselSkeleton from '../../src/components/Skeleton/BannerCarouselSkeleton';
 
@@ -52,9 +52,18 @@ export default function Home() {
                 >
                     {
                         bannerLoading ? (
+
+
                             <BannerCarouselSkeleton />
+
                         ) : (
-                            <BannerCarousel banners={banners} />
+                            banners.length > 0 ? (
+                                <BannerCarousel banners={banners} />
+                            ) : (
+                                <View className="bg-gray-200 h-40 rounded-lg p-4 flex justify-center items-center">
+                                    <Text>No Banners</Text>
+                                </View>
+                            )
                         )
                     }
                     <CategorySection
@@ -68,11 +77,18 @@ export default function Home() {
                             <Text>{error}</Text>
                         </View>
                     ) : (
-                        <ProductGrid
-                            title="Top Products"
-                            products={products}
-                            onProductPress={handleProductPress}
-                        />
+                        products.length > 0 ? (
+                            <ProductGrid
+                                title="Top Products"
+                                products={products}
+                                onProductPress={handleProductPress}
+                            />
+                        ) : (
+                            <View className="flex-1 items-center justify-center mt-4">
+                                <Text>No Products</Text>
+                            </View>
+                        )
+                        
                     )}
                 </ScrollView>
             </View>
