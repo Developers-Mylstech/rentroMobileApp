@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity,Text } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { Platform } from 'react-native';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 
 export default function Header({ 
   profileImage = "https://randomuser.me/api/portraits/men/1.jpg",
@@ -10,13 +10,8 @@ export default function Header({
   onSearchPress = () => {}
 }) {
   return (
-    <View className={`flex-row justify-between items-center py-3 mb-2 border-gray-200 border-b ${Platform.OS === 'android' ? 'pt-8' : ''}`}>
-      <TouchableOpacity onPress={onProfilePress}>
-        <Image
-          source={{ uri: profileImage }}
-          className="w-10 h-10 rounded-full"
-        />
-      </TouchableOpacity>
+    <View className="flex-row justify-between items-center py-3 mb-2 border-gray-200 border-b">
+      <Text className="text-primary font-bold text-heading-3">Rentro</Text>
 
       <View className="flex-row">
         <TouchableOpacity className="mr-4" onPress={onHeartPress}>

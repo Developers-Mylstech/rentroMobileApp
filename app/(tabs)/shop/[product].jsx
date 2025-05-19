@@ -1,30 +1,20 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, FlatList, Dimensions, TextInput } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Platform } from 'react-native';
+
+// Remove the useNavigation import since we're handling tab visibility in _layout.jsx
 
 const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const router = useRouter();
-  const navigation = useNavigation();
   const params = useLocalSearchParams();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  // Hide bottom tab navigation when this screen is focused
-  useEffect(() => {
-    navigation.setOptions({
-      tabBarStyle: { display: 'none' }
-    });
-    
-    // Restore tab bar when leaving this screen
-    return () => {
-      navigation.setOptions({
-        tabBarStyle: { display: 'flex', paddingBottom: 5, height: 60 }
-      });
-    };
-  }, [navigation]);
+  // Remove the useEffect that was trying to hide the tab bar
+  // We're now handling this in the _layout.jsx file
   
   console.log("Received params:", params);
   
@@ -60,7 +50,9 @@ export default function ProductDetails() {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with back button, search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-       
+        <TouchableOpacity onPress={() => router.back()} className="p-2">
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
         
         <View className={`flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1 mx-3`}>
           <TextInput className="text-gray-400 flex-1" placeholder='Search...'></TextInput>
