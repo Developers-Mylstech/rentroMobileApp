@@ -1,11 +1,17 @@
 import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
 import LinearGradient from 'expo-linear-gradient';
+import {useProductStore} from '../../../src/store/productStore';
 
 export default function Shop() {
   const router = useRouter();
+  const { fetchProducts } = useProductStore();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
   
   // Sample product data with multiple images
   const products = [
