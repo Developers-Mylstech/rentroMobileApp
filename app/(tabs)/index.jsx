@@ -1,6 +1,6 @@
 import { View, ScrollView, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Import components
 import Header from '../../src/components/home/Header';
@@ -9,21 +9,17 @@ import Banner from '../../src/components/home/Banner';
 import CategorySection from '../../src/components/home/CategorySection';
 import ProductGrid from '../../src/components/home/ProductGrid';
 import BannerCarousel from '../../src/components/home/BannerCarousel';
+import { useProductStore } from '../../src/context/ProductContext';
 
 export default function Home() {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(false);
+    const { products, loading, error, fetchProducts } = useProductStore();
 
-    // Pagination dots component
-    const PaginationDots = () => (
-        <View className="flex-row justify-center my-2">
-            <View className="h-2 w-2 rounded-full bg-gray-300 mx-1" />
-            <View className="h-2 w-2 rounded-full bg-gray-300 mx-1" />
-            <View className="h-2 w-2 rounded-full bg-blue-500 mx-1" />
-            <View className="h-2 w-2 rounded-full bg-gray-300 mx-1" />
-        </View>
-    );
+useEffect(()=>{
+    fetchProducts()
+},[]);
 
     return (
         <SafeAreaView className="flex-1 bg-white">
