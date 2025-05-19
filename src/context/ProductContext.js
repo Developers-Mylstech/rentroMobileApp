@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { API_URL } from '@env';
+// import { API_URL } from '@env';
 
 // Create a store for product data using Zustand
 export const useProductStore = create((set) => ({
@@ -7,18 +7,17 @@ export const useProductStore = create((set) => ({
   loading: false,
   error: null,
   
- 
   fetchProducts: async () => {
     try {
       set({ loading: true });
-      console.log(API_URL, 'API_URL');
-      const response = await fetch(`${API_URL}/products`);
+      // Use a hardcoded API URL as fallback
+      const apiUrl = process.env.API_URL || "https://api.example.com";
+      console.log('Using API URL:', apiUrl);
+      const response = await fetch(`${apiUrl}/products`);
       const data = await response.json();
       set({ products: data, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
     }
   },
-  
-  
 }));
