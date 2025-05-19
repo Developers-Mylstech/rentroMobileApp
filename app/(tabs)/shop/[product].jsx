@@ -2,6 +2,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, FlatList
 import React, { useState } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Platform } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -46,7 +47,7 @@ export default function ProductDetails() {
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
        
         
-        <View className="flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1">
+        <View className={`flex-1 flex-row items-center rounded-lg border border-gray-200 px-3 py-1 `}>
           <TextInput className="text-gray-400  flex-1" placeholder='Search...'></TextInput>
           <Ionicons name="search" size={20} color="#007AFF" />
         </View>
