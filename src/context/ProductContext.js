@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { API_URL } from '@env';
+import axios from "axios";
 
 // Create a store for product data using Zustand
 export const useProductStore = create((set) => ({
@@ -12,7 +13,8 @@ export const useProductStore = create((set) => ({
     try {
       set({ loading: true });
       console.log(API_URL, 'API_URL');
-      const response = await fetch(`${API_URL}/products`);
+      const response = await axios.get(`${API_URL}/products`);
+      console.log(response, 'response');
       const data = await response.json();
       set({ products: data, loading: false });
     } catch (error) {
