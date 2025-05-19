@@ -2,156 +2,121 @@ import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput 
 import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
-import LinearGradient from 'expo-linear-gradient';
 import {useProductStore} from '../../../src/store/productStore';
 
 export default function Shop() {
   const router = useRouter();
-  const { fetchProducts } = useProductStore();
+  const { fetchProducts, products, isLoading, error } = useProductStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
     fetchProducts();
   }, []);
   
-  // Sample product data with multiple images
-  const products = [
-    {
-      id: 1,
-      name: 'Kent Supreme Extra',
-      price: '500.00 AED',
-      originalPrice: '600.00 AED',
-      images: [
-        'https://www.kent.co.in/images/png/Grand-New-11076.png',
-        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
-        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png'
-      ],
-      tag: 'NEW',
-      category: 'Water Purifier',
-      rating: 4.5,
-      reviews: 120,
-      description: 'Advanced water purifier with RO technology for clean drinking water.',
-      features: ['RO Purification', 'UV Sterilization', 'Water Saving Technology', '8L Capacity']
-    },
-    {
-      id: 2,
-      name: 'Kent Grand Plus',
-      price: '450.00 AED',
-      originalPrice: '550.00 AED',
-      images: [
-        'https://www.kent.co.in/images/png/KENT-Grand-Star-400x400px.png',
-        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
-        'https://www.kent.co.in/images/png/grand-star-front-view-400x400px.png'
-      ],
-      tag: 'NEW',
-      category: 'Water Purifier',
-      rating: 4.3,
-      reviews: 95,
-      description: 'Compact water purifier with advanced filtration system.',
-      features: ['RO Purification', 'UV Sterilization', '7L Capacity']
-    },
-    {
-      id: 3,
-      name: 'Kent Black Star',
-      price: '600.00 AED',
-      originalPrice: '700.00 AED',
-      images: [
-        'https://www.kent.co.in/images/png/grand-star-black-400x400px.png',
-        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
-        'https://www.kent.co.in/images/png/grand-star-black-front-view-400x400px.png'
-      ],
-      tag: 'NEW',
-      category: 'Premium Water Purifier',
-      rating: 4.7,
-      reviews: 150,
-      description: 'Premium water purifier with elegant design and advanced features.',
-      features: ['RO Purification', 'UV Sterilization', 'Mineral RO Technology', '10L Capacity']
-    },
-    {
-      id: 4,
-      name: 'Kent Sapphire',
-      price: '550.00 AED',
-      originalPrice: '650.00 AED',
-      images: [
-        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
-        'https://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png',
-        'hhttps://www.kent.co.in/images/water-purifiers/ro/sapphire/kent-sapphire-image-400x400.png'
-      ],
-      tag: 'NEW',
-      category: 'Designer Water Purifier',
-      rating: 4.6,
-      reviews: 130,
-      description: 'Designer water purifier with advanced purification technology.',
-      features: ['RO Purification', 'UV Sterilization', 'Designer Look', '9L Capacity']
+  // Filter products when search query changes
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProducts(filtered);
     }
-  ];
+  }, [searchQuery, products]);
 
-  // Function to handle product press - navigate with all product details
+  // Function to handle product press - navigate with product ID
   const handleProductPress = (product) => {
-    console.log(`Navigating to product ${product.id}`);
-    
-    // Navigate to product details with all product data as params
-    router.push({
-      pathname: `/shop/${product.id}`,
-      params: {
-        name: product.name,
-        price: product.price,
-        originalPrice: product.originalPrice,
-        images: JSON.stringify(product.images), // Convert images array to string
-        tag: product.tag,
-        category: product.category,
-        rating: product.rating,
-        reviews: product.reviews,
-        description: product.description,
-        features: JSON.stringify(product.features)
-      }
-    });
+    console.log(`Navigating to product ${product.productId}`);
+    router.push(`/shop/${product.productId}`);
   };
 
-  const renderProductItem = ({ item }) => (
-    <TouchableOpacity 
-      onPress={() => handleProductPress(item)}
-      activeOpacity={0.7}
-      className="flex-row bg-white border border-gray-200 rounded-lg mb-3 overflow-hidden"
-    >
-      <Image 
-        source={{ uri: item.images[0] }} // Use the first image from the array
-        className="w-24 h-24"
-        resizeMode="contain"
-      />
-      
-      <View className="flex-1 p-3 justify-center">
-       <View className="flex-row justify-between">
-         <Text className="font-semibold text-base ">{item.name}</Text>
-        <View className="bg-green-500 px-2 py-1 rounded ">
-          <Text className="text-white text-xs font-bold">{item.tag}</Text>
-        </View>
-       </View>
-        <View className="flex-row items-center mt-0.5  gap-2">
-            <Text className="text-blue-500 text-sm  pr-1 border-r border-gray-200 ">{item?.brand || "Rent Ro"}</Text>
-        <Text className="text-gray-500 rounded-lg  text-sm ">{item.category}</Text>
-        </View>
+  // Function to get price display based on product type
+  const getPriceDisplay = (product) => {
+    if (!product.productFor) return { price: 'N/A', originalPrice: 'N/A' };
+    
+    // Check if product is for sell
+    if (product.productFor.sell) {
+      const sell = product.productFor.sell;
+      return {
+        price: `${sell.discountPrice.toFixed(2) || sell.actualPrice} AED`,
+        originalPrice: sell.discountPrice.toFixed(2) ? `${sell.actualPrice} AED` : null
+      };
+    } 
+    // Check if product is for rent
+    else if (product.productFor.rent) {
+      const rent = product.productFor.rent;
+      return {
+        price: `${rent.discountPrice.toFixed(2) || rent.monthlyPrice} AED/month`,
+        originalPrice: rent.discountPrice.toFixed(2) ? `${rent.monthlyPrice} AED/month` : null
+      };
+    }
+    
+    return { price: 'N/A', originalPrice: 'N/A' };
+  };
 
-        <View className="flex-row items-center mt-1">
-          <Text className="font-bold text-base">{item.price}</Text>
-          <Text className="text-gray-400 text-xs ml-2 line-through">{item.originalPrice}</Text>
+  const renderProductItem = ({ item }) => {
+    const { price, originalPrice } = getPriceDisplay(item);
+    const imageUrl = item.images && item.images.length > 0 
+      ? item.images[0].imageUrl 
+      : 'https://via.placeholder.com/150';
+    
+    return (
+      <TouchableOpacity 
+        onPress={() => handleProductPress(item)}
+        activeOpacity={0.7}
+        className="flex-row bg-white border border-gray-200 rounded-lg mb-3 overflow-hidden"
+      >
+        <View className="flex justify-center items-center">
+          <Image 
+          source={{ uri: imageUrl }}
+          className="w-24 h-24 "
+          resizeMode="contain"
+        />
         </View>
-      </View>
-      <View className="justify-center items-center pr-3">
-        {/* <View className="bg-green-500 px-2 py-1 rounded mb-2">
-          <Text className="text-white text-xs font-bold">{item.tag}</Text>
-        </View> */}
-      </View>
-      
-      
-    </TouchableOpacity>
-  );
+        
+        <View className="flex-1 p-3 justify-center relative">
+          <View className="flex-row justify-between">
+            <Text className="font-semibold text-base ">{item.name}</Text>
+            {/* {item.tagNKeywords && item.tagNKeywords.length > 0 && (
+              <View className=" absolute -top-2 -right-1 bg-green-500 px-2  py-1 rounded ">
+                <Text className="text-white text-xs font-bold">{item.tagNKeywords[0]}</Text>
+              </View>
+            )} */}
+          </View>
+          
+          <View className="flex-row items-center mt-0.5 gap-2">
+            <Text className="text-blue-500 text-sm pr-1 border-r border-gray-200">
+              {item.brand?.name || "Brand"}
+            </Text>
+            <Text className="text-gray-500 rounded-lg text-sm">
+              {item.category?.name || "Category"}
+            </Text>
+          </View>
+
+          <View className="flex-row items-center mt-1">
+            <Text className="font-bold text-base">{price}</Text>
+            {originalPrice && (
+              <Text className="text-gray-400 text-xs ml-2 line-through">{originalPrice}</Text>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with search and cart */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
         <View className="flex-1 mx-3 flex-row items-center border border-gray-200 rounded-lg px-3 py-1">
-          <TextInput className="text-gray-400 flex-1" placeholder='Search for products...'></TextInput>
+          <TextInput 
+            className="text-gray-400 flex-1" 
+            placeholder='Search for products...'
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
           <Ionicons name="search" size={20} color="#007AFF" />
         </View>
         
@@ -160,24 +125,40 @@ export default function Shop() {
         </TouchableOpacity>
       </View>
 
-      {/* Banner */}
-      {/* <View className="bg-blue-500 mx-4 my-3 rounded-lg p-4">
-        <Text className="text-white font-bold text-lg text-center">Pure Water, Pure Trust - Discover the Perfect Purifier for Every Home.</Text>
-        <Image
-          source={{ uri: 'https://www.kent.co.in/images/v3/ro-water-purifiers-updated.png' }}
-          className="w-full h-28 mt-3"
-          resizeMode="contain"
-        />
-      </View> */}
+      {/* Loading and Error states */}
+      {isLoading && (
+        <View className="flex-1 items-center justify-center">
+          <Text>Loading products...</Text>
+        </View>
+      )}
+      
+      {error && (
+        <View className="flex-1 items-center justify-center p-4">
+          <Text className="text-red-500 mb-4">{error}</Text>
+          <TouchableOpacity 
+            className="bg-blue-500 px-4 py-2 rounded-lg"
+            onPress={fetchProducts}
+          >
+            <Text className="text-white font-bold">Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Product List */}
-      <FlatList
-        data={products}
-        renderItem={renderProductItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-        ListFooterComponent={<View style={{ height: 20 }} />} // Add some bottom padding
-      />
+      {!isLoading && !error && (
+        <FlatList
+          data={filteredProducts}
+          renderItem={renderProductItem}
+          keyExtractor={(item) => item.productId.toString()}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center py-10">
+              <Text className="text-gray-500">No products found</Text>
+            </View>
+          }
+          ListFooterComponent={<View style={{ height: 20 }} />}
+        />
+      )}
     </SafeAreaView>
   );
 }
