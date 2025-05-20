@@ -361,7 +361,7 @@ export default function ProductDetails() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 mb-0">
+      <ScrollView className={`flex-1 ${activeTab === 'service' ? 'mb-0' : 'mb-16'}`}>
         {/* Product Image Carousel */}
         <View className="relative bg-white">
           <FlatList

@@ -39,7 +39,7 @@ export default function OrderConfirmation() {
         
         <TouchableOpacity 
           className="border border-blue-500 rounded-lg py-3 px-6 w-full items-center"
-          onPress={() => router.push('/(tabs)/(profile)/orders')}
+          onPress={() => router.push('/(tabs)')}
         >
           <Text className="text-blue-500 font-semibold">VIEW MY ORDERS</Text>
         </TouchableOpacity>
