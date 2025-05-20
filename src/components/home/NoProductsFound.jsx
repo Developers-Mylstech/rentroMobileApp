@@ -1,37 +1,64 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RequestQuotationModal from '../formComponent/RequestQuotationModal';
 
 const NoProductsFound = () => {
   const [showQuotationModal, setShowQuotationModal] = useState(false);
+  const shineAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const shine = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shineAnim, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shineAnim, {
+          toValue: 0,
+          duration: 1000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      ])
+    );
+    
+    shine.start();
+    return () => shine.stop();
+  }, []);
+
+  const colorInterpolation = shineAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#3b82f6', '#186acf'] // From blue-600 to blue-400
+  });
+
+  const scaleInterpolation = shineAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 1.02, 1] // Subtle pulse effect
+  });
 
   return (
-    <View className="flex-1 items-center justify-center p-6 bg-white rounded-lg shadow-sm my-4">
-      {/* Icon instead of image */}
-      <View className="w-24 h-24 mb-6 items-center justify-center bg-gray-100 rounded-full">
-        <Ionicons name="search-outline" size={50} color="#9ca3af" />
-      </View>
-      
-      {/* Message */}
-      <Text className="text-xl font-bold text-center text-gray-800 mb-2">
-        We couldn't find what you're looking for
+    <View className="flex-1 items-center justify-between gap-4 rounded-lg shadow-sm bg-blue-50 p-6">
+      <Text className="text-heading-3 text-center text-gray-500 mb-2 text-sm">
+        Didn't find what you're looking for?
       </Text>
       
-      <Text className="text-base text-center text-gray-600 mb-6">
-        Don't worry! Let us know what you need and we'll help you find it.
-      </Text>
+      <Animated.View style={{ transform: [{ scale: scaleInterpolation }] }}>
+        <TouchableOpacity 
+          className="flex-row items-center justify-center py-3 px-6 rounded-lg"
+          onPress={() => setShowQuotationModal(true)}
+          activeOpacity={0.8}
+          style={{
+            backgroundColor: colorInterpolation,
+          }}
+        >
+          
+          <Text className=" text-white font-bold text-md">Request Quotation</Text>
+        </TouchableOpacity>
+      </Animated.View>
       
-      {/* Request Quotation Button */}
-      <TouchableOpacity 
-        className="flex-row items-center bg-primary py-3 px-6 rounded-lg"
-        onPress={() => setShowQuotationModal(true)}
-      >
-        <Ionicons name="document-text-outline" size={20} color="#fff" />
-        <Text className="ml-2 text-white font-bold">Request Quotation</Text>
-      </TouchableOpacity>
-      
-      {/* Quotation Request Modal */}
       <RequestQuotationModal 
         visible={showQuotationModal}
         onClose={() => setShowQuotationModal(false)}
@@ -41,5 +68,3 @@ const NoProductsFound = () => {
 };
 
 export default NoProductsFound;
-
-
