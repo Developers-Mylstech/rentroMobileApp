@@ -15,7 +15,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { useForm, Controller } from 'react-hook-form';
 import axiosInstance from '../../api/axiosInstance';
-// import Clipboard from '@react-native-clipboard/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const RequestQuotationModal = ({ visible, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -73,7 +73,7 @@ const RequestQuotationModal = ({ visible, onClose }) => {
   };
 
   const copyToClipboard = () => {
-    // Clipboard.setString(quoteRequestId);
+    Clipboard.setString(quoteRequestId);
     Alert.alert('Copied', 'Request ID copied to clipboard!');
   };
 
