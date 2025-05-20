@@ -14,19 +14,20 @@ export default function ProductCard({ item }) {
 
   const router = useRouter();
   return (
-    <Link  href={`/shop/${item.productId}`} >
+    <Link className='border border-gray-100 rounded-lg overflow-hidden'
+  href={`/${item.productId}`} >
       
         <Image
           source={{ uri: imageUrl || 'https://via.placeholder.com/100' }}
           className="w-full h-24"
-          resizeMode="cover"
+          resizeMode="contain"
         />
         <View className="p-2 flex gap-1">
-          <Text className="text-heading-3">{item?.name ? (item.name.length > 10 ? `${item.name.slice(0, 8)}...` : item.name) : category}</Text>
+          <Text className="text-heading-4">{item?.name ? (item.name.length > 10 ? `${item.name.slice(0, 12)}...` : item.name) : category}</Text>
           <Text className="text-subheading text-gray-900 font-light" numberOfLines={2}>
             {description}
           </Text>
-          <Text className="text-heading-3 text-primary">{typeof price === 'string' && price.startsWith('AED') ? `AED ${parseFloat(price.replace('AED', '')).toFixed(2)}` : price}</Text>
+          <Text className="text-heading-3 text-blue-500">{typeof price === 'string' && price.startsWith('AED') ? `AED ${parseFloat(price.replace('AED', '')).toFixed(2)}` : price}</Text>
         </View>
     </Link>
   );

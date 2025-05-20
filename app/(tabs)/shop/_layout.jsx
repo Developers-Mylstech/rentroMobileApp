@@ -2,7 +2,13 @@ import { Stack } from "expo-router";
 
 export default function ShopLayout() {
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerBackTitle: "Back", // For iOS
+        headerBackTitleVisible: true, // Show back title on iOS
+        headerBackVisible: true, // Ensure back button is visible
+      }}
+    >
       <Stack.Screen 
         name="index" 
         options={{ 
@@ -19,15 +25,7 @@ export default function ShopLayout() {
           headerShown: true
         }} 
       />
-      <Stack.Screen 
-        name="[...rest]" 
-        options={{ 
-          headerBackVisible: true,
-          headerBackTitle: "Back",
-          title: "Product Details",
-          headerShown: true
-        }} 
-      />
+      
       
     </Stack>
   );

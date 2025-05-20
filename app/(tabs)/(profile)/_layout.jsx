@@ -1,13 +1,18 @@
 import { Stack } from "expo-router";
 
 export default function ProfileLayout() {
+  const isLoggedIn  = false
   return (
-    <Stack>
+    <Stack screenOptions={{
+        headerShown: false
+      }}
+    >
       <Stack.Screen 
+
         name="index" 
         options={{ 
-          title: "Profile",
-          headerShown: true 
+          title: isLoggedIn ? "Profile" : "Login",
+          headerShown: isLoggedIn ? true : false
         }} 
       />
       <Stack.Screen 

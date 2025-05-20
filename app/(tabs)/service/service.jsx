@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, FlatList } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, Image, TextInput, FlatList } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
@@ -11,108 +11,90 @@ export default function Service() {
   const router = useRouter();
   const { getAllServices, services, isLoading, error } = useServiceStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('list'); 
 
   useEffect(() => {
     getAllServices();
   }, []);
 
   const handleServicePress = (service) => {
-    console.log(`Service selected: ${service.title}`);
-  
     router.push(`/service/${service.ourServiceId}`);
   };
 
   const renderServiceItem = ({ item }) => (
-    <>
-      {viewMode === 'grid' ? (
-        <TouchableOpacity
-          onPress={() => handleServicePress(item)}
-          className="w-[48%] m-1 mb-4 bg-blue-50 rounded-lg overflow-hidden"
-        >
-          <View className=" items-center">
-            <Image
-              source={{ uri: item.image?.imageUrl || 'https://via.placeholder.com/150' }}
-              className="w-full h-32"
-              resizeMode="cover"
-            />
-            <View className="w-full flex gap-2 p-2">
-              <Text className="text-gray-700 text-heading-5">
-                {item.title.split(' ').length > 6 
-                  ? item.title.split(' ').slice(0, 6).join(' ') + '...'
-                  : item.title}
-              </Text>
-              <Text className="text-gray-500 text-xs" numberOfLines={3}>
-                {item.shortDescription.slice(0, 50)}...
-              </Text>
-              <TouchableOpacity 
-                className="flex-row items-center justify-between px-3 py-2 border border-gray-100 bg-white rounded-lg"
-                onPress={() => handleServicePress(item)}
-              >
-                <Text className="text-blue-500 mr-1">View Service</Text>
-                <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity
-          onPress={() => handleServicePress(item)}
-          className="w-full mb-3 bg-blue-50 rounded-lg overflow-hidden"
-        >
-          <View className="flex-row p-4">
-            <Image
-              source={{ uri: item.image?.imageUrl || 'https://via.placeholder.com/150' }}
-              className="w-20 h-20"
-              resizeMode="contain"
-            />
-            <View className="flex-1 ml-4 justify-center gap-1">
-             <Text className="text-black text-heading-5">
-               {item.title.split(' ').length > 10 
-                  ? item.title.split(' ').slice(0, 10).join(' ') + '...'
-                  : item.title}
-              </Text>
-              <Text className="text-gray-500 text-xs" numberOfLines={3}>
-                {item.shortDescription.slice(0, 50)}...
-              </Text>
-              <TouchableOpacity 
-                className="flex-row items-center w-full bg-white px-3 py-1.5 rounded-lg border border-gray-100 self-start"
-                onPress={() => handleServicePress(item)}
-              >
-                <Text className="text-blue-500 mr-1">View Service</Text>
-                <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      )}
-    </>
+    <TouchableOpacity
+      onPress={() => handleServicePress(item)}
+      className={`${viewMode === 'grid' ? 'w-[49%]' : 'w-full'} mb-5 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200`}
+      activeOpacity={0.7}
+    >
+      <View className={viewMode === 'grid' ? 'flex' : 'flex-row'}>
+        <View className={viewMode === 'grid' ? 'w-full' : 'w-1/3 h-32'}>
+          <Image
+            source={{ uri: item.image?.imageUrl || 'https://via.placeholder.com/150' }}
+            className={viewMode === 'grid' ? 'w-full h-44 rounded-t-xl' : 'h-full  w-full aspect-square'}
+            resizeMode="cover"
+          />
+        </View>
+
+
+        <View className={` ${viewMode === 'grid' ? 'flex gap-3 p-3 -mt-2 bg-white rounded-t-xl' : ' p-3 flex-1 bg-white jsustify justify-start gap-1 '}`}>
+          <Text 
+            className="text-gray-800 font-semibold text-base" 
+            numberOfLines={2}
+            ellipsizeMode="tail"
+          >
+            {item.title}
+          </Text>
+
+          <Text 
+            className="text-gray-500 text-sm" 
+            numberOfLines={viewMode === 'grid' ? 2 : 3}
+            ellipsizeMode="tail"
+          >
+            {item.shortDescription}
+          </Text>
+
+         
+
+          {viewMode === 'grid' && (
+            <TouchableOpacity 
+            className="flex-row items-center justify-center bg-blue-50 px-4 py-2.5 rounded-lg"
+            onPress={() => handleServicePress(item)}
+            activeOpacity={0.7}
+          >
+            <Text className="text-blue-600 font-medium text-sm mr-2">View Details</Text>
+            <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
+          </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 
   const renderFooter = () => (
     <LinearGradient
-      colors={['rgba(219, 234, 254, 1)', 'white']}
+      colors={['rgba(219, 234, 254, 0.8)', 'white']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      className="rounded-lg"
+      className="rounded-xl mt-2 mb-6"
       style={{
-        borderRadius: 8,
+        borderRadius: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        shadowRadius: 3,
+        elevation: 3,
       }}
     >
-      <View className="flex-row justify-between items-center p-6 gap-5">
-        <Text className="text-heading-5 text-blue-500 flex-1">
-          Didn't Find What Are You Looking For...??
+      <View className="flex-row justify-between items-center p-6 ">
+        <Text className="text-heading-5 text-blue-600 w-1/2 font-medium">
+          Didn't find what you're looking for?
         </Text>
         <TouchableOpacity
-          className="bg-blue-500 px-3 py-3 rounded-lg"
+          className="bg-blue-600 px-4 py-3 rounded-lg"
           onPress={() => console.log('Request quotation')}
         >
-          <Text className="text-white font-semibold text-subheading">Request Quotation</Text>
+          <Text className="text-white font-semibold text-subheading">Request Quote</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -120,45 +102,33 @@ export default function Service() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 p-5">
-        <View className="flex-row justify-between items-center py-3 mb-2">
-          <Text className="text-gray-800 font-bold text-xl">Explore Our Services</Text>
-          <TouchableOpacity>
-            <Text className="text-blue-500">Search</Text>
-          </TouchableOpacity>
-        </View>
-        <View className="bg-gray-50 border border-gray-200 rounded-lg flex-row items-center px-4 py-2 mb-4">
-          <TextInput
-            placeholder="What are you looking for......"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            className="flex-1 text-gray-700 py-1"
-          />
-          <TouchableOpacity>
-            <Ionicons name="search" size={20} color="#3b82f6" />
-          </TouchableOpacity>
-        </View>
-
-
-        <View className="flex-row justify-between items-center mb-4">
-          <TouchableOpacity className="flex-row items-center justify-center">
-            <Text className="font-bold mr-2">FILTER</Text>
-          </TouchableOpacity>
-
-          <View className="flex-row items-center gap-2">
+      <View className="flex-1 px-5 pt-2">
+        <View className="flex-row justify-between items-center py-4 mb-2">
+          <Text className="text-gray-800 font-bold text-xl">Our Services</Text>
+          <View className="flex-row items-center gap-4">
             <TouchableOpacity
               onPress={() => setViewMode('list')}
-              className={` ${viewMode === 'list' ? 'opacity-100' : 'opacity-50'}`}
+              className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-blue-50' : ''}`}
             >
-              <Ionicons name="list" size={18} color="#000" />
+              <Ionicons name="list" size={18} color={viewMode === 'list' ? "#3b82f6" : "#64748b"} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'opacity-100' : 'opacity-50'}
+              className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-blue-50' : ''}`}
             >
-              <Ionicons name="grid" size={14} color="#000" />
+              <Ionicons name="grid" size={16} color={viewMode === 'grid' ? "#3b82f6" : "#64748b"} />
             </TouchableOpacity>
           </View>
+        </View>
+        
+        <View className="bg-gray-50 border border-gray-200 rounded-xl flex-row items-center px-4 py-3 mb-5">
+          <Ionicons name="search" size={20} color="#64748b" className="mr-2" />
+          <TextInput
+            placeholder="Search services..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            className="flex-1 text-gray-700 ml-2"
+          />
         </View>
 
         {isLoading ? (
@@ -171,10 +141,11 @@ export default function Service() {
           <FlatList
             data={services}
             renderItem={renderServiceItem}
-            keyExtractor={(item) => item.ourServiceId.toString()}
+            keyExtractor={(item,index) => index.toString()}
             numColumns={viewMode === 'grid' ? 2 : 1}
-            key={viewMode} // Force re-render when view mode changes
+            key={viewMode} 
             showsVerticalScrollIndicator={false}
+            columnWrapperStyle={viewMode === 'grid' ? { justifyContent: 'space-between' } : null}
             ListEmptyComponent={<NotFound title={'services'} />}
             ListFooterComponent={renderFooter}
             contentContainerStyle={{ paddingBottom: 20 }}

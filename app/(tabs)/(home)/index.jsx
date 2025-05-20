@@ -3,15 +3,15 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 
 // Import components
-import Header from '../../src/components/home/Header';
-import SearchBar from '../../src/components/home/SearchBar';
-import CategorySection from '../../src/components/home/CategorySection';
-import ProductGrid from '../../src/components/home/ProductGrid';
-import BannerCarousel from '../../src/components/home/BannerCarousel';
-import { useProductStore } from '../../src/context/ProductStore';
-import { useBannerStore } from '../../src/context/BannerStore';
-import ProductSkeleton from '../../src/components/Skeleton/ProductSkeleton';
-import BannerCarouselSkeleton from '../../src/components/Skeleton/BannerCarouselSkeleton';
+import Header from '../../../src/components/home/Header';
+import SearchBar from '../../../src/components/home/SearchBar';
+import CategorySection from '../../../src/components/home/CategorySection';
+import ProductGrid from '../../../src/components/home/ProductGrid';
+import BannerCarousel from '../../../src/components/home/BannerCarousel';
+import { useProductStore } from '../../../src/context/ProductStore';
+import { useBannerStore } from '../../../src/context/BannerStore';
+import ProductSkeleton from '../../../src/components/Skeleton/ProductSkeleton';
+import BannerCarouselSkeleton from '../../../src/components/Skeleton/BannerCarouselSkeleton';
 
 export default function Home() {
     const router = useRouter();
