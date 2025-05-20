@@ -1,10 +1,11 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, FlatList, Dimensions, Switch } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
 import { useCartStore } from '../../../src/store/cartStore';
 import CartDrawer from '../../../src/components/cart/CartDrawer';
+import ProductDetailsSkeleton from '../../../src/components/Skeleton/ProductDetailsSkeleton';
 
 const { width } = Dimensions.get('window');
 
@@ -12,7 +13,7 @@ export default function ProductDetails() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const productId = params.product;
-  const { fetchProductById, currentProduct, isLoading, error } = useProductStore();
+  const { fetchProductById, currentProduct, isLoading, error, clearCurrentProduct } = useProductStore();
   const { 
     addToCart, 
     cartItems, 
@@ -28,12 +29,26 @@ export default function ProductDetails() {
   const [activeTab, setActiveTab] = useState('rent');
   const [selectedAmcPlan, setSelectedAmcPlan] = useState('basic'); // 'basic' or 'gold'
   const [productQuantity, setProductQuantity] = useState(1); // Add quantity state
+  const [localLoading, setLocalLoading] = useState(true);
   
-  useEffect(() => {
+  // Load product data
+  const loadProductData = useCallback(async () => {
     if (productId) {
-      fetchProductById(productId);
+      setLocalLoading(true);
+      await fetchProductById(productId);
+      setLocalLoading(false);
     }
-  }, [productId]);
+  }, [productId, fetchProductById]);
+  
+  // Initial load
+  useEffect(() => {
+    loadProductData();
+    
+    // Clear current product when component unmounts
+    return () => {
+      clearCurrentProduct();
+    };
+  }, [loadProductData]);
 
   // Handle image scroll
   const handleImageScroll = (event) => {
@@ -240,10 +255,11 @@ export default function ProductDetails() {
     );
   };
 
+  // Show skeleton while loading
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <Text>Loading product details...</Text>
+      <SafeAreaView className="flex-1 bg-white">
+        <ProductDetailsSkeleton />
       </SafeAreaView>
     );
   }
@@ -254,7 +270,7 @@ export default function ProductDetails() {
         <Text className="text-red-500 mb-4">{error}</Text>
         <TouchableOpacity 
           className="bg-blue-500 px-4 py-2 rounded-lg"
-          onPress={() => fetchProductById(productId)}
+          onPress={loadProductData}
         >
           <Text className="text-white font-bold">Try Again</Text>
         </TouchableOpacity>
@@ -345,7 +361,7 @@ export default function ProductDetails() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 mb-16">
+      <ScrollView className="flex-1 mb-0">
         {/* Product Image Carousel */}
         <View className="relative bg-white">
           <FlatList
@@ -420,24 +436,25 @@ export default function ProductDetails() {
             <Text className="font-bold text-xl text-gray-800">{currentProduct.name}</Text>
              
             <View className="flex-row items-start mt-1 gap-2">
-              <Text className="text-gray-500 text-sm pr-2 border-r border-gray-200">
+              <Text className="text-gray-500  pr-2 border-r border-gray-200">
                 {currentProduct.category?.name || 'Purifier'}
               </Text>
-              <View className="flex-row flex-wrap gap-1">
+              {/* <View className="flex-row flex-wrap gap-1">
                 {currentProduct.tagNKeywords && currentProduct.tagNKeywords.map((tag, index) => (
                   <Text key={index} className="text-white text-sm font-bold p-[1.5px] bg-blue-500 rounded-md">
                     #{tag}
                   </Text>
                 ))}
-              </View>
-            </View>
-            
-            {/* Brand */}
-            <View className="flex-row items-center mt-1">
-              <Text className="text-blue-500 text-sm">
+              </View> */}
+              <View className="flex-row items-center ">
+              <Text className="text-blue-500 ">
                 {currentProduct.brand?.name || 'Brand'}
               </Text>
             </View>
+            </View>
+            
+   
+            
             
             {/* Price - Only show for Rent and Sell tabs */}
             {activeTab !== 'service' && (

@@ -1,20 +1,20 @@
 import { Stack } from "expo-router";
+import React from "react";
 
 export default function ShopLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: true }}>
       <Stack.Screen 
         name="index" 
         options={{ 
           title: "Shop Products",
-          headerShown: true 
         }} 
       />
       <Stack.Screen 
         name="[product]" 
         options={{ 
           title: "Product Details",
-          headerShown: true
+          animation: "slide_from_right",
         }} 
       />
     </Stack>

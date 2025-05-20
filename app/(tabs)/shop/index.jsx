@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
 import { useCartStore } from '../../../src/store/cartStore';
 import CartDrawer from '../../../src/components/cart/CartDrawer';
+import ShopSkeleton from '../../../src/components/Skeleton/ShopSkeleton';
 
 export default function Shop() {
   const router = useRouter();
@@ -143,61 +144,61 @@ export default function Shop() {
         onUpdateQuantity={updateQuantity}
       />
       
-      {/* Header with search and cart */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <View className="flex-1 mx-3 flex-row items-center border border-gray-200 rounded-lg px-3 py-1">
-          <TextInput 
-            className="text-gray-400 flex-1" 
-            placeholder='Search for products...'
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          <Ionicons name="search" size={20} color="#007AFF" />
-        </View>
-        
-        <TouchableOpacity onPress={openCart} className="relative">
-          <Ionicons name="cart-outline" size={24} color="black" />
-          {cartItemCount > 0 && (
-            <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center">
-              <Text className="text-white text-xs font-bold">{cartItemCount}</Text>
+      {/* Loading and Error states */}
+      {isLoading ? (
+        <ShopSkeleton />
+      ) : (
+        <>
+          {/* Header with search and cart */}
+          <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
+            <View className="flex-1 mx-3 flex-row items-center border border-gray-200 rounded-lg px-3 py-1">
+              <TextInput 
+                className="text-gray-400 flex-1" 
+                placeholder='Search for products...'
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              <Ionicons name="search" size={20} color="#007AFF" />
+            </View>
+            
+            <TouchableOpacity onPress={openCart} className="relative">
+              <Ionicons name="cart-outline" size={24} color="black" />
+              {cartItemCount > 0 && (
+                <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center">
+                  <Text className="text-white text-xs font-bold">{cartItemCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {error && (
+            <View className="flex-1 items-center justify-center p-4">
+              <Text className="text-red-500 mb-4">{error}</Text>
+              <TouchableOpacity 
+                className="bg-blue-500 px-4 py-2 rounded-lg"
+                onPress={fetchProducts}
+              >
+                <Text className="text-white font-bold">Try Again</Text>
+              </TouchableOpacity>
             </View>
           )}
-        </TouchableOpacity>
-      </View>
 
-      {/* Loading and Error states */}
-      {isLoading && (
-        <View className="flex-1 items-center justify-center">
-          <Text>Loading products...</Text>
-        </View>
-      )}
-      
-      {error && (
-        <View className="flex-1 items-center justify-center p-4">
-          <Text className="text-red-500 mb-4">{error}</Text>
-          <TouchableOpacity 
-            className="bg-blue-500 px-4 py-2 rounded-lg"
-            onPress={fetchProducts}
-          >
-            <Text className="text-white font-bold">Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Product List */}
-      {!isLoading && !error && (
-        <FlatList
-          data={filteredProducts}
-          renderItem={renderProductItem}
-          keyExtractor={(item) => item.productId.toString()}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
-          ListEmptyComponent={
-            <View className="flex-1 items-center justify-center py-10">
-              <Text className="text-gray-500">No products found</Text>
-            </View>
-          }
-          ListFooterComponent={<View style={{ height: 20 }} />}
-        />
+          {/* Product List */}
+          {!error && (
+            <FlatList
+              data={filteredProducts}
+              renderItem={renderProductItem}
+              keyExtractor={(item) => item.productId.toString()}
+              contentContainerStyle={{ paddingHorizontal: 16 }}
+              ListEmptyComponent={
+                <View className="flex-1 items-center justify-center py-10">
+                  <Text className="text-gray-500">No products found</Text>
+                </View>
+              }
+              ListFooterComponent={<View style={{ height: 20 }} />}
+            />
+          )}
+        </>
       )}
     </SafeAreaView>
   );
