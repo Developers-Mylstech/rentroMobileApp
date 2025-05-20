@@ -296,6 +296,29 @@ export default function ProductDetails() {
 
   const priceInfo = getPriceInfo();
 
+  // Function to add product to cart with correct type
+  const handleAddToCart = () => {
+    if (priceInfo.isAvailable && currentProduct) {
+      // Determine product type based on active tab
+      const productType = activeTab === 'rent' ? 'RENT' : 'SELL';
+      
+      // Add to cart with correct type
+      addToCart(currentProduct, productQuantity, productType);
+    }
+  };
+
+  // Function to buy/rent now
+  const handleBuyRentNow = () => {
+    if (priceInfo.isAvailable && currentProduct) {
+      // Determine product type based on active tab
+      const productType = activeTab === 'rent' ? 'RENT' : 'SELL';
+      
+      // Add to cart with correct type and open cart
+      addToCart(currentProduct, productQuantity, productType);
+      openCart();
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Cart Drawer */}
@@ -553,11 +576,7 @@ export default function ProductDetails() {
                 ? 'bg-white border-blue-500' 
                 : 'bg-gray-100 border-gray-300'
             }`}
-            onPress={() => {
-              if (priceInfo.isAvailable && currentProduct) {
-                addToCart(currentProduct, productQuantity);
-              }
-            }}
+            onPress={handleAddToCart}
             disabled={!priceInfo.isAvailable}
           >
             <Text className={`font-bold ${priceInfo.isAvailable ? 'text-blue-500' : 'text-gray-400'}`}>
@@ -569,12 +588,7 @@ export default function ProductDetails() {
             className={`flex-1 rounded-md ml-2 items-center justify-center py-3 ${
               priceInfo.isAvailable ? 'bg-blue-500' : 'bg-gray-300'
             }`}
-            onPress={() => {
-              if (priceInfo.isAvailable && currentProduct) {
-                addToCart(currentProduct, productQuantity);
-                openCart();
-              }
-            }}
+            onPress={handleBuyRentNow}
             disabled={!priceInfo.isAvailable}
           >
             <Text className="text-white font-bold">

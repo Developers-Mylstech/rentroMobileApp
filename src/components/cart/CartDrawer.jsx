@@ -1,58 +1,16 @@
-import React, { useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  TouchableOpacity, 
-  FlatList, 
-  Dimensions,
-  Animated,
-  Easing
-} from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Modal from 'react-native-modal';
 
-const { height, width } = Dimensions.get('window');
-
-export default function CartDrawer({ isVisible, onClose, cartItems = [], onClearAll, onRemoveItem, onUpdateQuantity }) {
-  // Animation value for sliding
-  const slideAnim = useRef(new Animated.Value(height)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  
-  // Handle animation when visibility changes
-  useEffect(() => {
-    if (isVisible) {
-      // Animate drawer in
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0, // Fully visible (no offset)
-          duration: 300,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.cubic)
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true
-        })
-      ]).start();
-    } else {
-      // Animate drawer out
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: height,
-          duration: 250,
-          useNativeDriver: true,
-          easing: Easing.in(Easing.cubic)
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true
-        })
-      ]).start();
-    }
-  }, [isVisible, slideAnim, fadeAnim]);
-  
+export default function CartDrawer({ 
+  isVisible, 
+  onClose, 
+  cartItems, 
+  onClearAll, 
+  onRemoveItem, 
+  onUpdateQuantity 
+}) {
   // Calculate total amount
   const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
@@ -72,13 +30,28 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
         {/* Product Details */}
         <View className="flex-1 ml-3">
           <Text className="font-semibold text-base">{item.name}</Text>
-          <Text className="text-blue-500 text-sm">Total: {item.price.toFixed(2)} AED</Text>
+          
+          {/* Product Type Badge */}
+          <View className="flex-row items-center mt-1">
+            <View className={`px-2 py-0.5 rounded-full ${item.productType === 'RENT' ? 'bg-green-100' : 'bg-blue-100'}`}>
+              <Text className={`text-xs font-medium ${item.productType === 'RENT' ? 'text-green-700' : 'text-blue-700'}`}>
+                {item.productType === 'RENT' ? 'RENT' : 'SELL'}
+              </Text>
+            </View>
+            <Text className="text-blue-500 text-sm ml-2">
+              {item.productType === 'RENT' ? `${item.price.toFixed(2)} AED/month` : `${item.price.toFixed(2)} AED`}
+            </Text>
+          </View>
+          
+          <Text className="text-gray-500 text-xs mt-1">
+            Total: {(item.price * item.quantity).toFixed(2)} AED
+          </Text>
         </View>
         
         {/* Quantity Controls */}
         <View className="flex-row items-center">
           <TouchableOpacity 
-            onPress={() => onUpdateQuantity(item.id, item.quantity - 1)}
+            onPress={() => onUpdateQuantity(item.id, item.quantity - 1, item.productType)}
             disabled={item.quantity <= 1}
             className="p-1"
           >
@@ -88,7 +61,7 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
           <Text className="mx-2 font-semibold">{item.quantity}</Text>
           
           <TouchableOpacity 
-            onPress={() => onUpdateQuantity(item.id, item.quantity + 1)}
+            onPress={() => onUpdateQuantity(item.id, item.quantity + 1, item.productType)}
             className="p-1"
           >
             <Ionicons name="add-circle" size={22} color="#3b82f6" />
@@ -97,7 +70,7 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
         
         {/* Remove Button */}
         <TouchableOpacity 
-          onPress={() => onRemoveItem(item.id)}
+          onPress={() => onRemoveItem(item.id, item.productType)}
           className="ml-2"
         >
           <Text className="text-red-500 text-xs">Clear ×</Text>
@@ -105,60 +78,31 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
       </View>
     );
   };
-
-  // Don't render anything if drawer is not visible and fully closed
-  if (!isVisible && fadeAnim._value === 0) return null;
-
+  
   return (
-    <View className="absolute top-0 right-0 bottom-0 left-0 z-50">
-      {/* Background overlay - tap to close */}
-      <Animated.View 
-        style={{ 
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          opacity: fadeAnim
-        }}
-      >
-        <TouchableOpacity 
-          style={{ flex: 1 }}
-          onPress={onClose}
-          activeOpacity={1}
-        />
-      </Animated.View>
-      
-      {/* Bottom Sheet Content */}
-      <Animated.View 
-        className="absolute left-0 right-0 bg-white shadow-xl rounded-t-2xl"
-        style={{ 
-          height: height * 0.7, // 70% of screen height
-          bottom: 0,
-          transform: [{ translateY: slideAnim }],
-          zIndex: 1 // Ensure drawer is above the overlay
-        }}
-      >
-        {/* Handle bar for better UX */}
-        <View className="w-full items-center pt-2 pb-1">
-          <View className="w-16 h-1 bg-gray-300 rounded-full" />
-        </View>
-        
+    <Modal
+      isVisible={isVisible}
+      onBackdropPress={onClose}
+      onBackButtonPress={onClose}
+      swipeDirection="down"
+      onSwipeComplete={onClose}
+      style={{ margin: 0, justifyContent: 'flex-end' }}
+      propagateSwipe={true}
+      backdropOpacity={0.5}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+    >
+      <View className="bg-gray-50 rounded-t-3xl h-[80%]">
         {/* Header */}
-        <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
-          <View className="flex-row items-center">
-            <Text className="text-xl font-bold">Shopping Cart</Text>
-            <Ionicons name="cart" size={20} color="#3b82f6" style={{ marginLeft: 5 }} />
-          </View>
+        <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+          <Text className="text-lg font-bold">Your Cart</Text>
           
-          <View className="flex-row items-center">
-            <TouchableOpacity 
-              onPress={onClearAll}
-              className="mr-4"
-            >
-              <Text className="text-red-500">Clear All</Text>
-            </TouchableOpacity>
+          <View className="flex-row">
+            {cartItems.length > 0 && (
+              <TouchableOpacity onPress={onClearAll} className="mr-4">
+                <Text className="text-red-500">Clear All</Text>
+              </TouchableOpacity>
+            )}
             
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={24} color="black" />
@@ -170,7 +114,7 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
         <FlatList
           data={cartItems}
           renderItem={renderCartItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item, index) => `${item.id}-${item.productType}-${index}`}
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
@@ -182,29 +126,21 @@ export default function CartDrawer({ isVisible, onClose, cartItems = [], onClear
           }
         />
         
-        {/* Footer with Total */}
+        {/* Footer with Total and Checkout */}
         {cartItems.length > 0 && (
-          <View className="p-4 border-t border-gray-200">
-            <View className="flex-row justify-between mb-4">
-              <Text className="text-gray-500">Subtotal:</Text>
-              <Text className="font-semibold">{totalAmount.toFixed(2)} AED</Text>
+          <View className="p-4 border-t border-gray-200 bg-white">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-gray-500">Total Amount:</Text>
+              <Text className="text-lg font-bold">{totalAmount.toFixed(2)} AED</Text>
             </View>
             
-            <TouchableOpacity 
-              className="bg-blue-600 rounded-lg py-3 items-center"
-            >
-              <Text className="text-white font-bold text-center">
-                Checkout ({totalAmount.toFixed(2)} AED)
-              </Text>
+            <TouchableOpacity className="bg-blue-500 py-3 rounded-lg items-center">
+              <Text className="text-white font-bold text-lg">Checkout</Text>
             </TouchableOpacity>
           </View>
         )}
-      </Animated.View>
-    </View>
+      </View>
+    </Modal>
   );
 }
-
-
-
-
 

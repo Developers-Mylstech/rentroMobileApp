@@ -48,37 +48,51 @@ export const useCartStore = create((set, get) => ({
   },
   
   // Actions
-  addToCart: (product, quantity = 1) => {
+  addToCart: (product, quantity = 1, productType = null) => {
     const { cartItems } = get();
-    const existingItem = cartItems.find(item => item.id === product.productId);
+    
+    // Determine product ID - handle both productId and id formats
+    const productId = product.productId || product.id;
+    
+    // Determine product type if not explicitly provided
+    const type = productType || (
+      product.productFor?.sell ? 'SELL' : 
+      product.productFor?.rent ? 'RENT' : 'SELL'
+    );
+    
+    // Find if item already exists in cart with the same product type
+    const existingItem = cartItems.find(item => 
+      item.id === productId && item.productType === type
+    );
     
     let updatedCart;
     
     if (existingItem) {
-      // Update quantity if item already exists
+      // Update quantity if item already exists with same type
       updatedCart = cartItems.map(item => 
-        item.id === product.productId 
+        (item.id === productId && item.productType === type)
           ? { ...item, quantity: item.quantity + quantity } 
           : item
       );
     } else {
-      // Add new item
-      const price = product.productFor?.sell?.discountPrice || 
-                   product.productFor?.sell?.actualPrice ||
-                   product.productFor?.rent?.discountPrice ||
-                   product.productFor?.rent?.monthlyPrice || 0;
+      // Get appropriate price based on product type
+      let price = 0;
+      if (type === 'SELL' && product.productFor?.sell) {
+        price = product.productFor.sell.discountPrice || 
+                product.productFor.sell.actualPrice || 0;
+      } else if (type === 'RENT' && product.productFor?.rent) {
+        price = product.productFor.rent.discountPrice || 
+                product.productFor.rent.monthlyPrice || 0;
+      }
       
-      // Determine product type (SELL or RENT)
-      const productType = product.productFor?.sell ? 'SELL' : 
-                         product.productFor?.rent ? 'RENT' : 'SELL';
-      
+      // Create new cart item
       const newItem = {
-        id: product.productId,
+        id: productId,
         name: product.name,
         price: price,
         quantity: quantity,
         image: product.images && product.images.length > 0 ? product.images[0].imageUrl : null,
-        productType: productType
+        productType: type
       };
       
       updatedCart = [...cartItems, newItem];
@@ -91,9 +105,19 @@ export const useCartStore = create((set, get) => ({
     get().saveCartToStorage(updatedCart);
   },
   
-  removeFromCart: (productId) => {
+  removeFromCart: (productId, productType = null) => {
     const { cartItems } = get();
-    const updatedCart = cartItems.filter(item => item.id !== productId);
+    
+    let updatedCart;
+    if (productType) {
+      // Remove specific product type
+      updatedCart = cartItems.filter(item => 
+        !(item.id === productId && item.productType === productType)
+      );
+    } else {
+      // Remove all instances of product
+      updatedCart = cartItems.filter(item => item.id !== productId);
+    }
     
     // Update state
     set({ cartItems: updatedCart });
@@ -102,18 +126,32 @@ export const useCartStore = create((set, get) => ({
     get().saveCartToStorage(updatedCart);
   },
   
-  updateQuantity: (productId, quantity) => {
+  updateQuantity: (productId, quantity, productType = null) => {
     const { cartItems } = get();
     let updatedCart;
     
     if (quantity <= 0) {
       // Remove item if quantity is 0 or less
-      updatedCart = cartItems.filter(item => item.id !== productId);
+      if (productType) {
+        updatedCart = cartItems.filter(item => 
+          !(item.id === productId && item.productType === productType)
+        );
+      } else {
+        updatedCart = cartItems.filter(item => item.id !== productId);
+      }
     } else {
       // Update quantity
-      updatedCart = cartItems.map(item => 
-        item.id === productId ? { ...item, quantity } : item
-      );
+      updatedCart = cartItems.map(item => {
+        if (productType) {
+          // Update specific product type
+          return (item.id === productId && item.productType === productType) 
+            ? { ...item, quantity } 
+            : item;
+        } else {
+          // Update all instances of product
+          return item.id === productId ? { ...item, quantity } : item;
+        }
+      });
     }
     
     // Update state
