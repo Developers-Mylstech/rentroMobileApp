@@ -12,6 +12,7 @@ import { useProductStore } from '../../src/context/ProductStore';
 import { useBannerStore } from '../../src/context/BannerStore';
 import ProductSkeleton from '../../src/components/Skeleton/ProductSkeleton';
 import BannerCarouselSkeleton from '../../src/components/Skeleton/BannerCarouselSkeleton';
+import NoProductsFound from '../../src/components/home/NoProductsFound';
 
 export default function Home() {
     const router = useRouter();
@@ -90,6 +91,7 @@ export default function Home() {
                         )
                         
                     )}
+                    <NoProductsFound />
                 </ScrollView>
             </View>
         </SafeAreaView>
