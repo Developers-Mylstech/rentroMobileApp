@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
+import { useRouter } from 'expo-router';
 
 export default function CartDrawer({ 
   isVisible, 
@@ -11,6 +12,8 @@ export default function CartDrawer({
   onRemoveItem, 
   onUpdateQuantity 
 }) {
+  const router = useRouter();
+  
   // Calculate total amount
   const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
@@ -134,7 +137,13 @@ export default function CartDrawer({
               <Text className="text-lg font-bold">{totalAmount.toFixed(2)} AED</Text>
             </View>
             
-            <TouchableOpacity className="bg-blue-500 py-3 rounded-lg items-center">
+            <TouchableOpacity 
+              className="bg-blue-500 py-3 rounded-lg items-center"
+              onPress={() => {
+                onClose();
+                router.push('/checkout');
+              }}
+            >
               <Text className="text-white font-bold text-lg">Checkout</Text>
             </TouchableOpacity>
           </View>
