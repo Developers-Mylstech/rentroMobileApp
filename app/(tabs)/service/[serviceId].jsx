@@ -1,0 +1,140 @@
+import { View, Text, SafeAreaView, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native'
+import React, { useEffect } from 'react'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import useServiceStore from '../../../src/context/ServiceStore'
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
+import OurServiceSingleSkeleton from '../../../src/components/Skeleton/OurServiceSingleSkeleton'
+
+export default function SingleService() {
+  const { serviceId } = useLocalSearchParams()
+  const router = useRouter()
+  const { getServiceById, selectedService, isLoading, error } = useServiceStore()
+
+  useEffect(() => {
+    if (serviceId) {
+      getServiceById(serviceId)
+    }
+  }, [serviceId])
+
+  const handleViewProduct = (productId) => {
+    router.push(`/shop/${productId}`)
+  }
+
+  const renderRelatedProduct = ({ item }) => (
+    <View className="mr-4 relative bg-white rounded-lg w-52 border border-gray-100 shadow-sm overflow-hidden">
+      <Image
+        source={{ uri: item.images?.[0]?.imageUrl || 'https://via.placeholder.com/150' }}
+        className="w-full h-32"
+        resizeMode="cover"
+      />
+      <View className="p-3">
+        <Text className="font-medium text-gray-900 mb-1" numberOfLines={1}>{item.name}</Text>
+        <Text className="text-gray-500 text-xs mb-2" numberOfLines={2}>{item.description}</Text>
+      </View>
+        <TouchableOpacity 
+          className=" absolute rounded-full p-1 top-2 right-2 bg-blue-500  items-center"
+          onPress={() => handleViewProduct(item.productId)}
+        >
+          <Ionicons name="eye-outline" size={16} color="white" />
+        </TouchableOpacity>
+    </View>
+  )
+
+  if (isLoading) {
+    return <OurServiceSingleSkeleton />
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 items-center justify-center p-4">
+        <Text>{error}</Text>
+      </View>
+    )
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+        {selectedService ? (
+          <View className="flex-1">
+            <View className="h-72 w-full relative">
+              <Image
+                source={{ uri: selectedService.image?.imageUrl || 'https://via.placeholder.com/400x200' }}
+                className="w-full h-full"
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['rgba(0,0,0,0.7)', 'transparent']}
+                className="absolute left-0 right-0 top-0 h-32"
+              />
+            </View>
+
+            <View className="bg-white rounded-t-3xl -mt-6 px-4 pt-8 pb-12">
+              <Text className="text-heading-2 font-bold text-gray-900 mb-2">{selectedService?.title}</Text>
+              <Text className="text-base text-gray-500 mb-4 leading-6">{selectedService?.shortDescription}</Text>
+
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center">
+                  <Ionicons name="star" size={16} color="#F59E0B" />
+                  <Text className="text-gray-500 text-sm ml-1">4.8 (24 reviews)</Text>
+                </View>
+              </View>
+
+              <View className="h-px bg-gray-200 my-6" />
+
+              <Text className="font-bold text-heading-4 uppercase mb-3">Service Details</Text>
+              <Text className="text-base text-gray-600 mb-6 leading-6">{selectedService?.detailedDescription}</Text>
+
+              {selectedService?.features?.length > 0 && (
+                <View className="mb-8">
+                  <Text className="font-bold text-heading-4 uppercase mb-3">Key Features</Text>
+                  {selectedService?.features?.map((feature, index) => (
+                    <View key={index} className="flex-row mb-4">
+                      <View className="mr-3 mt-1">
+                        <Ionicons name="checkmark-circle" size={20} color="#4B6ED6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-base font-medium text-gray-900 mb-1">{feature?.title}</Text>
+                        {feature.description && (
+                          <Text className="text-sm text-gray-500 leading-5">{feature.description}</Text>
+                        )}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {selectedService?.relatedProducts?.length > 0 && (
+                <View className="mb-6">
+                  <Text className="font-bold text-heading-4 uppercase mb-3">Related Products</Text>
+                  <FlatList
+                    data={selectedService?.relatedProducts}
+                    renderItem={renderRelatedProduct}
+                    keyExtractor={(item,index) => index.toString()}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingVertical: 10 }}
+                  />
+                </View>
+              )}
+            </View>
+          </View>
+        ) : (
+          <View className="flex-1 justify-center items-center p-10">
+            <MaterialIcons name="find-in-page" size={48} color="#9CA3AF" />
+            <Text className="text-gray-500 text-base mt-4 mb-6 text-center">
+              Service information not available
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="bg-blue-500 px-6 py-3 rounded-lg"
+            >
+              <Text className="text-white font-medium">Browse Services</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  )
+}

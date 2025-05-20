@@ -1,0 +1,24 @@
+import { Stack } from "expo-router";
+
+export default function ServiceLayout() {
+  return (
+    <Stack>
+      <Stack.Screen 
+        name="service" 
+        options={{ 
+          title: "Our Services",
+          headerShown: false 
+        }} 
+        />
+      <Stack.Screen 
+        name="[serviceId]" 
+        options={{ 
+          headerBackTitle: "Back",
+          headerBackVisible: true,
+          title: "Service Details",
+          headerShown: true
+        }} 
+      />
+    </Stack>
+  );
+}

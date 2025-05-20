@@ -1,12 +1,10 @@
 import axios from 'axios';
-// import { API_BASE_URL, API_TIMEOUT } from '@env';
 import { useAuthStore } from '../store/authStore';
-// import { API_URL } from '@env';
+const apiUrl = process.env.EXPO_PUBLIC_API_URL
 
-// Create axios instance with default config
 const axiosInstance = axios.create({
-  // Use hardcoded values as fallbacks
-  baseURL: "https://x5ham8a7nm5c.share.zrok.io/api/v1" || "https://x5ham8a7nm5c.share.zrok.io/api/v1",
+
+  baseURL: apiUrl,
   
   headers: {
     'Content-Type': 'application/json',
@@ -14,7 +12,6 @@ const axiosInstance = axios.create({
   }
 });
 
-// Request interceptor for adding auth token
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().user?.token;

@@ -25,8 +25,11 @@ export default function Home() {
         fetchBanners()
     }, []);
 
-    const handleProductPress = (productId) => {
-        router.push(`/product/${productId}`);
+    const handleProductPress = (product) => {
+        router.push({
+            pathname: `/shop/product/${product.productId}`,
+            params: { from: 'home' }
+        });
     };
 
     return (

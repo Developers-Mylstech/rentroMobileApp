@@ -13,10 +13,22 @@ export default function ShopLayout() {
       <Stack.Screen 
         name="[product]" 
         options={{ 
+          headerBackVisible: true,
+          headerBackTitle: "Back",
           title: "Product Details",
           headerShown: true
         }} 
       />
+      <Stack.Screen 
+        name="[...rest]" 
+        options={{ 
+          headerBackVisible: true,
+          headerBackTitle: "Back",
+          title: "Product Details",
+          headerShown: true
+        }} 
+      />
+      
     </Stack>
   );
 }

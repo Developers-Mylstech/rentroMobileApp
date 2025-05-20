@@ -21,7 +21,6 @@ export default function ProductDetails() {
     }
   }, [productId]);
 
-  // Handle image scroll
   const handleImageScroll = (event) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const index = Math.round(scrollPosition / width);
@@ -253,19 +252,8 @@ export default function ProductDetails() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header with back button */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-lg font-medium">{currentProduct.name}</Text>
-        <TouchableOpacity onPress={() => router.push('/cart')}>
-          <Ionicons name="cart-outline" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView className="flex-1 mb-16">
-        {/* Product Image Carousel */}
+      
         <View className="relative bg-white">
           <FlatList
             data={images.length > 0 ? images.map(img => img.imageUrl) : ['https://via.placeholder.com/400']}

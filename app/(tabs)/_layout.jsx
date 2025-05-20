@@ -18,8 +18,7 @@ export default function TabLayout() {
           tabBarStyle: {
             paddingBottom: 5,
             height: 60,
-            // Hide the tab bar on product details pages
-            display: isProductDetailsPage ? 'none' : 'flex',
+           
           },
         }}
       >

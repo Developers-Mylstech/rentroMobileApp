@@ -5,7 +5,7 @@ import ProductCard from './ProductCard';
 export default function ProductGrid({
   title = "Top Products",
   products,
-  onProductPress = () => { }
+
 }) {
 
   const seletecedProducts = products.slice(0, 8);
@@ -22,7 +22,6 @@ export default function ProductGrid({
           <View className="w-[48.5%] m-1">
             <ProductCard
               item={item}
-              onPress={() => onProductPress(item)}
             />
           </View>
         )}
