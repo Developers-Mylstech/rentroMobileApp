@@ -17,6 +17,19 @@ export default function ShopLayout() {
           animation: "slide_from_right",
         }} 
       />
+      <Stack.Screen 
+        name="rent-products" 
+        options={{ 
+          title: "Rent Products",
+        }} 
+      />
+      <Stack.Screen 
+        name="sell-products" 
+        options={{ 
+          title: "Sell Products",
+        }} 
+      />
+     
     </Stack>
   );
 }
