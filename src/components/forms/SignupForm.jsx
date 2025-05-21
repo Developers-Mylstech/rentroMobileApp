@@ -9,24 +9,24 @@ export default function SignupForm({ onVerifyRequest, setEmail }) {
   const { singup, error: authError, isLoading, clearError } = useAuthStore()
   const [formError, setFormError] = useState(null)
   
-  // Copy auth store error to local state
+ 
   useEffect(() => {
     if (authError) {
       setFormError(authError)
-      clearError() // Clear the global error
+      clearError() 
     }
   }, [authError])
 
   const onSubmit = async (data) => {
-    setFormError(null) // Clear previous errors
+    setFormError(null)
     
     const payload = {
       name: data.fullName,
-      email: data.email,
+      email: data.email.toLowerCase(),
       phone: data.mobile,
       password: data.password || 'string'
     }
-    setEmail(data.email)
+    setEmail(data.email.toLowerCase())
 
     const res = await singup(payload)
     if (res?.status === 200 || res?.status === 201) {
@@ -87,9 +87,10 @@ export default function SignupForm({ onVerifyRequest, setEmail }) {
                   className="flex-1 text-gray-700 ml-2 py-2 h-10"
                   placeholder="Enter your email"
                   value={value}
-                  onChangeText={onChange}
+                  onChangeText={(text) => onChange(text.toLowerCase())}
                   onBlur={onBlur}
                   keyboardType="email-address"
+                  autoCapitalize="none"
                 />
               </View>
             )}
@@ -104,7 +105,13 @@ export default function SignupForm({ onVerifyRequest, setEmail }) {
           <Controller
             control={control}
             name="mobile"
-            rules={{ required: 'Mobile number is required' }}
+            rules={{ 
+              required: 'Mobile number is required',
+              pattern: {
+                value: /^(\+91|0091|0)?[6-9]\d{9}$|^(\+971|00971|0)?5\d{8}$/,
+                message: 'Please enter a valid Indian or UAE mobile number'
+              }
+            }}
             render={({ field: { onChange, value, onBlur } }) => (
               <View className="flex-row items-center border border-gray-200 rounded-lg px-3 py-2">
                 <Ionicons name="call-outline" size={20} color="#64748b" className="mr-2" />

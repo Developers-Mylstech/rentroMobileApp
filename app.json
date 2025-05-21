@@ -4,7 +4,7 @@
     "slug": "rentroApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/rentro.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
@@ -12,7 +12,7 @@
       "expo-secure-store"
     ],
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "../assets/rentro.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -33,7 +33,7 @@
     },
     "web": {
       "bundler": "metro",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/rentro.png"
     },
     "extra": {
       "router": {},

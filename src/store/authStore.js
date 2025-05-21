@@ -87,6 +87,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   initAuth: async () => {
+    
     try {
       set({ isLoadingAuth: true });
       const token = await SecureStore.getItemAsync('auth_token');

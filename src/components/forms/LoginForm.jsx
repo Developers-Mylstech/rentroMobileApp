@@ -19,9 +19,9 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
   const onSubmit = async (data) => {
     setFormError(null)
     const payload = {
-      email: data.email
+      email: data?.email?.toLowerCase()
     }
-    setEmail(data.email)
+    setEmail(data?.email?.toLowerCase())
     const res = await login(payload)
     if (res?.status === 200 || res?.status === 201) {
       onVerifyRequest()

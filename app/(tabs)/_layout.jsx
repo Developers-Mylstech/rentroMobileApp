@@ -1,18 +1,43 @@
+
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../src/store/authStore";
 import * as SecureStore from 'expo-secure-store';
-import { useEffect } from "react";
-import { View, ActivityIndicator, Text } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 import LottieView from "lottie-react-native";
+import SplashScreen from "../../src/components/widget/SplashScreen";
 
 export default function TabLayout() {
-  const { isAuthenticated, initAuth, isLoadingAuth } = useAuthStore()
+  const { isAuthenticated, initAuth, isLoadingAuth } = useAuthStore();
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
 
   useEffect(() => {
+    
     initAuth();
+    checkFirstVisit();
   }, []);
 
+  const checkFirstVisit = async () => {
+    try {
+      const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+  
+      if (!hasVisited) {
+        await AsyncStorage.setItem('hasVisitedBefore', 'true');
+      } else {
+        setIsFirstVisit(false);
+      }
+    } catch (error) {
+      console.log('Error checking first visit:', error);
+      setIsFirstVisit(false);
+    }
+  };
+
+  const handleSplashComplete = () => {
+    setIsFirstVisit(false);
+  };
+ 
   if (isLoadingAuth) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -23,15 +48,17 @@ export default function TabLayout() {
           style={{ height: 100, width: 100 }}
         />
         <Text className="text-gray-900 uppercase text-xs font-bold my-2 animate-pulse">Loading ...</Text>
-
       </View>
     );
+  }
+
+   if (isFirstVisit) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   return (
     <Tabs
       screenOptions={{
-
         tabBarActiveTintColor: "#3b82f6",
         tabBarInactiveTintColor: "#64748b",
         headerShown: false,
@@ -41,7 +68,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(home)"
         options={{
-
           title: "Home",
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={20} color={color} />
@@ -69,16 +95,13 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="(profile)"
-
         options={{
-
           title: isAuthenticated ? "Profile" : "Login",
           tabBarIcon: ({ color }) => (
             <Ionicons name={isAuthenticated ? "person-sharp" : "lock-closed"} size={20} color={color} />
           ),
         }}
       />
-
     </Tabs>
   );
 }

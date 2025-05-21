@@ -13,6 +13,7 @@ import ProductSkeleton from '../../../src/components/Skeleton/ProductSkeleton';
 import BannerCarouselSkeleton from '../../../src/components/Skeleton/BannerCarouselSkeleton';
 import { useProductStore } from '../../../src/store/productStore';
 import { useBannerStore } from '../../../src/store/BannerStore';
+import SplashScreen from '../../../src/components/widget/SplashScreen';
 
 export default function Home() {
     const router = useRouter();
@@ -35,6 +36,7 @@ export default function Home() {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
+            
             <View className="flex-1 p-5">
                 <Header
                     onProfilePress={() => router.push('/profile')}
@@ -97,5 +99,6 @@ export default function Home() {
                 </ScrollView>
             </View>
         </SafeAreaView>
+        
     );
 }
