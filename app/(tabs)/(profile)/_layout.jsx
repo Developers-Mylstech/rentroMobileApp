@@ -4,13 +4,15 @@ export default function ProfileLayout() {
   const isLoggedIn  = false
   return (
     <Stack screenOptions={{
-        headerShown: false
+        headerShown: false,
+      
       }}
     >
       <Stack.Screen 
 
         name="index" 
         options={{ 
+
           title: isLoggedIn ? "Profile" : "Login",
           headerShown: isLoggedIn ? true : false
         }} 

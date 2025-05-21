@@ -7,16 +7,17 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+      
         tabBarActiveTintColor: "#3b82f6",
         tabBarInactiveTintColor: "#64748b",
         headerShown: false,
         tabBarStyle: { paddingBottom: 5, height: 60 },
       }}
     >
-      {/* Always visible tabs */}
       <Tabs.Screen
         name="(home)"
         options={{
+          
           title: "Home",
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={20} color={color} />
@@ -44,8 +45,9 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="(profile)"
-        
+      
         options={{
+          
           title: isLoggedIn ? "Profile" : "Login",
           tabBarIcon: ({ color }) => (
             <Ionicons name={isLoggedIn ? "person-sharp" : "lock-closed"} size={20} color={color} />

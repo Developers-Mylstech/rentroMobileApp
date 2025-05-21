@@ -83,7 +83,6 @@ export default function index() {
     //   </View>
     // </ScrollView >
     <>
-  
 
     <Login/>
     </>
