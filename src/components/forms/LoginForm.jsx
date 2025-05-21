@@ -93,7 +93,7 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
         <View className="flex-1 h-0.5 bg-gray-200" />
       </View>
 
-      <View className="space-y-4">
+      <View className="flex gap-3">
         <TouchableOpacity 
           className="flex-row items-center justify-center border border-gray-300 rounded-xl p-3.5"
           onPress={handleGoogleLogin}

@@ -3,24 +3,31 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../src/store/authStore";
 import * as SecureStore from 'expo-secure-store';
 import { useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Text } from "react-native";
+import LottieView from "lottie-react-native";
 
 export default function TabLayout() {
-  const { isAuthenticated, initAuth, isLoading } = useAuthStore()
+  const { isAuthenticated, initAuth, isLoadingAuth } = useAuthStore()
 
   useEffect(() => {
-    // Initialize authentication when the app starts
     initAuth();
   }, []);
-  
-  // if (isLoading) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //       <ActivityIndicator size="large" color="#3b82f6" />
-  //     </View>
-  //   );
-  // }
-  
+
+  if (isLoadingAuth) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <LottieView
+          source={require('../../assets/Lotties/waterloading.json')}
+          autoPlay
+          loop
+          style={{ height: 100, width: 100 }}
+        />
+        <Text className="text-gray-900 uppercase text-xs font-bold my-2 animate-pulse">Loading ...</Text>
+
+      </View>
+    );
+  }
+
   return (
     <Tabs
       screenOptions={{

@@ -5,6 +5,7 @@ import LottieView from 'lottie-react-native'
 import LoginForm from './forms/LoginForm'
 import SignupForm from './forms/SignupForm'
 import OtpModal from './modals/OtpModal'
+import { LinearGradient } from 'expo-linear-gradient'
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState('login')
@@ -15,13 +16,18 @@ export default function Login() {
   }
 
   return (
-    <View className="flex-1 bg-blue-100">
+    <LinearGradient
+      colors={['white', '#C6DEF1']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+     style={{ flex: 1 }}
+    >
       <View className="w-full flex items-center justify-center h-1/3">
         <LottieView
           source={require('../../assets/Lotties/login.json')}
           autoPlay
           loop
-          style={{ height: 200, width: 200 }}
+          style={{ height: 230, width: 230 }}
         />
       </View>
 
@@ -56,7 +62,7 @@ export default function Login() {
         visible={otpModalVisible} 
         onClose={() => setOtpModalVisible(false)} 
       />
-    </View>
+    </LinearGradient>
   )
 }
 
