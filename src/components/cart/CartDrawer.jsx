@@ -122,13 +122,17 @@ export default function CartDrawer({
   return (
     <Modal
       isVisible={isVisible}
-      onBackdropPress={onClose}
-      onBackButtonPress={onClose}
-      animationIn="slideInRight"
-      animationOut="slideOutRight"
-      style={{ margin: 0, justifyContent: 'flex-end', alignItems: 'flex-end' }}
+  onBackdropPress={onClose}
+  onBackButtonPress={onClose}
+  animationIn="slideInUp"
+  animationOut="slideOutDown"
+  swipeDirection="down"
+  onSwipeComplete={onClose}
+  style={{ margin: 0, justifyContent: 'flex-end', alignItems: 'center' }}
+      // style={{ margin: 0, justifyContent: 'flex-end', alignItems: 'flex-end' }}
+      className=""
     >
-      <View className="bg-white h-full w-[85%] shadow-xl">
+      <View className="bg-white h-[70%] w-[100%] shadow-xl rounded-t-2xl">
         {/* Header */}
         <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
           <Text className="text-lg font-bold">Your Cart ({totalItems})</Text>
@@ -171,18 +175,13 @@ export default function CartDrawer({
             </View>
             
             <View className="flex-row">
-              <TouchableOpacity 
-                className="flex-1 bg-red-500 py-3 rounded-md mr-2 items-center"
-                onPress={clearCart}
-              >
-                <Text className="text-white font-medium">Clear All</Text>
-              </TouchableOpacity>
+             
               
               <TouchableOpacity 
                 className="flex-1 bg-blue-500 py-3 rounded-md items-center"
                 onPress={() => {
                   onClose();
-                  router.push('/checkout');
+                  router.push('/(tabs)/shop/checkout');
                 }}
               >
                 <Text className="text-white font-medium">Checkout</Text>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, Switch, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCartStore } from '../src/store/cartStore';
+import  useCartStore  from '../../../src/store/cartStore';
 
 export default function Checkout() {
   const router = useRouter();
@@ -709,13 +709,7 @@ export default function Checkout() {
         className="flex-1"
       >
         {/* Header */}
-        <View className="flex-row items-center justify-center px-4 py-3 border-b border-gray-200">
-          {/* <TouchableOpacity onPress={handleBack}>
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity> */}
-          <Text className="font-bold text-lg">Checkout</Text>
-          <View style={{ width: 24 }} />
-        </View>
+       
         
         {/* Progress Bar */}
         {renderProgressBar()}

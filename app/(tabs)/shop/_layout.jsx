@@ -29,6 +29,13 @@ export default function ShopLayout() {
           title: "Sell Products",
         }} 
       />
+
+       <Stack.Screen 
+        name="checkout" 
+        options={{ 
+          title: "Checkout",
+        }} 
+      />
      
     </Stack>
   );
