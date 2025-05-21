@@ -1,11 +1,24 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, SafeAreaView, FlatList, Dimensions, Switch } from 'react-native';
+import { 
+  View, 
+  Text, 
+  Image, 
+  ScrollView, 
+  TouchableOpacity, 
+  SafeAreaView, 
+  Switch,
+  ActivityIndicator,
+  Dimensions,
+  FlatList
+
+} from 'react-native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
-import { useCartStore } from '../../../src/store/cartStore';
+import  useCartStore  from '../../../src/store/cartStore';
 import CartDrawer from '../../../src/components/cart/CartDrawer';
 import ProductDetailsSkeleton from '../../../src/components/Skeleton/ProductDetailsSkeleton';
+import CartNotificationDialog from '../../../src/components/common/CartNotificationDialog';
 
 const { width } = Dimensions.get('window');
 
@@ -30,6 +43,24 @@ export default function ProductDetails() {
   const [selectedAmcPlan, setSelectedAmcPlan] = useState('basic'); // 'basic' or 'gold'
   const [productQuantity, setProductQuantity] = useState(1); // Add quantity state
   const [localLoading, setLocalLoading] = useState(true);
+  
+  // Dialog state should be inside the component
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogProps, setDialogProps] = useState({
+    title: '',
+    message: '',
+    type: 'success',
+    actionText: 'OK',
+    onAction: null,
+    secondaryActionText: null,
+    onSecondaryAction: null
+  });
+
+  // Function to show dialog
+  const showDialog = (props) => {
+    setDialogProps(props);
+    setDialogVisible(true);
+  };
   
   // Load product data
   const loadProductData = useCallback(async () => {
@@ -196,7 +227,11 @@ export default function ProductDetails() {
               ? 'bg-blue-500' 
               : 'bg-gray-300'
           }`}
-          onPress={() => console.log(`Book ${title}`)}
+          onPress={() => {
+            if (isAvailable && (!isAmc || isSelectedAmc)) {
+              handleBookService(title, isAmc, selectedAmcPlan);
+            }
+          }}
           disabled={!isAvailable || (isAmc && !isSelectedAmc)}
         >
           <Text className="text-white font-bold">
@@ -316,10 +351,69 @@ export default function ProductDetails() {
   const handleAddToCart = () => {
     if (priceInfo.isAvailable && currentProduct) {
       // Determine product type based on active tab
-      const productType = activeTab === 'rent' ? 'RENT' : 'SELL';
+      const productType = activeTab === 'rent' ? 'RENT' : 
+                          activeTab === 'sell' ? 'SELL' : 
+                          activeTab === 'service' ? 'SERVICE' : 'SELL';
       
-      // Add to cart with correct type
-      addToCart(currentProduct, productQuantity, productType);
+      // Show loading dialog
+      showDialog({
+        title: 'Adding to Cart',
+        message: 'Please wait while we add this item to your cart...',
+        type: 'loading'
+      });
+      
+      // Create simplified payload for cart API
+      const payload = {
+        productId: currentProduct.productId,
+        productType: productType,
+        quantity: productQuantity || 1
+      };
+      
+      // If it's a rent product, add rentPeriod
+      // if (productType === 'RENT' && currentProduct.productFor?.rent) {
+      //   payload.rentPeriod = currentProduct.productFor.rent.rentPeriod || 30; // Default to 30 days
+      // }
+      
+      // // If it's a sell product, rename quantity to sellQuantity if needed
+      // if (productType === 'SELL') {
+      //   payload.sellQuantity = payload.quantity;
+      //   // Keep quantity for the API
+      // }
+      
+      // If it's a service, add service type
+      if (productType === 'SERVICE') {
+        payload.serviceType = activeServiceType || 'ots';
+      }
+      
+      console.log('Adding to cart with payload:', payload);
+      
+      // Add to cart with the payload
+      addToCart(payload)
+        .then(() => {
+          // Show success dialog
+          showDialog({
+            title: 'Added to Cart',
+            message: `${currentProduct.name} has been added to your cart`,
+            type: 'success',
+            actionText: 'Continue Shopping'
+          });
+        })
+        .catch(error => {
+          console.error('Error adding to cart:', error);
+          // Show error dialog with more detailed error message
+          const errorMessage = error.response?.data?.message || 
+                              error.message || 
+                              'Please try again later';
+          
+          showDialog({
+            title: 'Failed to Add',
+            message: errorMessage,
+            type: 'error',
+            actionText: 'Try Again',
+            onAction: () => handleAddToCart(),
+            secondaryActionText: 'Cancel'
+          });
+        });
     }
   };
 
@@ -329,10 +423,111 @@ export default function ProductDetails() {
       // Determine product type based on active tab
       const productType = activeTab === 'rent' ? 'RENT' : 'SELL';
       
-      // Add to cart with correct type and open cart
-      addToCart(currentProduct, productQuantity, productType);
-      openCart();
+      // Show loading dialog
+      showDialog({
+        title: activeTab === 'rent' ? 'Processing Rental' : 'Processing Purchase',
+        message: 'Please wait while we process your request...',
+        type: 'loading'
+      });
+      
+      // Create simplified payload for cart API
+      const payload = {
+        productId: currentProduct.productId,
+        productType: productType,
+        quantity: productQuantity || 1
+      };
+      
+      // If it's a rent product, add rentPeriod
+      // if (productType === 'RENT' && currentProduct.productFor?.rent) {
+      //   payload.rentPeriod = currentProduct.productFor.rent.rentPeriod || 30; // Default to 30 days
+      // }
+      
+      // Add to cart with the payload and open cart
+      addToCart(payload)
+        .then(() => {
+          // Close dialog and open cart
+          setDialogVisible(false);
+          openCart();
+        })
+        .catch(error => {
+          // Show error dialog
+          const errorMessage = error.response?.data?.message || 
+                              error.message || 
+                              'Please try again later';
+          
+          showDialog({
+            title: 'Failed to Process',
+            message: errorMessage,
+            type: 'error',
+            actionText: 'Try Again',
+            onAction: () => handleBuyRentNow(),
+            secondaryActionText: 'Cancel'
+          });
+        });
     }
+  };
+
+  // Function to book service
+  const handleBookService = (title, isAmc, selectedAmcPlan) => {
+    // Show loading dialog
+    showDialog({
+      title: 'Booking Service',
+      message: 'Please wait while we process your service booking...',
+      type: 'loading'
+    });
+    
+    // Determine the correct service type
+    let serviceType = 'ots'; // Default to one-time service
+    
+    if (isAmc) {
+      serviceType = selectedAmcPlan === 'basic' ? 'amcBasic' : 'amcGold';
+    } else {
+      // Check if this is an MMC service
+      if (title.toLowerCase().includes('monthly') || title.toLowerCase().includes('mmc')) {
+        serviceType = 'mmc';
+      }
+    }
+    
+    // Create simplified payload for cart API
+    const payload = {
+      productId: currentProduct.id,
+      productType: 'SERVICE',
+      quantity: 1,
+      serviceType: serviceType
+    };
+    
+    // Add to cart with service type
+    addToCart(payload)
+      .then(() => {
+        // Show success dialog with option to view cart
+        showDialog({
+          title: 'Service Booked',
+          message: `${title} has been added to your cart`,
+          type: 'success',
+          actionText: 'View Cart',
+          onAction: () => {
+            setDialogVisible(false);
+            openCart();
+          },
+          secondaryActionText: 'Continue Shopping',
+          onSecondaryAction: () => setDialogVisible(false)
+        });
+      })
+      .catch(error => {
+        // Show error dialog
+        const errorMessage = error.response?.data?.message || 
+                            error.message || 
+                            'Please try again later';
+        
+        showDialog({
+          title: 'Booking Failed',
+          message: errorMessage,
+          type: 'error',
+          actionText: 'Try Again',
+          onAction: () => handleBookService(title, isAmc, selectedAmcPlan),
+          secondaryActionText: 'Cancel'
+        });
+      });
   };
 
   return (
@@ -594,7 +789,7 @@ export default function ProductDetails() {
                 : 'bg-gray-100 border-gray-300'
             }`}
             onPress={handleAddToCart}
-            disabled={!priceInfo.isAvailable}
+            disabled={!priceInfo.isAvailable || dialogVisible}
           >
             <Text className={`font-bold ${priceInfo.isAvailable ? 'text-blue-500' : 'text-gray-400'}`}>
               Add To Cart
@@ -606,7 +801,7 @@ export default function ProductDetails() {
               priceInfo.isAvailable ? 'bg-blue-500' : 'bg-gray-300'
             }`}
             onPress={handleBuyRentNow}
-            disabled={!priceInfo.isAvailable}
+            disabled={!priceInfo.isAvailable || dialogVisible}
           >
             <Text className="text-white font-bold">
               {activeTab === 'rent' ? 'Rent Now' : 'Buy Now'}
@@ -614,6 +809,13 @@ export default function ProductDetails() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Cart Notification Dialog */}
+      <CartNotificationDialog
+        visible={dialogVisible}
+        onClose={() => setDialogVisible(false)}
+        {...dialogProps}
+      />
     </SafeAreaView>
   );
 }

@@ -1,234 +1,220 @@
 import { create } from 'zustand';
-import { Platform } from 'react-native';
 import axiosInstance from '../api/axiosInstance';
-import { useAuthStore } from './authStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Storage key for cart items
-const CART_STORAGE_KEY = 'rentro_cart_items';
-
-// Simple in-memory storage as fallback
-const memoryStorage = {
-  _data: {},
-  getItem(key) {
-    return this._data[key] || null;
-  },
-  setItem(key, value) {
-    this._data[key] = value;
-  },
-  removeItem(key) {
-    delete this._data[key];
-  }
-};
-
-export const useCartStore = create((set, get) => ({
-  // State
+const useCartStore = create((set, get) => ({
   cartItems: [],
+  loading: false,
+  error: null,
+  totalItems: 0,
+  totalAmount: 0,
   isCartOpen: false,
-  isLoading: false,
-  
-  // Initialize cart from storage
-  initCart: () => {
+
+  addToCart: async (item) => {
+    set({ loading: true, error: null });
+    
     try {
-      const storedCart = memoryStorage.getItem(CART_STORAGE_KEY);
-      if (storedCart) {
-        set({ cartItems: JSON.parse(storedCart) });
-      }
-    } catch (error) {
-      console.error('Failed to load cart from storage:', error);
-    }
-  },
-  
-  // Save cart to storage
-  saveCartToStorage: (cartItems) => {
-    try {
-      memoryStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-    } catch (error) {
-      console.error('Failed to save cart to storage:', error);
-    }
-  },
-  
-  // Actions
-  addToCart: (product, quantity = 1, productType = null) => {
-    const { cartItems } = get();
-    
-    // Determine product ID - handle both productId and id formats
-    const productId = product.productId || product.id;
-    
-    // Determine product type if not explicitly provided
-    const type = productType || (
-      product.productFor?.sell ? 'SELL' : 
-      product.productFor?.rent ? 'RENT' : 'SELL'
-    );
-    
-    // Find if item already exists in cart with the same product type
-    const existingItem = cartItems.find(item => 
-      item.id === productId && item.productType === type
-    );
-    
-    let updatedCart;
-    
-    if (existingItem) {
-      // Update quantity if item already exists with same type
-      updatedCart = cartItems.map(item => 
-        (item.id === productId && item.productType === type)
-          ? { ...item, quantity: item.quantity + quantity } 
-          : item
-      );
-    } else {
-      // Get appropriate price based on product type
-      let price = 0;
-      if (type === 'SELL' && product.productFor?.sell) {
-        price = product.productFor.sell.discountPrice || 
-                product.productFor.sell.actualPrice || 0;
-      } else if (type === 'RENT' && product.productFor?.rent) {
-        price = product.productFor.rent.discountPrice || 
-                product.productFor.rent.monthlyPrice || 0;
-      }
+      // Set token in headers for this request
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
       
-      // Create new cart item
-      const newItem = {
-        id: productId,
-        name: product.name,
-        price: price,
-        quantity: quantity,
-        image: product.images && product.images.length > 0 ? product.images[0].imageUrl : null,
-        productType: type
-      };
+      // Create the simplified payload
+   
+      // Use the correct endpoint
+      const response = await axiosInstance.post('/carts/items', item);
       
-      updatedCart = [...cartItems, newItem];
-    }
-    
-    // Update state
-    set({ cartItems: updatedCart });
-    
-    // Save to storage
-    get().saveCartToStorage(updatedCart);
-  },
-  
-  removeFromCart: (productId, productType = null) => {
-    const { cartItems } = get();
-    
-    let updatedCart;
-    if (productType) {
-      // Remove specific product type
-      updatedCart = cartItems.filter(item => 
-        !(item.id === productId && item.productType === productType)
-      );
-    } else {
-      // Remove all instances of product
-      updatedCart = cartItems.filter(item => item.id !== productId);
-    }
-    
-    // Update state
-    set({ cartItems: updatedCart });
-    
-    // Save to storage
-    get().saveCartToStorage(updatedCart);
-  },
-  
-  updateQuantity: (productId, quantity, productType = null) => {
-    const { cartItems } = get();
-    let updatedCart;
-    
-    if (quantity <= 0) {
-      // Remove item if quantity is 0 or less
-      if (productType) {
-        updatedCart = cartItems.filter(item => 
-          !(item.id === productId && item.productType === productType)
-        );
-      } else {
-        updatedCart = cartItems.filter(item => item.id !== productId);
-      }
-    } else {
-      // Update quantity
-      updatedCart = cartItems.map(item => {
-        if (productType) {
-          // Update specific product type
-          return (item.id === productId && item.productType === productType) 
-            ? { ...item, quantity } 
-            : item;
-        } else {
-          // Update all instances of product
-          return item.id === productId ? { ...item, quantity } : item;
-        }
+      // After successful add, fetch the cart again to get updated data
+      await get().fetchCartItems();
+
+      return response.data;
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to add item to cart',
+        loading: false 
       });
+      throw error;
     }
-    
-    // Update state
-    set({ cartItems: updatedCart });
-    
-    // Save to storage
-    get().saveCartToStorage(updatedCart);
   },
+
+  // Remove item from cart
+  removeFromCart: async (itemId) => {
   
-  clearCart: () => {
-    // Update state
-    set({ cartItems: [] });
-    
-    // Clear from storage
-    memoryStorage.removeItem(CART_STORAGE_KEY);
-  },
-  
-  openCart: () => {
-    set({ isCartOpen: true });
-  },
-  
-  closeCart: () => {
-    set({ isCartOpen: false });
-  },
-  
-  // Sync cart with server after login
-  syncCartWithServer: async () => {
-    const { cartItems } = get();
-    const isAuthenticated = useAuthStore.getState().isAuthenticated();
-    
-    // Only proceed if user is authenticated and there are items in cart
-    if (!isAuthenticated || cartItems.length === 0) {
-      return;
-    }
     
     try {
-      set({ isLoading: true });
+      // Set token in headers for this request
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
       
-      // Format cart items for API
-      const cartItemsForApi = cartItems.map(item => ({
-        productId: item.id,
-        productType: item.productType,
-        quantity: item.quantity
-      }));
+      await axiosInstance.delete(`/carts/items/${itemId}`);
       
-      // Send batch upload request
-      await axiosInstance.post('/cart/batch-upload', cartItemsForApi);
-      
-      set({ isLoading: false });
+      set(state => {
+        const newCartItems = state.cartItems.filter(item => item.id !== itemId);
+        
+        // Recalculate totals
+        const totalItems = newCartItems.reduce((total, item) => 
+          total + (item.productType === "SELL" ? item.sellQuantity : 1), 0);
+        
+        const totalAmount = newCartItems.reduce((total, item) => 
+          total + (item.price * (item.productType === "SELL" ? item.sellQuantity : 1)), 0);
+
+        return {
+          cartItems: newCartItems,
+          totalItems,
+          totalAmount,
+          loading: false
+        };
+      });
     } catch (error) {
-      console.error('Failed to sync cart with server:', error);
-      set({ isLoading: false });
+      set({ 
+        error: error.response?.data?.message || 'Failed to remove item from cart',
+        loading: false 
+      });
+      throw error;
+    }
+  },
+
+  // Update item quantity
+  updateCartItemQuantity: async (itemId, quantity) => {
+    set({ loading: true, error: null });
+    
+    try {
+      // Set token in headers for this request
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+      
+      // Fix: Access the items array inside cartItems object
+      const cartItemsArray = get().cartItems?.items || [];
+      const cartItem = cartItemsArray.find(item => item.cartItemId === itemId);
+      
+      if (!cartItem) {
+        throw new Error('Item not found in cart');
+      }
+      
+      // Ensure quantity is always a valid number (minimum 1)
+      const validQuantity = Math.max(1, quantity || 1);
+      
+      let payload = {}
+
+      if (cartItem.productType === "SELL") {
+        payload = {
+          productId: cartItem.productId,
+          productType: cartItem.productType,
+          quantity: validQuantity,
+        };
+      } else {
+        payload = {
+          productId: cartItem.productId,
+          productType: cartItem.productType,
+          quantity: validQuantity,
+        };
+      }
+      
+      const response = await axiosInstance.put(`/cart-items/${itemId}`, payload);
+      
+      // After successful update, fetch the cart again to get updated data
+      await get().fetchCartItems();
+      
+      return response.data;
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to update cart item',
+        loading: false 
+      });
+      throw error;
+    }
+  },
+
+  // Fetch cart items
+  fetchCartItems: async () => {
+    set({ loading: true, error: null });
+
+    try {
+      // Set token in headers for this request
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+      
+      const response = await axiosInstance.get('/carts');
+      
+      // Assuming the API returns cart items with product details
+      const cartItemsFetched = response.data;
+      console.log(cartItemsFetched, "cart items from context");
+      
+      set({ 
+        cartItems: cartItemsFetched,
+        totalItems: cartItemsFetched?.items?.length || 0,
+        totalAmount: cartItemsFetched?.totalPrice || 0,
+        loading: false 
+      });
+      
+      return cartItemsFetched; // Return the fetched data instead of undefined cartItems
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to fetch cart items',
+        loading: false 
+      });
+      throw error;
+    }
+  },
+
+  addMutipleProducts: async (items) => {
+    set({ loading: true, error: null });
+  
+    try {
+      // Set token in headers for this request
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+      
+      const response = await axiosInstance.post('/carts/items/batch', items);
+  
+      set((state) => ({
+        // cartItems: [...state.cartItems, ...response.data], // Assuming response.data is an array
+        loading: false
+      }));
+  
+      return response.data;
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to add item(s) to cart',
+        loading: false 
+      });
+      throw error;
     }
   },
   
-  // Helper methods
-  getCartTotal: () => {
-    const { cartItems } = get();
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  // Clear cart
+  clearCart: async (id) => {
+    set({ loading: true, error: null });
+    
+    try {
+      // Set token in headers for this request
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+      
+      await axiosInstance.delete(`/carts/items/${id}`);
+      
+      set({ 
+        cartItems: [],
+        totalItems: 0,
+        totalAmount: 0,
+        loading: false 
+      });
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to clear cart',
+        loading: false 
+      });
+      throw error;
+    }
   },
   
-  getCartItemCount: () => {
-    const { cartItems } = get();
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  }
+  // Helper methods for cart drawer
+  openCart: () => set({ isCartOpen: true }),
+  closeCart: () => set({ isCartOpen: false }),
+  getCartTotal: () => get().totalAmount,
+  getCartItemCount: () => get().totalItems
 }));
 
-// Initialize cart when app loads
-useCartStore.getState().initCart();
+export default useCartStore;
 
-// Listen for auth state changes to sync cart
-useAuthStore.subscribe(
-  (state) => state.user,
-  (user) => {
-    if (user) {
-      // User just logged in, sync cart with server
-      useCartStore.getState().syncCartWithServer();
-    }
-  }
-);
+// Initialize cart when app loads
+useCartStore.getState().fetchCartItems();

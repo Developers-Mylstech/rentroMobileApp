@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
-import { useCartStore } from '../../../src/store/cartStore';
+import useCartStore from '../../../src/store/cartStore';
 import CartDrawer from '../../../src/components/cart/CartDrawer';
 import ShopSkeleton from '../../../src/components/Skeleton/ShopSkeleton';
 
@@ -16,32 +16,18 @@ export default function Shop() {
     openCart, 
     closeCart, 
     removeFromCart, 
-    updateQuantity, 
+    updateCartItemQuantity, 
     clearCart,
-    getCartItemCount,
-    addToCart
+    totalItems,
+    fetchCartItems
   } = useCartStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
     fetchProducts();
+    fetchCartItems();
   }, []);
-  
-  // Add sample items to cart for testing
-  useEffect(() => {
-    // Only add sample items if cart is empty
-    if (cartItems.length === 0) {
-      // Add sample items when products are loaded
-      if (products.length > 0) {
-        // Add first 2 products to cart
-        const sampleProducts = products.slice(0, 2);
-        sampleProducts.forEach(product => {
-          addToCart(product, 1);
-        });
-      }
-    }
-  }, [products]);
   
   // Filter products when search query changes
   useEffect(() => {
@@ -130,8 +116,6 @@ export default function Shop() {
     );
   };
 
-  const cartItemCount = getCartItemCount();
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Cart Drawer */}
@@ -141,7 +125,7 @@ export default function Shop() {
         cartItems={cartItems}
         onClearAll={clearCart}
         onRemoveItem={removeFromCart}
-        onUpdateQuantity={updateQuantity}
+        onUpdateQuantity={updateCartItemQuantity}
       />
       
       {/* Loading and Error states */}
@@ -163,9 +147,9 @@ export default function Shop() {
             
             <TouchableOpacity onPress={openCart} className="relative">
               <Ionicons name="cart-outline" size={24} color="black" />
-              {cartItemCount > 0 && (
+              {totalItems > 0 && (
                 <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center">
-                  <Text className="text-white text-xs font-bold">{cartItemCount}</Text>
+                  <Text className="text-white text-xs font-bold">{totalItems}</Text>
                 </View>
               )}
             </TouchableOpacity>
