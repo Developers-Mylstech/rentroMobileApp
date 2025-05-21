@@ -1,16 +1,15 @@
 import { View, Text, SafeAreaView, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native'
 import React, { useEffect } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import useServiceStore from '../../../src/context/ServiceStore'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import OurServiceSingleSkeleton from '../../../src/components/Skeleton/OurServiceSingleSkeleton'
+import useServiceStore from '../../../src/store/ServiceStore'
 
 export default function SingleService() {
   const { serviceId } = useLocalSearchParams()
   const router = useRouter()
   const { getServiceById, selectedService, isLoading, error } = useServiceStore()
-
   useEffect(() => {
     if (serviceId) {
       getServiceById(serviceId)

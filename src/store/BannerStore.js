@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import axiosInstance from '../api/axiosInstance';
+import axiosInstance from '../utils/axiosInstance';
+
 
 export const useBannerStore = create((set, get) => ({
   // State

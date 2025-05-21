@@ -1,13 +1,30 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "../../src/store/authStore";
+import * as SecureStore from 'expo-secure-store';
+import { useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
 
 export default function TabLayout() {
-  const isLoggedIn  = false
+  const { isAuthenticated, initAuth, isLoading } = useAuthStore()
 
+  useEffect(() => {
+    // Initialize authentication when the app starts
+    initAuth();
+  }, []);
+  
+  // if (isLoading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  //       <ActivityIndicator size="large" color="#3b82f6" />
+  //     </View>
+  //   );
+  // }
+  
   return (
     <Tabs
       screenOptions={{
-      
+
         tabBarActiveTintColor: "#3b82f6",
         tabBarInactiveTintColor: "#64748b",
         headerShown: false,
@@ -17,7 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(home)"
         options={{
-          
+
           title: "Home",
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={20} color={color} />
@@ -45,16 +62,16 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="(profile)"
-      
+
         options={{
-          
-          title: isLoggedIn ? "Profile" : "Login",
+
+          title: isAuthenticated ? "Profile" : "Login",
           tabBarIcon: ({ color }) => (
-            <Ionicons name={isLoggedIn ? "person-sharp" : "lock-closed"} size={20} color={color} />
+            <Ionicons name={isAuthenticated ? "person-sharp" : "lock-closed"} size={20} color={color} />
           ),
         }}
       />
-    
+
     </Tabs>
   );
 }

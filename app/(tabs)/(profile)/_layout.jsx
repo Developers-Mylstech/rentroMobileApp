@@ -1,7 +1,8 @@
 import { Stack } from "expo-router";
+import { useAuthStore } from "../../../src/store/authStore";
 
 export default function ProfileLayout() {
-  const isLoggedIn  = false
+  const { isAuthenticated } = useAuthStore()
   return (
     <Stack screenOptions={{
         headerShown: false,
@@ -13,8 +14,8 @@ export default function ProfileLayout() {
         name="index" 
         options={{ 
 
-          title: isLoggedIn ? "Profile" : "Login",
-          headerShown: isLoggedIn ? true : false
+          title: isAuthenticated ? "Profile" : "Login",
+          headerShown: isAuthenticated ? true : false
         }} 
       />
       <Stack.Screen 

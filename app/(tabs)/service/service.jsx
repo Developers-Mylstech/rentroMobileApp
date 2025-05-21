@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, Image, TextInput, FlatList 
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
-import useServiceStore from '../../../src/context/ServiceStore';
+import useServiceStore from '../../../src/store/ServiceStore';
 import OurServiceSkeleton from '../../../src/components/Skeleton/OurServiceSkeleton';
 import NotFound from '../../../src/components/widget/NotFound';
 import { LinearGradient } from 'expo-linear-gradient';

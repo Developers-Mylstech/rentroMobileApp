@@ -1,15 +1,18 @@
-import { View, Text, SafeAreaView, TouchableOpacity, TextInput, Image, ScrollView, StatusBar } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, TextInput, Image, ScrollView, StatusBar, Modal } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
 import { Ionicons } from '@expo/vector-icons'
 import LottieView from 'lottie-react-native'
+import LoginForm from './forms/LoginForm'
+import SignupForm from './forms/SignupForm'
+import OtpModal from './modals/OtpModal'
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState('login')
-  const { control: signupControl, formState: { errors: signupErrors } } = useForm()
-  const { control: loginControl, formState: { errors: loginErrors } } = useForm()
-
-  
+  const [otpModalVisible, setOtpModalVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const handleVerifyRequest = () => {
+    setOtpModalVisible(true)
+  }
 
   return (
     <View className="flex-1 bg-blue-100">
@@ -42,138 +45,17 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        {activeTab === 'signup' && (
-          <ScrollView className="w-full" showsVerticalScrollIndicator={false}>
-            <View className="w-full flex gap-3">
-              {/* Full Name Input */}
-              <View className="mb-4">
-                <Text className="text-gray-700 mb-2 font-medium">Full Name</Text>
-                <Controller
-                  control={signupControl}
-                  name="fullName"
-                  rules={{ required: 'Full name is required' }}
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <View className="flex-row items-center border border-gray-200 rounded-lg px-3 py-2">
-                      <Ionicons name="person-outline" size={20} color="#64748b" className="mr-2" />
-                      <TextInput
-                        className="flex-1 text-gray-700 ml-2 py-2 h-10"
-                        placeholder="Enter your full name"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                      />
-                    </View>
-                  )}
-                />
-                {signupErrors.fullName && (
-                  <Text className="text-red-500 mt-1">{signupErrors.fullName.message}</Text>
-                )}
-              </View>
-
-              {/* Email Input */}
-              <View className="mb-4">
-                <Text className="text-gray-700 mb-2 font-medium">Email</Text>
-                <Controller
-                  control={signupControl}
-                  name="email"
-                  rules={{
-                    required: 'Email is required',
-                    pattern: {
-                      value: /\S+@\S+\.\S+/,
-                      message: 'Please enter a valid email'
-                    }
-                  }}
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <View className="flex-row items-center border border-gray-200 rounded-lg px-3 py-2">
-                      <Ionicons name="mail-outline" size={20} color="#64748b" className="mr-2" />
-                      <TextInput
-                        className="flex-1 text-gray-700 ml-2 py-2"
-                        placeholder="Enter your email"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        keyboardType="email-address"
-                      />
-                    </View>
-                  )}
-                />
-                {signupErrors.email && (
-                  <Text className="text-red-500 mt-1">{signupErrors.email.message}</Text>
-                )}
-              </View>
-
-              <View className="">
-                <Text className="text-gray-700 mb-2 font-medium">Mobile Number</Text>
-                <Controller
-                  control={signupControl}
-                  name="mobile"
-                  rules={{ required: 'Mobile number is required' }}
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <View className="flex-row items-center border border-gray-200 rounded-lg px-3 py-2">
-                      <Ionicons name="call-outline" size={20} color="#64748b" className="mr-2" />
-                      <TextInput
-                        className="flex-1 text-gray-700 ml-2 py-2"
-                        placeholder="Enter your mobile number"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        keyboardType="phone-pad"
-                      />
-                    </View>
-                  )}
-                />
-                {signupErrors.mobile && (
-                  <Text className="text-red-500 mt-1">{signupErrors.mobile.message}</Text>
-                )}
-              </View>
-
-              <TouchableOpacity className="bg-blue-500 rounded-xl p-4 items-center mt-5">
-                <Text className="text-white font-bold text-heading-4">Sign Up</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        )}
-
-        {activeTab === 'login' && (
-          <View className="w-full">
-            {/* Email Input */}
-            <View className="mb-4">
-              <Text className="text-gray-700 mb-2 font-medium">Email</Text>
-              <Controller
-                control={loginControl}
-                name="email"
-                rules={{
-                  required: 'Email is required',
-                  pattern: {
-                    value: /\S+@\S+\.\S+/,
-                    message: 'Please enter a valid email'
-                  }
-                }}
-                render={({ field: { onChange, value, onBlur } }) => (
-                  <View className="flex-row items-center border border-gray-200 rounded-lg px-3 py-2">
-                    <Ionicons name="mail-outline" size={20} color="#64748b" className="mr-2" />
-                    <TextInput
-                      className="flex-1 text-gray-700 ml-2 py-2"
-                      placeholder="Enter your email"
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      keyboardType="email-address"
-                    />
-                  </View>
-                )}
-              />
-              {loginErrors.email && (
-                <Text className="text-red-500 mt-1">{loginErrors.email.message}</Text>
-              )}
-            </View>
-
-            <TouchableOpacity className="bg-blue-500 rounded-xl p-4 items-center mt-5">
-              <Text className="text-white font-bold text-heading-4">Login </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        {activeTab === 'signup' ? 
+          <SignupForm onVerifyRequest={handleVerifyRequest} setEmail={setEmail} /> : 
+          <LoginForm onVerifyRequest={handleVerifyRequest} setEmail={setEmail} />
+        }
       </View>
+      
+      <OtpModal 
+        email={email}
+        visible={otpModalVisible} 
+        onClose={() => setOtpModalVisible(false)} 
+      />
     </View>
   )
 }
