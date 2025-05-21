@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
+import { useEffect } from 'react';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL
 
 const axiosInstance = axios.create({
 
+  
   baseURL: apiUrl,
   
   headers: {
