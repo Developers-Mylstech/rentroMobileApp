@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import axiosInstance from '../api/axiosInstance';
+import * as SecureStore from 'expo-secure-store';
 
 const useCheckoutStore = create((set, get) => ({
   // State
   order: null,
   loading: false,
   error: null,
+  checkoutId: null,
 
   // Actions
   placeOrder: async (orderData) => {
@@ -15,8 +17,8 @@ const useCheckoutStore = create((set, get) => ({
     try {
           axiosInstance.defaults.headers.common['Authorization'] = 
         `Bearer ${accessToken}`;
-      const response = await axiosInstance.post('/checkout', orderData);
-      set({ order: response.data, loading: false });
+      const response = await axiosInstance.post('/checkouts', orderData);
+      set({ checkoutId: response.checkoutId, loading: false });
       return response.data;
     } catch (error) {
       set({ 
@@ -37,4 +39,6 @@ const useCheckoutStore = create((set, get) => ({
     set({ error: null });
   }
 }));
+
+export default useCheckoutStore;
 
