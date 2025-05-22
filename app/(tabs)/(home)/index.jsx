@@ -3,16 +3,18 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 
 // Import components
-import Header from '../../src/components/home/Header';
-import SearchBar from '../../src/components/home/SearchBar';
-import CategorySection from '../../src/components/home/CategorySection';
-import ProductGrid from '../../src/components/home/ProductGrid';
-import BannerCarousel from '../../src/components/home/BannerCarousel';
-import { useProductStore } from '../../src/context/ProductStore';
-import { useBannerStore } from '../../src/context/BannerStore';
-import ProductSkeleton from '../../src/components/Skeleton/ProductSkeleton';
-import BannerCarouselSkeleton from '../../src/components/Skeleton/BannerCarouselSkeleton';
-import NoProductsFound from '../../src/components/home/NoProductsFound';
+import Header from '../../../src/components/home/Header';
+import SearchBar from '../../../src/components/home/SearchBar';
+import CategorySection from '../../../src/components/home/CategorySection';
+import ProductGrid from '../../../src/components/home/ProductGrid';
+import BannerCarousel from '../../../src/components/home/BannerCarousel';
+
+import ProductSkeleton from '../../../src/components/Skeleton/ProductSkeleton';
+import BannerCarouselSkeleton from '../../../src/components/Skeleton/BannerCarouselSkeleton';
+import { useProductStore } from '../../../src/store/productStore';
+import { useBannerStore } from '../../../src/store/BannerStore';
+import SplashScreen from '../../../src/components/widget/SplashScreen';
+import NoProductsFound from '../../../src/components/home/NoProductsFound';
 
 export default function Home() {
     const router = useRouter();
@@ -26,12 +28,16 @@ export default function Home() {
         fetchBanners()
     }, []);
 
-    const handleProductPress = (productId) => {
-        router.push(`/product/${productId}`);
+    const handleProductPress = (product) => {
+        router.push({
+            pathname: `/shop/product/${product.productId}`,
+            params: { from: 'home' }
+        });
     };
 
     return (
         <SafeAreaView className="flex-1 bg-white">
+            
             <View className="flex-1 p-5">
                 <Header
                     onProfilePress={() => router.push('/profile')}
@@ -95,5 +101,6 @@ export default function Home() {
                 </ScrollView>
             </View>
         </SafeAreaView>
+        
     );
 }

@@ -3,7 +3,13 @@ import React from "react";
 
 export default function ShopLayout() {
   return (
-    <Stack screenOptions={{ headerShown: true }}>
+    <Stack
+      screenOptions={{
+        headerBackTitle: "Back", // For iOS
+        headerBackTitleVisible: true, // Show back title on iOS
+        headerBackVisible: true, // Ensure back button is visible
+      }}
+    >
       <Stack.Screen 
         name="index" 
         options={{ 
@@ -13,6 +19,8 @@ export default function ShopLayout() {
       <Stack.Screen 
         name="[product]" 
         options={{ 
+          headerBackVisible: true,
+          headerBackTitle: "Back",
           title: "Product Details",
           animation: "slide_from_right",
         }} 

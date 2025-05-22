@@ -81,7 +81,6 @@ export default function ProductDetails() {
     };
   }, [loadProductData]);
 
-  // Handle image scroll
   const handleImageScroll = (event) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const index = Math.round(scrollPosition / width);
@@ -819,3 +818,4 @@ export default function ProductDetails() {
     </SafeAreaView>
   );
 }
+

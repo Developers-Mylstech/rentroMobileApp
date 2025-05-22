@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axiosInstance from '../api/axiosInstance';
+import axiosInstance from '../utils/axiosInstance';
 
 export const useProductStore = create((set, get) => ({
   // State

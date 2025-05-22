@@ -10,13 +10,16 @@ const useCartStore = create((set, get) => ({
   totalAmount: 0,
   isCartOpen: false,
 
+
+
   addToCart: async (item) => {
     set({ loading: true, error: null });
+    const accessToken = await AsyncStorage.getItem('auth_token');
     
     try {
       // Set token in headers for this request
       axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+        `Bearer ${accessToken}`;
       
       // Create the simplified payload
    
@@ -42,8 +45,9 @@ const useCartStore = create((set, get) => ({
     
     try {
       // Set token in headers for this request
+        const accessToken = await AsyncStorage.getItem('auth_token');
       axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+        `Bearer  ${accessToken}  `;
       
       await axiosInstance.delete(`/carts/items/${itemId}`);
       
@@ -76,11 +80,12 @@ const useCartStore = create((set, get) => ({
   // Update item quantity
   updateCartItemQuantity: async (itemId, quantity) => {
     set({ loading: true, error: null });
+      const accessToken = await AsyncStorage.getItem('auth_token');
     
     try {
       // Set token in headers for this request
       axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+        `Bearer  ${accessToken}`;
       
       // Fix: Access the items array inside cartItems object
       const cartItemsArray = get().cartItems?.items || [];
@@ -127,11 +132,12 @@ const useCartStore = create((set, get) => ({
   // Fetch cart items
   fetchCartItems: async () => {
     set({ loading: true, error: null });
+    const accessToken = await AsyncStorage.getItem('auth_token');
 
     try {
       // Set token in headers for this request
       axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+        `Bearer  ${accessToken}`;
       
       const response = await axiosInstance.get('/carts');
       

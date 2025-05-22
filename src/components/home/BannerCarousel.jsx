@@ -62,11 +62,9 @@ export default function BannerCarousel({
         snapToInterval={width - 40}
         keyExtractor={(item,index) => index.toString()}
         renderItem={({ item }) => (
-          <View style={{ width: width - 40 }}>
+          <View className='' style={{ width: width - 40 }}>
             <Banner
-              
               imageUrl={item.imageUrl}
-            
               onPress={() => onBannerPress(item)}
             />
           </View>
@@ -85,7 +83,7 @@ const Banner = ({ imageUrl, onPress }) => {
   return (
     <TouchableOpacity 
       onPress={onPress} 
-      className="my-3 rounded-xl mx-2 overflow-hidden"
+      className="my-3 border  border-gray-100 rounded-xl mx-2 overflow-hidden"
       activeOpacity={0.8}
     >
       <ImageBackground

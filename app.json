@@ -4,14 +4,15 @@
     "slug": "rentroApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/rentro.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "../assets/rentro.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -31,8 +32,8 @@
       "package": "com.xyaistic.rentroApp"
     },
     "web": {
-         "bundler": "metro",
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/rentro.png"
     },
     "extra": {
       "router": {},
