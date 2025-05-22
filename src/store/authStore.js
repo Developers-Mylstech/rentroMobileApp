@@ -54,6 +54,7 @@ export const useAuthStore = create((set, get) => ({
       if (response.status === 200) {
         if (response.data.accessToken) {
           await SecureStore.setItemAsync('auth_token', response.data.accessToken);
+          
         }
         if (response.data.refreshToken) {
           await SecureStore.setItemAsync('refresh_token', response.data.refreshToken);

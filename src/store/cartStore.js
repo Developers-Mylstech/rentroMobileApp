@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import axiosInstance from '../api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const useCartStore = create((set, get) => ({
   cartItems: [],
@@ -14,7 +15,7 @@ const useCartStore = create((set, get) => ({
 
   addToCart: async (item) => {
     set({ loading: true, error: null });
-    const accessToken = await AsyncStorage.getItem('auth_token');
+    const accessToken = await SecureStore.getItemAsync('auth_token');
     
     try {
       // Set token in headers for this request
@@ -45,7 +46,7 @@ const useCartStore = create((set, get) => ({
     
     try {
       // Set token in headers for this request
-        const accessToken = await AsyncStorage.getItem('auth_token');
+        const accessToken = await SecureStore.getItemAsync('auth_token');
       axiosInstance.defaults.headers.common['Authorization'] = 
         `Bearer  ${accessToken}  `;
       
@@ -80,12 +81,12 @@ const useCartStore = create((set, get) => ({
   // Update item quantity
   updateCartItemQuantity: async (itemId, quantity) => {
     set({ loading: true, error: null });
-      const accessToken = await AsyncStorage.getItem('auth_token');
+      const accessToken = await SecureStore.getItemAsync('auth_token');
     
     try {
       // Set token in headers for this request
       axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer  ${accessToken}`;
+        `Bearer ${accessToken}`;
       
       // Fix: Access the items array inside cartItems object
       const cartItemsArray = get().cartItems?.items || [];
@@ -132,12 +133,13 @@ const useCartStore = create((set, get) => ({
   // Fetch cart items
   fetchCartItems: async () => {
     set({ loading: true, error: null });
-    const accessToken = await AsyncStorage.getItem('auth_token');
+    const accessToken =   await SecureStore.getItemAsync('auth_token');
+    console.log(accessToken,"access token in context");
 
     try {
       // Set token in headers for this request
       axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer  ${accessToken}`;
+        `Bearer ${accessToken}`;
       
       const response = await axiosInstance.get('/carts');
       
