@@ -44,6 +44,12 @@ export default function ShopLayout() {
           title: "Checkout",
         }} 
       />
+       <Stack.Screen 
+        name="order-confirmation" 
+        options={{ 
+          title: "Order Confirmation",
+        }} 
+      />
      
     </Stack>
   );
