@@ -14,26 +14,34 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import useCartStore from "../../../src/store/cartStore";
 import useAddressStore from "../../../src/store/addressStore";
 import useCheckoutStore from "../../../src/store/checkoutStore";
-import { useStripe, CardField, confirmPayment } from "@stripe/stripe-react-native";
+import { useStripe, CardField } from "@stripe/stripe-react-native";
 import StripeWrapper from "../../../src/components/StripeWraper";
 import axiosInstance from "../../../src/utils/axiosInstance";
 
+
 export default function Checkout() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const isDirectCheckout = params.direct === 'true';
+  const directProductId = params.productId;
+  const directProductType = params.productType;
+  const directQuantity = params.quantity;
+  
+  const { directCheckout, directCheckoutData, paymentCreation, clientSecret, loading, error } = useCheckoutStore();
   const [checkoutId, setCheckoutId] = useState(null);
+  const [orderId, setOrderId] = useState(null);
   const { cartItems, clearCart } = useCartStore();
-  const { addresses, addAddress, fetchAddresses, updateAddress, deleteAddress } = useAddressStore();
-  const { placeOrder, paymentCreation, clientSecret, loading, error, clearCheckoutData } = useCheckoutStore();
+  const { addresses, fetchAddresses, addAddress } = useAddressStore();
+  const { placeOrder } = useCheckoutStore();
   const { confirmPayment } = useStripe();
 
   // Core state
   const [currentStep, setCurrentStep] = useState(1);
   const [cardDetails, setCardDetails] = useState(null);
-  const [orderId, setOrderId] = useState(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   
   // Address form state
@@ -72,6 +80,37 @@ export default function Checkout() {
   // Load addresses on mount
   useEffect(() => {
     fetchAddresses();
+    
+    // If this is a direct checkout and we have data, pre-fill the form
+    if (isDirectCheckout && directCheckoutData) {
+      // Pre-fill address if available
+      if (directCheckoutData.deliveryAddress) {
+        const addressId = directCheckoutData.deliveryAddress?.addressId;
+        if (addressId) {
+          setFormData(prev => ({
+            ...prev,
+            selectedAddressId: addressId,
+          }));
+        }
+      }
+      
+      // Pre-fill user info if available
+      if (directCheckoutData.firstName) {
+        setFormData(prev => ({
+          ...prev,
+          firstName: directCheckoutData.firstName || '',
+          lastName: directCheckoutData.lastName || '',
+          email: directCheckoutData.email || '',
+          mobile: directCheckoutData.mobile || '',
+        }));
+      }
+      
+      // Set checkout ID and order ID
+      setCheckoutId(directCheckoutData.checkoutId);
+      setOrderId(directCheckoutData.orderId);
+    }
+    
+    // Find default address if needed
     if (addresses.length > 0 && !formData.selectedAddressId) {
       const defaultAddr = addresses.find((addr) => addr.default) || addresses[0];
       setFormData((prev) => ({
@@ -79,7 +118,7 @@ export default function Checkout() {
         selectedAddressId: defaultAddr ? defaultAddr.addressId : null,
       }));
     }
-  }, [fetchAddresses]);
+  }, [fetchAddresses, isDirectCheckout, directCheckoutData]);
 
   // Form handlers
   const handleInputChange = (field, value) => {
@@ -127,6 +166,65 @@ export default function Checkout() {
     }
   };
 
+  // Handle direct checkout when user clicks Next on address step
+  const handleDirectCheckout = async () => {
+    if (!directProductId || !directProductType) {
+      Alert.alert("Error", "Product information is missing");
+      return;
+    }
+
+    try {
+      // Find the selected address from the addresses array
+      const addressToUse = addresses.find(
+        (addr) => addr.addressId === formData.selectedAddressId
+      );
+      
+      if (!addressToUse) {
+        Alert.alert("Invalid Address", "Please select a valid delivery address.");
+        return;
+      }
+
+      // Create payload with user entered data and selected address
+      const payload = {
+        productType: directProductType,
+        quantity: parseInt(directQuantity) || 1,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        mobile: formData.mobile,
+        email: formData.email,
+        addressId: addressToUse.addressId,
+        address: {
+          streetAddress: addressToUse.streetAddress || "string",
+          buildingName: addressToUse.buildingName || "string",
+          flatNo: addressToUse.flatNo || "string",
+          area: addressToUse.area || "string",
+          emirate: addressToUse.emirate || "string",
+          country: addressToUse.country || "string",
+          landmark: addressToUse.landmark || "string",
+          addressType: addressToUse.addressType || "string",
+          default: addressToUse.default || true
+        }
+      };
+
+      // Call directCheckout with the product ID and payload
+      const response = await directCheckout(directProductId, payload);
+      
+      // Set checkout ID and order ID
+      setCheckoutId(response.checkoutId);
+      setOrderId(response.orderId);
+      
+      // Create payment intent
+      await paymentCreation(response.checkoutId);
+      
+      // Move to payment step
+      setCurrentStep(3);
+    } catch (error) {
+      console.error("Direct checkout error:", error);
+      Alert.alert("Error", error.response?.data?.message || "Failed to process checkout");
+    }
+  };
+
+  // Update handleNext function
   const handleNext = async () => {
     if (currentStep === 1) {
       // Validate basic details
@@ -143,24 +241,21 @@ export default function Checkout() {
         return;
       }
 
-      const selectedAddress = addresses.find(
-        (addr) => addr.addressId === formData.selectedAddressId
-      );
-      
-      if (!selectedAddress) {
-        Alert.alert("Invalid Address", "Selected address not found.");
+      // If this is a direct checkout, handle it differently
+      if (isDirectCheckout && directProductId) {
+        await handleDirectCheckout();
         return;
       }
 
+      // Otherwise, proceed with normal checkout flow
       try {
-        // Create checkout and payment intent
         const checkoutData = {
           cartId: cartItems.cartId,
           firstName: formData.firstName,
           lastName: formData.lastName,
           mobile: formData.mobile,
           email: formData.email,
-          addressId: selectedAddress.addressId,
+          addressId: formData.selectedAddressId,
         };
 
         const res = await placeOrder(checkoutData);
