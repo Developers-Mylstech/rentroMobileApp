@@ -25,10 +25,11 @@ export default function ProfileLayout() {
           headerShown: true
         }} 
       />
+      
       <Stack.Screen 
-        name="wishlist" 
+        name="(orders)" 
         options={{ 
-          title: "Wishlist",
+          title: "Orders",
           headerShown: true
         }} 
       />

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import axiosInstance from '../utils/axiosInstance';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -12,11 +13,14 @@ export const useAuthStore = create((set, get) => ({
 
 
 
+
   login: async (payload) => {
     try {
       set({ isLoading: true, error: null });
       const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/initiate-auth`, payload);
       return response;
+   
+
     } catch (error) {
       set({
         error: error.response?.data?.message || 'Login failed',
@@ -51,9 +55,11 @@ export const useAuthStore = create((set, get) => ({
       if (response.status === 200) {
         if (response.data.accessToken) {
           await SecureStore.setItemAsync('auth_token', response.data.accessToken);
+          
         }
         if (response.data.refreshToken) {
           await SecureStore.setItemAsync('refresh_token', response.data.refreshToken);
+        
         }
 
         set({ user: response.data, isLoading: false, isAuthenticated: true });
@@ -87,27 +93,35 @@ export const useAuthStore = create((set, get) => ({
   },
 
   initAuth: async () => {
-    
-    try {
-      set({ isLoadingAuth: true });
-      const token = await SecureStore.getItemAsync('auth_token');
-      const refreshtoken = await SecureStore.getItemAsync('refresh_token');
+  try {
+    set({ isLoadingAuth: true });
 
-      if (token && refreshtoken) {
-        try {
-          const response = await axiosInstance.get('/auth/me');
-          set({  isLoading: false, isAuthenticated: true });
-        } catch (error) {
-          set({ isLoadingAuth: false, isAuthenticated: true });
-        }
-      } else {
+    const token = await SecureStore.getItemAsync('auth_token');
+    const refreshtoken = await SecureStore.getItemAsync('refresh_token');
+
+    console.log(token, 'token');
+
+    if (token && refreshtoken) {
+      const decoded = jwtDecode(token);
+      const currentTime = Math.floor(Date.now() / 1000); // current time in seconds
+
+      if (decoded.exp && decoded.exp < currentTime) {
+        // Token is expired
+        await SecureStore.deleteItemAsync('auth_token');
+        await SecureStore.deleteItemAsync('refresh_token');
         set({ isLoadingAuth: false, isAuthenticated: false });
+      } else {
+        // Token is valid
+        set({ isLoadingAuth: false, isAuthenticated: true });
       }
-    } catch (error) {
-      console.log('Init auth error:', error);
-      set({ isLoadingAuth: false });
+    } else {
+      set({ isLoadingAuth: false, isAuthenticated: false });
     }
-  },
+  } catch (error) {
+    console.log('Init auth error:', error);
+    set({ isLoadingAuth: false, isAuthenticated: false });
+  }
+},
 
   signIn: (userData) => set({ user: userData, isAuthenticated: true }),
   signOut: () => set({ user: null, isAuthenticated: false }),

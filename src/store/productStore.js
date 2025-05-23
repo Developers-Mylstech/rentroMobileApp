@@ -4,6 +4,8 @@ import axiosInstance from '../utils/axiosInstance';
 export const useProductStore = create((set, get) => ({
   // State
   products: [],
+  rentProducts: [],
+  sellProducts: [],
   featuredProducts: [],
   categories: [],
   currentProduct: null,
@@ -39,6 +41,38 @@ export const useProductStore = create((set, get) => ({
     }
   },
   
+  fetchProductsByType: async (type) => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await axiosInstance.get(`/products/by-type/${type}`);
+      
+      if (type === 'RENT') {
+        set({ rentProducts: response.data, isLoading: false });
+        return response.data;
+      } else if (type === 'SELL') {
+        set({ sellProducts: response.data, isLoading: false });
+        return response.data;
+      }
+      
+      set({ isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || `Failed to fetch ${type} products`, 
+        isLoading: false 
+      });
+      return [];
+    }
+  },
+  
+  fetchRentProducts: async () => {
+    return get().fetchProductsByType('RENT');
+  },
+  
+  fetchSellProducts: async () => {
+    return get().fetchProductsByType('SELL');
+  },
+  
   fetchFeaturedProducts: async () => {
     try {
       set({ isLoading: true, error: null });
@@ -72,6 +106,15 @@ export const useProductStore = create((set, get) => ({
     );
   },
   
+  // Methods for accessing products by type
+  getRentProducts: () => {
+    return get().rentProducts;
+  },
+  
+  getSellProducts: () => {
+    return get().sellProducts;
+  },
+  
   searchProducts: (query) => {
     const searchTerm = query.toLowerCase();
     return get().products.filter(product => 
@@ -88,3 +131,7 @@ export const useProductStore = create((set, get) => ({
     set({ error: null });
   }
 }));
+
+
+
+

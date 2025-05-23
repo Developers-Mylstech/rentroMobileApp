@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import React from "react";
 
 export default function ShopLayout() {
   return (
@@ -13,7 +14,6 @@ export default function ShopLayout() {
         name="index" 
         options={{ 
           title: "Shop Products",
-          headerShown: true 
         }} 
       />
       <Stack.Screen 
@@ -22,11 +22,35 @@ export default function ShopLayout() {
           headerBackVisible: true,
           headerBackTitle: "Back",
           title: "Product Details",
-          headerShown: true
+          animation: "slide_from_right",
         }} 
       />
-      
-      
+      <Stack.Screen 
+        name="rent-products" 
+        options={{ 
+          title: "Rent Products",
+        }} 
+      />
+      <Stack.Screen 
+        name="sell-products" 
+        options={{ 
+          title: "Sell Products",
+        }} 
+      />
+
+       <Stack.Screen 
+        name="checkout" 
+        options={{ 
+          title: "Checkout",
+        }} 
+      />
+       <Stack.Screen 
+        name="order-confirmation" 
+        options={{ 
+          title: "Order Confirmation",
+        }} 
+      />
+     
     </Stack>
   );
 }

@@ -1,13 +1,27 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, VirtualizedList } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Ionicons } from "@expo/vector-icons"
 import { Link } from 'expo-router'
 import Login from '../../../src/components/login'
 import { useAuthStore } from '../../../src/store/authStore'
+import useProfileStore from '../../../src/store/profileStore'
+import ProfileSkeleton from '../../../src/components/Skeleton/ProfileSkeleton'
 
 
 export default function index() {
   const { isAuthenticated,logout } = useAuthStore()
+
+  const { fetchProfile, profile, isLoading, error } = useProfileStore()
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
+
+  console.log(profile, 'profile')
+
+  if (isLoading) {
+    return <ProfileSkeleton/>
+  }
 
   if (!isAuthenticated) {
     return <Login/>
@@ -21,15 +35,12 @@ export default function index() {
           {/* Header */}
           <Text className="text-3xl font-semibold mb-5">Profile</Text>
 
-          {/* Profile Section */}
           <TouchableOpacity className="flex-row items-center mb-5 pb-5 border-b border-gray-200">
-            <Image
-              source={{ uri: "https://via.placeholder.com/60" }}
-              className="w-14 h-14 rounded-full bg-gray-200"
-            />
+            <Ionicons name="person-circle-outline" size={50} color="#4b5563" className="mr-3" />
+            
             <View className="ml-4 flex-1">
-              <Text className="text-lg font-medium">Judy</Text>
-              <Text className="text-gray-500">Show profile</Text>
+              <Text className="text-lg font-medium">{profile?.name}</Text>
+              <Text className="text-gray-500">{profile?.email}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
           </TouchableOpacity>
@@ -65,7 +76,7 @@ export default function index() {
             </TouchableOpacity>
           </Link>
 
-          <Link href="/(tabs)/(profile)/order" asChild>
+          <Link href="/(tabs)/(profile)/(orders)" asChild>
             <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
               <Ionicons name="document-text-outline" size={24} color="#4b5563" className="mr-3" />
               <Text className="flex-1 text-base">Orders</Text>
