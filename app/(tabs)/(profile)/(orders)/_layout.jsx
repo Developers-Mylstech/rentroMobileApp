@@ -6,8 +6,6 @@ export default function OrdersLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        headerBackTitle: "Back",
-        headerBackVisible: true,
       }}
     >
       <Stack.Screen 
@@ -19,6 +17,7 @@ export default function OrdersLayout() {
       <Stack.Screen 
         name="[orderId]" 
         options={{ 
+            headerBackTitle: "Back",
           title: "Order Details",
           headerBackVisible: true,
           animation: "slide_from_right",
