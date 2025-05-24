@@ -4,10 +4,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import useOrderStore from '../../../../src/store/orderStore'
+import OrderTrackingSheet from '../../../../src/components/orders/OrderTrackingSheet'
 
 export default function OrderDetails() {
   const { orderId } = useLocalSearchParams()
   const router = useRouter()
+  const [trackingSheetVisible, setTrackingSheetVisible] = useState(false)
   
   const { getOrderById, currentOrder, isLoading, error } = useOrderStore();
 
@@ -26,6 +28,8 @@ export default function OrderDetails() {
         return <MaterialCommunityIcons name="clock-time-four-outline" size={24} color="#f59e0b" />;
       case 'cancelled': 
         return <MaterialCommunityIcons name="close-circle-outline" size={24} color="#ef4444" />;
+      case 'payment_confirmed': 
+        return <MaterialCommunityIcons name="check" size={24} color="#10b981" />;
       default: 
         return <MaterialCommunityIcons name="help-circle-outline" size={24} color="#6b7280" />;
     }
@@ -38,7 +42,8 @@ export default function OrderDetails() {
       case 'processing': 
       case 'pending': return ['#fef3c7', '#f59e0b'];
       case 'cancelled': return ['#fee2e2', '#ef4444'];
-      default: return ['#f3f4f6', '#6b7280'];
+      case 'payment_confirmed': return ['#e8fdf6', '#10b981'];
+      default: return ['#f3f4f6', '#f3f4f6'];
     }
   }
 
@@ -112,16 +117,8 @@ export default function OrderDetails() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header with back button */}
-      <View className="bg-white px-4 py-3 flex-row items-center border-b border-gray-100">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text className="text-lg font-bold text-gray-800">Order Details</Text>
-      </View>
-
+     
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        {/* Order Status Card */}
         <LinearGradient
           colors={['#ffffff', '#f9fafb']}
           className="mx-4 mt-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
@@ -156,7 +153,7 @@ export default function OrderDetails() {
               
               <TouchableOpacity 
                 className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center"
-                onPress={() => router.push(`/(tabs)/(profile)/(orders)/track?orderId=${orderId}`)}
+                onPress={() => setTrackingSheetVisible(true)}
               >
                 <Ionicons name="location-outline" size={16} color="white" />
                 <Text className="text-white font-bold ml-1">Track Order</Text>
@@ -284,6 +281,11 @@ export default function OrderDetails() {
           </View>
         </View>
       </ScrollView>
+      <OrderTrackingSheet 
+        isVisible={trackingSheetVisible}
+        onClose={() => setTrackingSheetVisible(false)}
+        orderData={currentOrder}
+      />
     </SafeAreaView>
   )
 }

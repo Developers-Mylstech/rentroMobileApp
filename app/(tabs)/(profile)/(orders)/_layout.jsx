@@ -5,29 +5,28 @@ export default function OrdersLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        headerBackTitle: "",
       }}
     >
-      <Stack.Screen 
-        name="index" 
-        options={{ 
+      <Stack.Screen
+        name="index"
+        options={{
           title: "My Orders",
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="[orderId]" 
-        options={{ 
-            headerBackTitle: "Back",
+      <Stack.Screen
+        name="[orderId]"
+        options={{
           title: "Order Details",
-          headerBackVisible: true,
           animation: "slide_from_right",
-        }} 
+          headerBackTitle: "My Orders", // Change back button text to "My Orders"
+        }}
       />
-      <Stack.Screen 
-        name="track" 
-        options={{ 
+      <Stack.Screen
+        name="track"
+        options={{
           title: "Track Order",
-        }} 
+        }}
       />
     </Stack>
   );

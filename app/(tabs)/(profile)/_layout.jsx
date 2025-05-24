@@ -33,7 +33,7 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="(orders)"
         options={({ navigation }) => ({
-          headerShown: true,
+          headerShown: false,
           title: "Orders",
           headerBackTitle: "Back",
 
