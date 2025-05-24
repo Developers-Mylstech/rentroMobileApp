@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
-import { useCartStore } from '../../../src/store/cartStore';
+import  useCartStore  from '../../../src/store/cartStore';
 import CartDrawer from '../../../src/components/cart/CartDrawer';
 import ShopSkeleton from '../../../src/components/Skeleton/ShopSkeleton';
 

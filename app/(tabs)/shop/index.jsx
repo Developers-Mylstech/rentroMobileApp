@@ -170,7 +170,7 @@ export default function Shop() {
           {/* Product List */}
           {!error && (
             <FlatList
-              data={filteredProducts}
+              data={products}
               renderItem={renderProductItem}
               keyExtractor={(item) => item.productId.toString()}
               contentContainerStyle={{ paddingHorizontal: 16 }}

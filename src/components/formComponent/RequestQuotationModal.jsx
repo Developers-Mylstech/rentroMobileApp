@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -14,10 +14,18 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useForm, Controller } from 'react-hook-form';
-import Clipboard from '@react-native-clipboard/clipboard';
 import axiosInstance from '../../utils/axiosInstance';
+import Clipboard from '@react-native-clipboard/clipboard';
 
-const RequestQuotationModal = ({ visible, onClose }) => {
+const RequestQuotationModal = ({ 
+  visible, 
+  onClose, 
+  productId, 
+  productName, 
+  productImage,
+  productImageId,
+  fromProductDetails = false 
+}) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -25,6 +33,7 @@ const RequestQuotationModal = ({ visible, onClose }) => {
   const [quoteRequestId, setQuoteRequestId] = useState('');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [productImageUrl, setProductImageUrl] = useState(productImage || null);
 
   const { control, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
@@ -39,6 +48,17 @@ const RequestQuotationModal = ({ visible, onClose }) => {
       locationGmapLink: '',
     },
   });
+
+  // Set product image when productImage prop changes
+  useEffect(() => {
+    if (productImage) {
+      setProductImageUrl(productImage);
+      console.log("Product image set:", productImage);
+      console.log("Product image ID:", productImageId);
+    } else {
+      console.log("No product image provided");
+    }
+  }, [productImage, productImageId]);
 
   const selectedCountry = watch('locationCountry');
 
@@ -82,7 +102,9 @@ const RequestQuotationModal = ({ visible, onClose }) => {
     setSubmitStatus(null);
     setStatusMessage('');
     try {
-      let imageUrl = '';
+      let imageData = null;
+      
+      // If user selected an image, upload it
       if (selectedImage) {
         const formData = new FormData();
         formData.append('file', {
@@ -96,8 +118,32 @@ const RequestQuotationModal = ({ visible, onClose }) => {
         });
 
         if (uploadResponse?.data?.fileUrl) {
-          imageUrl = uploadResponse.data.fileUrl;
+          imageData = {
+            imageUrl: uploadResponse.data.fileUrl,
+            imageId: uploadResponse.data.imageId || null
+          };
         }
+      } 
+      // If no user-selected image but we have a product image, use that
+      else if (productImageUrl) {
+        // For product images, we use the imageId that was passed as a prop
+        imageData = {
+          imageUrl: productImageUrl,
+          imageId: productImageId || null
+        };
+      }
+
+      // Log the image data for debugging
+      console.log("Image data before payload:", imageData);
+      console.log("Product image URL:", productImageUrl);
+      console.log("Product image ID:", productImageId);
+
+      // Always provide a default image if none is available
+      if (!imageData) {
+        imageData = { 
+          imageUrl: "https://via.placeholder.com/150", 
+          imageId: 1 
+        };
       }
 
       const payload = {
@@ -112,8 +158,14 @@ const RequestQuotationModal = ({ visible, onClose }) => {
           country: data.locationCountry,
           gmapLink: data.locationGmapLink,
         },
-        productImages: imageUrl ? [imageUrl] : [],
+        image: imageData,
+        productId: productId || null,
+        productName: productName || null,
+        status: "WAITING_FOR_APPROVAL" // Using a valid enum value from the error message
       };
+
+      // Log the final payload for debugging
+      console.log("Final payload:", JSON.stringify(payload));
 
       const response = await axiosInstance.post('/request-quotations', payload);
       setQuoteRequestId(response?.data?.requestQuotationCode);
@@ -123,7 +175,7 @@ const RequestQuotationModal = ({ visible, onClose }) => {
       reset();
       removeImage();
     } catch (error) {
-      console.error(error);
+      console.error("Error submitting form:", error.response?.data || error.message);
       setSubmitStatus('error');
       setStatusMessage(
         error.response?.data?.message || 'Failed to submit. Please try again.'
@@ -182,27 +234,50 @@ const RequestQuotationModal = ({ visible, onClose }) => {
           </View>
           
           <ScrollView className="flex-1 px-5 pt-6">
-            <TouchableOpacity
-              className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
-              onPress={pickImage}
-            >
-              {selectedImage ? (
-                <>
-                  <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
-                  <TouchableOpacity 
-                    onPress={removeImage}
-                    className="bg-red-100 px-3 py-1 rounded-full"
-                  >
-                    <Text className="text-red-600">✕</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <View className="items-center py-6">
-                  <Text className="text-blue-500 text-lg mb-2"> Upload Product Image</Text>
-                  <Text className="text-gray-500 text-center">Tap here to select an image of your product</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+            {/* Product Info Section - Only show if product info is provided */}
+            {(productName || productImageUrl) && (
+              <View className="bg-blue-50 p-4 rounded-lg mb-6">
+                {productImageUrl && (
+                  <Image 
+                    source={{ uri: productImageUrl }} 
+                    className="w-full h-40 mb-2 rounded-md" 
+                    resizeMode="contain"
+                  />
+                )}
+                {productName && (
+                  <Text className="font-bold text-gray-800">{productName}</Text>
+                )}
+              </View>
+            )}
+            
+            {/* Image Upload Section - Only show if not from product details page */}
+            {!fromProductDetails && (
+              <TouchableOpacity
+                className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
+                onPress={pickImage}
+              >
+                {selectedImage ? (
+                  <>
+                    <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
+                    <TouchableOpacity 
+                      onPress={removeImage}
+                      className="bg-red-100 px-3 py-1 rounded-full"
+                    >
+                      <Text className="text-red-600">✕</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <View className="items-center py-6">
+                    <Text className="text-blue-500 text-lg mb-2">
+                      Upload Product Image
+                    </Text>
+                    <Text className="text-gray-500 text-center">
+                      Tap here to select an image of your product
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )}
 
             <Text className="text-lg font-semibold mb-2 text-gray-700">Contact Information</Text>
             

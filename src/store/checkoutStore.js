@@ -1,7 +1,7 @@
 import { create } from 'zustand';
+import axiosInstance from '../utils/axiosInstance';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
-import axiosInstance from '../utils/axiosInstance';
 
 const useCheckoutStore = create((set, get) => ({
   // State

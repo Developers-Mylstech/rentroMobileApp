@@ -89,6 +89,15 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="bag-handle" size={20} color={color} />
           ),
+          // Add listener to reset navigation state when tab is pressed
+          listeners: ({ navigation }) => ({
+            tabPress: (e) => {
+              // Prevent default behavior
+              e.preventDefault();
+              // Navigate to the root of the shop tab
+              navigation.navigate('(tabs)', { screen: 'shop/index' });
+            },
+          }),
         }}
       />
       <Tabs.Screen
