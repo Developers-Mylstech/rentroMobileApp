@@ -40,9 +40,7 @@ export default function OrdersList() {
 
             <View className="flex-row justify-between items-center">
                 <Text className="text-gray-500 text-sm">
-                    {item.deliveryDate ? `Delivered: ${formatDate(item.deliveryDate)}` :
-                        item.estimatedDelivery ? `Est. Delivery: ${formatDate(item.estimatedDelivery)}` :
-                            `Ordered: ${formatDate(item.orderDate)}`}
+                    {`Order On: ${formatDate(item?.createdAt)}  `}
                 </Text>
 
                 <TouchableOpacity
@@ -60,12 +58,13 @@ export default function OrdersList() {
     )
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString)
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: 'numeric',
             month: 'short',
             year: 'numeric'
-        })
+        });
     }
 
     return (

@@ -26,54 +26,11 @@ export default function SingleService() {
   }, [serviceId]);
 
   const handleViewProduct = (productId) => {
-    router.push(`/shop/${productId}`);
-  };
+      router.push(`/service/serviceproduct/${productId}`);
 
-  // New function to handle booking a service
-  const handleBookService = () => {
-    if (selectedService && selectedService.relatedProducts && selectedService.relatedProducts.length > 0) {
-      // Get the first related product to book a service for
-      const product = selectedService.relatedProducts[0];
-      
-      // Determine service type based on service title using backend enum values
-      let serviceType = 'OTS'; // Default to one-time service
-      const title = selectedService.title.toLowerCase();
-      
-      if (title.includes('monthly') || title.includes('mmc')) {
-        serviceType = 'MMC';
-      } else if (title.includes('annual') || title.includes('amc')) {
-        if (title.includes('basic')) {
-          serviceType = 'AMC_BASIC';
-        } else if (title.includes('gold') || title.includes('premium')) {
-          serviceType = 'AMC_GOLD';
-        } else {
-          serviceType = 'AMC_BASIC'; // Default to basic if not specified
-        }
-      }
-      
-      // Navigate to checkout with service parameters
-      router.push({
-        pathname: '/shop/checkout',
-        params: { 
-          direct: 'true',
-          productId: product.productId,
-          productType: 'SERVICE', // This is just for our frontend routing
-          quantity: 1,
-          serviceType: serviceType, // This will be used as the actual productType in the API call
-          serviceName: selectedService.title
-        }
-      });
-    } else {
-      // If no related products, show an alert or navigate to products
-      Alert.alert(
-        "No Products Available", 
-        "There are no products available for this service. Please browse our products.",
-        [
-          { text: "OK", onPress: () => router.push("/shop") }
-        ]
-      );
-    }
-  };
+};
+
+ 
 
   const renderRelatedProduct = ({ item }) => (
     <View className="mr-4 relative bg-white rounded-lg w-52 border border-gray-100 shadow-sm overflow-hidden">
@@ -123,15 +80,7 @@ export default function SingleService() {
                 className="absolute left-0 right-0 top-0 h-32"
               />
               
-              {/* Add Book Now button */}
-              <View className="absolute bottom-4 right-4">
-                <TouchableOpacity
-                  onPress={handleBookService}
-                  className="bg-blue-500 px-6 py-3 rounded-lg shadow-md"
-                >
-                  <Text className="text-white font-bold">Book Now</Text>
-                </TouchableOpacity>
-              </View>
+              
             </View>
 
             <View className="bg-white rounded-t-3xl -mt-6 px-4 pt-8 pb-12">

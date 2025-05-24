@@ -785,61 +785,74 @@ export default function Checkout() {
     </View>
   );
 
-  // Render Payment Details Step (Stripe Integration)
   const renderPaymentDetailsStep = () => (
     <View className="px-4 flex-1">
-  <Text className="text-xl font-bold mb-6">Payment Details</Text>
+      <Text className="text-xl font-bold mb-6">Payment Details</Text>
 
-  {loading ? (
-    <View className="flex-1 justify-center items-center">
-      <ActivityIndicator size="large" color="#0000ff" />
-      <Text className="mt-4 text-gray-600">Initializing checkout...</Text>
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text className="mt-4 text-gray-600">Initializing checkout...</Text>
+        </View>
+      ) : (
+        <>
+          {error && <Text className="text-red-500 text-center mb-4">{error}</Text>}
+
+          <View className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-6">
+            <Text className="text-gray-700 font-medium mb-3">Card Information</Text>
+            <CardField
+              postalCodeEnabled={false}
+              placeholder={{
+                number: '4242 4242 4242 4242',
+              }}
+              cardStyle={{
+                backgroundColor: '#FFFFFF',
+                textColor: '#000000',
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+              }}
+              style={{
+                width: '100%',
+                height: 50,
+                marginBottom: 10,
+              }}
+              onCardChange={(cardDetails) => {
+                setCardDetails(cardDetails);
+              }}
+            />
+            <Text className="text-xs text-gray-500 mt-2">
+              Your card information is secure and encrypted
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            className={`${paymentProcessing ? 'bg-blue-400' : 'bg-blue-600'} rounded-lg py-4 px-6 mb-4 items-center shadow-sm`}
+            onPress={handleCompleteOrder}
+            disabled={paymentProcessing}
+          >
+            {paymentProcessing ? (
+              <View className="flex-row items-center">
+                <ActivityIndicator size="small" color="#ffffff" />
+                <Text className="text-white font-semibold ml-2">Processing...</Text>
+              </View>
+            ) : (
+              <Text className="text-white font-semibold">Pay Now</Text>
+            )}
+          </TouchableOpacity>
+        </>
+      )}
+
+      <View className="flex-row justify-between items-center mt-auto">
+        <TouchableOpacity
+          className="bg-blue-50 border border-blue-600 rounded-lg py-3 px-6 mb-4 flex-row items-center justify-center"
+          onPress={handleBack}
+        >
+          <Ionicons name="arrow-back" size={16} color="#2976f3" />
+          <Text className="text-blue-600 font-semibold mr-2">Back</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  ) : (
-    <>
-      {error && <Text className="text-red-500 text-center mb-4">{error}</Text>}
-
-      <CardField
-        postalCodeEnabled={false}
-        placeholder={{
-          number: '4242 4242 4242 4242',
-        }}
-        cardStyle={{
-          backgroundColor: '#FFFFFF',
-          textColor: '#000000',
-        }}
-        style={{
-          width: '100%',
-          height: 50,
-          marginVertical: 30,
-        }}
-        onCardChange={(cardDetails) => {
-          setCardDetails(cardDetails);
-        }}
-      />
-
-      <TouchableOpacity
-        className="bg-blue-600 rounded-lg py-3 px-6 mb-4 items-center"
-        onPress={handleCompleteOrder}
-        disabled={paymentProcessing}
-      >
-        <Text className="text-white font-semibold">
-          {paymentProcessing ? 'Processing...' : 'Pay Now'}
-        </Text>
-      </TouchableOpacity>
-    </>
-  )}
-
-  <View className="flex-row justify-between items-center mt-auto">
-    <TouchableOpacity
-      className="bg-blue-50 border border-blue-600 rounded-lg py-3 px-6 mb-4 flex-row items-center justify-center"
-      onPress={handleBack}
-    >
-      <Ionicons name="arrow-back" size={16} color="#2976f3" />
-      <Text className="text-blue-600 font-semibold mr-2">Back</Text>
-    </TouchableOpacity>
-  </View>
-</View>
   );
 
   return (

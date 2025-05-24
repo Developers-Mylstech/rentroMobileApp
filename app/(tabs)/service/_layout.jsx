@@ -19,6 +19,13 @@ export default function ServiceLayout() {
           headerShown: true
         }} 
       />
+      <Stack.Screen 
+        name="serviceproduct/[product]" 
+        options={{ 
+          title: "Product Details",
+          headerShown: true
+        }} 
+      />
     </Stack>
   );
 }
