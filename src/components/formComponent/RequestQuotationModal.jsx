@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -17,7 +17,14 @@ import { useForm, Controller } from 'react-hook-form';
 import axiosInstance from '../../api/axiosInstance';
 import Clipboard from '@react-native-clipboard/clipboard';
 
-const RequestQuotationModal = ({ visible, onClose }) => {
+const RequestQuotationModal = ({ 
+  visible, 
+  onClose, 
+  productId, 
+  productName, 
+  productImage,
+  fromProductDetails = false 
+}) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -25,6 +32,7 @@ const RequestQuotationModal = ({ visible, onClose }) => {
   const [quoteRequestId, setQuoteRequestId] = useState('');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [productImageUrl, setProductImageUrl] = useState(productImage || null);
 
   const { control, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
@@ -39,6 +47,13 @@ const RequestQuotationModal = ({ visible, onClose }) => {
       locationGmapLink: '',
     },
   });
+
+  // Set product image when productImage prop changes
+  useEffect(() => {
+    if (productImage) {
+      setProductImageUrl(productImage);
+    }
+  }, [productImage]);
 
   const selectedCountry = watch('locationCountry');
 
@@ -83,6 +98,8 @@ const RequestQuotationModal = ({ visible, onClose }) => {
     setStatusMessage('');
     try {
       let imageUrl = '';
+      
+      // If user selected an image, upload it
       if (selectedImage) {
         const formData = new FormData();
         formData.append('file', {
@@ -98,6 +115,10 @@ const RequestQuotationModal = ({ visible, onClose }) => {
         if (uploadResponse?.data?.fileUrl) {
           imageUrl = uploadResponse.data.fileUrl;
         }
+      } 
+      // If no user-selected image but we have a product image, use that
+      else if (productImageUrl) {
+        imageUrl = productImageUrl;
       }
 
       const payload = {
@@ -113,6 +134,8 @@ const RequestQuotationModal = ({ visible, onClose }) => {
           gmapLink: data.locationGmapLink,
         },
         productImages: imageUrl ? [imageUrl] : [],
+        productId: productId || null,
+        productName: productName || null,
       };
 
       const response = await axiosInstance.post('/request-quotations', payload);
@@ -182,27 +205,50 @@ const RequestQuotationModal = ({ visible, onClose }) => {
           </View>
           
           <ScrollView className="flex-1 px-5 pt-6">
-            <TouchableOpacity
-              className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
-              onPress={pickImage}
-            >
-              {selectedImage ? (
-                <>
-                  <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
-                  <TouchableOpacity 
-                    onPress={removeImage}
-                    className="bg-red-100 px-3 py-1 rounded-full"
-                  >
-                    <Text className="text-red-600">✕</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <View className="items-center py-6">
-                  <Text className="text-blue-500 text-lg mb-2"> Upload Product Image</Text>
-                  <Text className="text-gray-500 text-center">Tap here to select an image of your product</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+            {/* Product Info Section - Only show if product info is provided */}
+            {(productName || productImageUrl) && (
+              <View className="bg-blue-50 p-4 rounded-lg mb-6">
+                {productImageUrl && (
+                  <Image 
+                    source={{ uri: productImageUrl }} 
+                    className="w-full h-40 mb-2 rounded-md" 
+                    resizeMode="contain"
+                  />
+                )}
+                {productName && (
+                  <Text className="font-bold text-gray-800">{productName}</Text>
+                )}
+              </View>
+            )}
+            
+            {/* Image Upload Section - Only show if not from product details page */}
+            {!fromProductDetails && (
+              <TouchableOpacity
+                className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
+                onPress={pickImage}
+              >
+                {selectedImage ? (
+                  <>
+                    <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
+                    <TouchableOpacity 
+                      onPress={removeImage}
+                      className="bg-red-100 px-3 py-1 rounded-full"
+                    >
+                      <Text className="text-red-600">✕</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <View className="items-center py-6">
+                    <Text className="text-blue-500 text-lg mb-2">
+                      Upload Product Image
+                    </Text>
+                    <Text className="text-gray-500 text-center">
+                      Tap here to select an image of your product
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )}
 
             <Text className="text-lg font-semibold mb-2 text-gray-700">Contact Information</Text>
             

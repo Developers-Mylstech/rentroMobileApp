@@ -20,6 +20,7 @@ import useCheckoutStore from "../../../src/store/checkoutStore";
 import CartDrawer from '../../../src/components/cart/CartDrawer';
 import ProductDetailsSkeleton from '../../../src/components/Skeleton/ProductDetailsSkeleton';
 import CartNotificationDialog from '../../../src/components/common/CartNotificationDialog';
+import RequestQuotationModal from '../../../src/components/formComponent/RequestQuotationModal';
 
 const { width } = Dimensions.get('window');
 
@@ -45,6 +46,8 @@ export default function ProductDetails() {
   const [selectedAmcPlan, setSelectedAmcPlan] = useState('basic'); // 'basic' or 'gold'
   const [productQuantity, setProductQuantity] = useState(1); // Add quantity state
   const [localLoading, setLocalLoading] = useState(true);
+  const [showQuotationModal, setShowQuotationModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   
   // Dialog state should be inside the component
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -101,8 +104,16 @@ export default function ProductDetails() {
     }
   };
 
+  // Function to check if product is a quotation product
+  const isQuotationProduct = () => {
+    return currentProduct?.productFor?.isAvailableForRequestQuotation === true;
+  };
+
   // Function to get price display based on active tab
   const getPriceDisplay = () => {
+    // If it's a quotation product, don't show price
+    if (isQuotationProduct()) return { price: null, originalPrice: null };
+    
     if (!currentProduct?.productFor) return { price: 'N/A', originalPrice: null };
     
     if (activeTab === 'sell' && currentProduct.productFor.sell) {
@@ -131,6 +142,14 @@ export default function ProductDetails() {
     }
     
     return { price: 'N/A', originalPrice: null };
+  };
+
+  // Function to handle request quotation
+  const handleRequestQuotation = () => {
+    if (currentProduct) {
+      setSelectedProduct(currentProduct);
+      setShowQuotationModal(true);
+    }
   };
 
   // Get benefits based on active tab
@@ -474,14 +493,30 @@ export default function ProductDetails() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {/* Request Quotation Modal */}
+      <RequestQuotationModal 
+        visible={showQuotationModal} 
+        onClose={() => setShowQuotationModal(false)}
+        productId={selectedProduct?.productId}
+        productName={selectedProduct?.name}
+        productImage={selectedProduct?.images && selectedProduct.images.length > 0 
+          ? selectedProduct.images[0].imageUrl 
+          : null}
+        fromProductDetails={true}
+      />
+
       {/* Cart Drawer */}
-      <CartDrawer 
-        isVisible={isCartOpen}
+      <CartDrawer
+        visible={isCartOpen}
         onClose={closeCart}
         cartItems={cartItems}
-        onClearAll={clearCart}
-        onRemoveItem={removeFromCart}
+        onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
+        onClearCart={clearCart}
+        onCheckout={() => {
+          closeCart();
+          router.push('/shop/checkout');
+        }}
       />
       
       {/* Header with back button */}
@@ -593,8 +628,9 @@ export default function ProductDetails() {
    
             
             
-            {/* Price - Only show for Rent and Sell tabs */}
-            {activeTab !== 'service' && (
+            {/* Price and Quantity Section */}
+            {!isQuotationProduct() ? (
+              // Regular product with price and quantity
               <View className="mt-3 flex-row justify-between items-center">
                 <View>
                   <Text className="font-bold text-xl text-gray-800">{price}</Text>
@@ -626,6 +662,22 @@ export default function ProductDetails() {
                     <Ionicons name="add-circle" size={24} color="#3b82f6" />
                   </TouchableOpacity>
                 </View>
+              </View>
+            ) : (
+              // Quotation product with request quotation button
+              <View className="mt-3">
+                <View className="bg-yellow-100 px-3 py-2 rounded-lg mb-3">
+                  <Text className="text-yellow-800 text-sm">
+                    This product requires a quotation. Please click the button below to request a price quote.
+                  </Text>
+                </View>
+                
+                <TouchableOpacity 
+                  className="bg-yellow-500 py-3 rounded-lg items-center"
+                  onPress={handleRequestQuotation}
+                >
+                  <Text className="text-white font-bold">Request Quotation</Text>
+                </TouchableOpacity>
               </View>
             )}
             
@@ -721,8 +773,8 @@ export default function ProductDetails() {
         </View>
       </ScrollView>
       
-      {/* Sticky bottom action buttons - Only show for Rent and Sell tabs */}
-      {activeTab !== 'service' && (
+      {/* Sticky bottom action buttons - Only show for Rent and Sell tabs if not a quotation product */}
+      {activeTab !== 'service' && !isQuotationProduct() && (
         <View className="absolute bottom-0 left-0 right-0 flex-row bg-white border-t border-gray-200 px-4 py-3 shadow-lg">
           <TouchableOpacity 
             className={`flex-1 border rounded-md mr-2 items-center justify-center py-3 ${
