@@ -15,6 +15,7 @@ import { useProductStore } from '../../../src/store/productStore';
 import { useBannerStore } from '../../../src/store/BannerStore';
 import SplashScreen from '../../../src/components/widget/SplashScreen';
 import NoProductsFound from '../../../src/components/home/NoProductsFound';
+import { useAuthStore } from '../../../src/store/authStore';
 
 export default function Home() {
     const router = useRouter();
@@ -22,7 +23,7 @@ export default function Home() {
     const [showSearchBar, setShowSearchBar] = useState(false);
     const { fetchProducts, products, isLoading, error } = useProductStore();
     const { fetchBanners, banners, isLoading: bannerLoading } = useBannerStore();
-
+const{isAuthenticated, initAuth} = useAuthStore()
     useEffect(() => {
         fetchProducts();
         fetchBanners()
@@ -41,7 +42,7 @@ export default function Home() {
             <View className="flex-1 p-5">
                 <Header
                     onProfilePress={() => router.push('/profile')}
-                    onHeartPress={() => console.log('Heart pressed')}
+                    onHeartPress={() => router.push(isAuthenticated ? '/wishlist' : '/(profile)')}
                     onSearchPress={() => setShowSearchBar(!showSearchBar)}
                 />
 

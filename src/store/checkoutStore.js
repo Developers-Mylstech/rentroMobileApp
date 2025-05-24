@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import axiosInstance from '../api/axiosInstance';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 
 const useCheckoutStore = create((set, get) => ({
   // State
@@ -15,11 +15,10 @@ const useCheckoutStore = create((set, get) => ({
   // Actions
   placeOrder: async (orderData) => {
     set({ loading: true, error: null });
-    const accessToken = await SecureStore.getItemAsync('auth_token');
+    
 
     try {
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer ${accessToken}`;
+      
       const response = await axiosInstance.post('/checkouts', orderData);
       set({ checkoutId: response.data.checkoutId, loading: false });
       return response.data;

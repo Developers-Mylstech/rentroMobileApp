@@ -17,7 +17,7 @@ export default function index() {
     fetchProfile()
   }, [])
 
-  console.log(profile, 'profile')
+  
 
   if (isLoading) {
     return <ProfileSkeleton/>
@@ -94,11 +94,6 @@ export default function index() {
 
           </Link>
 
-          <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
-            <Ionicons name="options-outline" size={24} color="#4b5563" className="mr-3" />
-            <Text className="flex-1 text-base">Accessibility</Text>
-            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-          </TouchableOpacity>
           
           <TouchableOpacity 
             className="flex-row items-center py-4 border-b border-gray-200"

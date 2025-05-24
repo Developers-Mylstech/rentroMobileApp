@@ -17,6 +17,13 @@ export default function HomeLayout() {
           headerShown: true
         }} 
       />
+      <Stack.Screen 
+        name="wishlist" 
+        options={{ 
+          title: "Wishlist",
+          headerShown: true,
+        }} 
+      />
     </Stack>
   );
 }

@@ -9,7 +9,7 @@ export default function ProfileLayout() {
 
   return (
     <Stack screenOptions={{
-      headerShown: false,
+      // headerShown: false,
 
     }}
     >
@@ -26,6 +26,20 @@ export default function ProfileLayout() {
         name="personalInfo"
         options={{
           title: "Personal Info",
+          headerShown: true
+        }}
+      />
+      <Stack.Screen
+        name="payment"
+        options={{
+          title: "Payment",
+          headerShown: true
+        }}
+      />
+      <Stack.Screen
+        name="security"
+        options={{
+          title: "Login & Security",
           headerShown: true
         }}
       />

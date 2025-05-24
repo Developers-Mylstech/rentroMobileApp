@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useForm, Controller } from 'react-hook-form';
-import axiosInstance from '../../api/axiosInstance';
 import Clipboard from '@react-native-clipboard/clipboard';
+import axiosInstance from '../../utils/axiosInstance';
 
 const RequestQuotationModal = ({ visible, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
