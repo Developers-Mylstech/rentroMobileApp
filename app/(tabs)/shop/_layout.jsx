@@ -1,7 +1,23 @@
-import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import useCheckoutStore from '../../../src/store/checkoutStore';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ShopLayout() {
+  const { clearCheckoutData } = useCheckoutStore();
+
+  // Clear checkout data when returning to the main shop screen
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = () => {
+        // This runs when the screen is unfocused
+        clearCheckoutData();
+      };
+
+      return unsubscribe;
+    }, [])
+  );
+
   return (
     <Stack
       screenOptions={{
@@ -38,19 +54,20 @@ export default function ShopLayout() {
         }} 
       />
 
-       <Stack.Screen 
+      <Stack.Screen 
         name="checkout" 
         options={{ 
           title: "Checkout",
         }} 
       />
-       <Stack.Screen 
+      <Stack.Screen 
         name="order-confirmation" 
         options={{ 
           title: "Order Confirmation",
+          headerShown: false,
+          gestureEnabled: false,
         }} 
       />
-     
     </Stack>
   );
 }

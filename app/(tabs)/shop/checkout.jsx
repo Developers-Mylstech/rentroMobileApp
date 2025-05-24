@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,144 +14,58 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import useCartStore from "../../../src/store/cartStore";
 import useAddressStore from "../../../src/store/addressStore";
-import useCheckoutStore from "../../../src/store/checkoutStore"; // Import the updated store
-import {
-  useStripe,
-  CardForm,
-  confirmPayment,
-  CardField
-  
-} from "@stripe/stripe-react-native"; // Import Stripe hooks and components
+import useCheckoutStore from "../../../src/store/checkoutStore";
+import { useStripe, CardField } from "@stripe/stripe-react-native";
 import StripeWrapper from "../../../src/components/StripeWraper";
 import axiosInstance from "../../../src/utils/axiosInstance";
-import axios from "axios";
+
 
 export default function Checkout() {
   const router = useRouter();
-  const [checkoutId, setCheckoutId] = useState(null);
-  const { cartItems, clearCart } = useCartStore();
-  const {
-    addresses,
-    addAddress,
-    fetchAddresses,
-    updateAddress,
-    deleteAddress,
-  } = useAddressStore();
-  const {
-    placeOrder,
-    // paymentIntent,
-    paymentCreation,
-    clientSecret, // From useCheckoutStore
-    loading, // From useCheckoutStore (for API calls)
-    error, // From useCheckoutStore (for API calls)
-    clearCheckoutData, // New action to clear relevant checkout data
+  const params = useLocalSearchParams();
+  const isDirectCheckout = params.direct === 'true';
+  const directProductId = params.productId;
+  const directProductType = params.productType;
+  const directQuantity = params.quantity;
+  const directServiceType = params.serviceType; // New parameter for service type
+  const directServiceName = params.serviceName; // New parameter for service name
+  
+  const { 
+    directCheckout, 
+    directCheckoutData, 
+    paymentCreation, 
+    clientSecret, 
+    loading, 
+    error, 
+    clearCheckoutData, // Make sure this is destructured from the store
+    placeOrder 
   } = useCheckoutStore();
+  
+  const [checkoutId, setCheckoutId] = useState(null);
+  const [orderId, setOrderId] = useState(null);
+  const { cartItems, clearCart } = useCartStore();
+  const { addresses, fetchAddresses, addAddress } = useAddressStore();
+  const { confirmPayment } = useStripe();
 
-  const { initPaymentSheet, presentPaymentSheet } = useStripe(); // Stripe hooks
-
+  // Core state
   const [currentStep, setCurrentStep] = useState(1);
+  const [cardDetails, setCardDetails] = useState(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  
+  // Address form state
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [addressToEdit, setAddressToEdit] = useState(null);
-  const [orderId, setOrderId] = useState(null);
-  const [paymentIntentId, setPaymentIntentId] = useState(null);
 
-  // State for Payment Sheet initialization
-  const [paymentSheetInitialized, setPaymentSheetInitialized] = useState(false);
-  const [paymentProcessing, setPaymentProcessing] = useState(false); // For showing a spinner during payment confirmation
-
-
-
-// Inside your component
-const { confirmPayment } = useStripe();
-const [cardDetails, setCardDetails] = useState({});
-
-
-// const handleCompleteOrder = async () => {
-//   if (!cardDetails.complete) {
-//     alert('Please enter complete card details');
-//     return;
-//   }
-
-//   setPaymentProcessing(true);
-
-//   const billingDetails = {
-//     email: formData.email,
-//     phone: formData.mobile,
-//     name: `${formData.firstName} ${formData.lastName}`,
-//   };
-// console.log(clientSecret,'clientSecret')
-//   const { error, paymentIntent } = await confirmPayment(clientSecret, {
-//     type: 'Card',
-//     billingDetails,
-//   });
-
-//   setPaymentProcessing(false);
-
-//   if (error) {
-//     console.error('Payment confirmation error', error);
-//     alert(`Payment failed: ${error.message}`);
-//   } else if (paymentIntent) {
-//     alert('Payment successful!');
-//     // router.push('/shop/ordeConformation');
-//   }
-// };
-
-  const handleCompleteOrder = async () => {
-  if (!cardDetails?.complete) {
-    alert('Please enter complete card details');
-    return;
-  }
-
-  setPaymentProcessing(true);
-
-  const billingDetails = {
-    email: formData.email,
-    phone: formData.mobile,
-    name: `${formData.firstName} ${formData.lastName}`,
-  };
-
-  console.log('clientSecret:', clientSecret);
-
-  const { error, paymentIntent } = await confirmPayment(clientSecret, {
-    paymentMethodType: 'Card', // ✅ CORRECT key
-    paymentMethodData: {
-      billingDetails,
-    },
-  });
-
-  setPaymentProcessing(false);
-
-  if (error) {
-    console.error('Payment confirmation error', error);
-    alert(`Payment failed: ${error.message}`);
-  } else if (paymentIntent) {
-    setPaymentIntentId(paymentIntent.id);
-    console.log(paymentIntent,'paymentIntent id');
-    // if (orderId && paymentIntentId) {
-
-      const response = await axiosInstance.get(`/payments/confirm/${paymentIntent?.id}?orderId=${orderId}`);
-      if(response.data.success) {
-        router.push('/shop/order-confirmation');
-      // }
-    }
-    alert('Payment successful!');
-    
-    // router.push('/shop/ordeConformation');
-  }
-};
-
+  // Form data
   const [formData, setFormData] = useState({
-    // Basic Details
     firstName: "",
     lastName: "",
     email: "",
     mobile: "",
-
-    // Address Details
     selectedAddressId: null,
     newAddress: {
       streetAddress: "",
@@ -165,142 +79,59 @@ const [cardDetails, setCardDetails] = useState({});
       default: true,
       formattedAddress: "",
     },
-
-    // Payment Details (These will mostly be handled by Payment Sheet now)
-    // You might still keep these if you want to store user's default cards
-    // or if Payment Sheet isn't used for direct card input.
-    savedPaymentMethods: [], // This will be less relevant if using Payment Sheet
-    selectedPaymentId: null, // This will be less relevant if using Payment Sheet
-    showAddPayment: false, // This will be less relevant if using Payment Sheet
-    savePaymentDetails: true,
-    cardNumber: "",
-    cardName: "",
-    expiryDate: "",
-    cvv: "",
   });
 
+  // Constants
+  const emiratesOptions = [
+    "Dubai", "Abu Dhabi", "Sharjah", "Ajman", 
+    "Umm Al Quwain", "Ras Al Khaimah", "Fujairah",
+  ];
+  const addressTypes = ["Home", "Office", "Other"];
+
+  // Load addresses on mount
   useEffect(() => {
     fetchAddresses();
+    
+    // If this is a direct checkout and we have data, pre-fill the form
+    if (isDirectCheckout && directCheckoutData) {
+      // Pre-fill address if available
+      if (directCheckoutData.deliveryAddress) {
+        const addressId = directCheckoutData.deliveryAddress?.addressId;
+        if (addressId) {
+          setFormData(prev => ({
+            ...prev,
+            selectedAddressId: addressId,
+          }));
+        }
+      }
+      
+      // Pre-fill user info if available
+      if (directCheckoutData.firstName) {
+        setFormData(prev => ({
+          ...prev,
+          firstName: directCheckoutData.firstName || '',
+          lastName: directCheckoutData.lastName || '',
+          email: directCheckoutData.email || '',
+          mobile: directCheckoutData.mobile || '',
+        }));
+      }
+      
+      // Set checkout ID and order ID
+      setCheckoutId(directCheckoutData.checkoutId);
+      setOrderId(directCheckoutData.orderId);
+    }
+    
+    // Find default address if needed
     if (addresses.length > 0 && !formData.selectedAddressId) {
-      const defaultAddr =
-        addresses.find((addr) => addr.default) || addresses[0];
+      const defaultAddr = addresses.find((addr) => addr.default) || addresses[0];
       setFormData((prev) => ({
         ...prev,
         selectedAddressId: defaultAddr ? defaultAddr.addressId : null,
       }));
     }
-  }, [fetchAddresses]); // Added addresses as dependency
+  }, [fetchAddresses, isDirectCheckout, directCheckoutData]);
 
-  // Effect to initialize Payment Sheet when clientSecret is available
-  useEffect(() => {
-    if (clientSecret) {
-      initializePaymentSheet();
-    }
-  }, [clientSecret]); // Depend on clientSecret
-
-  const initializePaymentSheet = useCallback(async () => {
-    if (!clientSecret) {
-      Alert.alert("Error", "Stripe client secret not available.");
-      return;
-    }
-
-    setPaymentSheetInitialized(false);
-    setPaymentProcessing(true);
-
-    try {
-      const { error } = await initPaymentSheet({
-        merchantDisplayName: "Rentro",
-        paymentIntentClientSecret: clientSecret,
-
-        style: "alwaysLight",
-        allowsDelayedPaymentMethods: true,
-
-        customerEphemeralKeySecret: null, // If you're managing customers on backend
-        customerId: null, // If you're managing customers on backend
-      });
-
-      if (error) {
-        Alert.alert(`Error initializing payment sheet: ${error.message}`);
-        console.error("Payment Sheet Initialization Error:", error);
-      } else {
-        setPaymentSheetInitialized(true);
-      }
-    } catch (e) {
-      Alert.alert("Payment Sheet Error", "Could not initialize payment sheet.");
-      console.error("initPaymentSheet catch error:", e);
-    } finally {
-      setPaymentProcessing(false);
-    }
-  }, [clientSecret, initPaymentSheet]);
-
-  const handleAddOrUpdateAddress = () => {
-    const { streetAddress, buildingName, flatNo, area, emirate, country } =
-      formData.newAddress;
-    if (
-      !streetAddress ||
-      !buildingName ||
-      !flatNo ||
-      !area ||
-      !emirate ||
-      !country
-    ) {
-      alert("Please fill all required address fields.");
-      return;
-    }
-
-    if (isEditingAddress && addressToEdit) {
-      updateAddress({
-        ...formData.newAddress,
-        addressId: addressToEdit.addressId,
-      });
-    } else {
-      addAddress(formData.newAddress);
-    }
-    setFormData((prev) => ({
-      ...prev,
-      newAddress: {
-        streetAddress: "",
-        buildingName: "",
-        flatNo: "",
-        area: "",
-        emirate: "Dubai",
-        country: "UAE",
-        landmark: "",
-        addressType: "Home",
-        default: true,
-        formattedAddress: "",
-      },
-    }));
-    setShowAddressForm(false);
-    setIsEditingAddress(false);
-    setAddressToEdit(null);
-  };
-
-  const handleDeleteAddress = (id) => {
-    deleteAddress(id);
-  };
-
-  const handleEditAddress = (address) => {
-    setFormData((prev) => ({
-      ...prev,
-      newAddress: { ...address },
-    }));
-    setIsEditingAddress(true);
-    setAddressToEdit(address);
-    setShowAddressForm(true);
-  };
-
-  const emiratesOptions = [
-    "Dubai",
-    "Abu Dhabi",
-    "Sharjah",
-    "Ajman",
-    "Umm Al Quwain",
-    "Ras Al Khaimah",
-    "Fujairah",
-  ];
-  const addressTypes = ["Home", "Office", "Other"];
-
+  // Form handlers
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -337,58 +168,7 @@ const [cardDetails, setCardDetails] = useState({});
     }));
   };
 
- const handleNext = async () => {
-  if (currentStep === 1) {
-    const { firstName, lastName, email, mobile } = formData;
-    if (!firstName || !lastName || !email || !mobile) {
-      alert("Please fill all basic details.");
-      return;
-    }
-  } else if (currentStep === 2) {
-    if (!formData.selectedAddressId) {
-      alert("Please select an address.");
-      return;
-    }
-
-    const selectedAddress = addresses.find(
-      (addr) => addr.addressId === formData.selectedAddressId
-    );
-    if (!selectedAddress) {
-      alert("Selected address not found. Please select a valid address.");
-      return;
-    }
-
-    const checkoutData = {
-      cartId: cartItems.cartId,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      mobile: formData.mobile,
-      email: formData.email,
-      addressId: selectedAddress.addressId,
-    };
-
-    console.log("Initiating checkout with data:", JSON.stringify(checkoutData, null, 2));
-
-    const res = await placeOrder(checkoutData);
-
-    if (res?.checkoutId) {
-      setCheckoutId(res.checkoutId); // Optional: for UI/display purposes
-      setOrderId(res.orderId);
-      const paymentRes = await paymentCreation(res.checkoutId);
-
-        setCurrentStep(currentStep + 1); // Move to payment step
-     
-    } else {
-      alert("Checkout failed. No checkoutId received.");
-    }
-
-    return;
-  }
-
-  setCurrentStep(currentStep + 1);
-};
-
-
+  // Navigation handlers
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -397,53 +177,222 @@ const [cardDetails, setCardDetails] = useState({});
     }
   };
 
- 
+  // Handle direct checkout when user clicks Next on address step
+  const handleDirectCheckout = async () => {
+    if (!directProductId || !directProductType) {
+      Alert.alert("Error", "Product information is missing");
+      return;
+    }
 
-  // const handleCompleteOrder = async () => {
-  //   if (!paymentSheetInitialized) {
-  //     Alert.alert(
-  //       "Payment Error",
-  //       "Payment not ready. Please try again or go back."
-  //     );
-  //     return;
-  //   }
+    try {
+      // Find the selected address from the addresses array
+      const addressToUse = addresses.find(
+        (addr) => addr.addressId === formData.selectedAddressId
+      );
+      
+      if (!addressToUse) {
+        Alert.alert("Invalid Address", "Please select a valid delivery address.");
+        return;
+      }
 
-  //   setPaymentProcessing(true); // Start spinner for payment process
+      // Create payload with user entered data and selected address
+      const payload = {
+        quantity: parseInt(directQuantity) || 1,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        mobile: formData.mobile,
+        email: formData.email,
+        addressId: addressToUse.addressId,
+        address: {
+          streetAddress: addressToUse.streetAddress || "string",
+          buildingName: addressToUse.buildingName || "string",
+          flatNo: addressToUse.flatNo || "string",
+          area: addressToUse.area || "string",
+          emirate: addressToUse.emirate || "string",
+          country: addressToUse.country || "string",
+          landmark: addressToUse.landmark || "string",
+          addressType: addressToUse.addressType || "string",
+          default: addressToUse.default || true
+        }
+      };
+      
+      // Map the product type to the correct enum value expected by the backend
+      if (directProductType === 'SERVICE') {
+        // For services, use the specific service type instead of 'SERVICE'
+        payload.productType = directServiceType || 'OTS';
+      } else {
+        // For non-services, use the product type directly (SELL or RENT)
+        payload.productType = directProductType;
+      }
 
-  //   const { error: presentError } = await presentPaymentSheet();
+      console.log('Direct checkout payload:', JSON.stringify(payload));
 
-  //   if (presentError) {
-  //     Alert.alert(`Payment failed: ${presentError.code}`, presentError.message);
-  //     setPaymentProcessing(false);
-  //   } else {
-  //     Alert.alert("Success", "Your order has been placed!");
+      // Call directCheckout with the product ID and payload
+      const response = await directCheckout(directProductId, payload);
+      
+      // Set checkout ID and order ID
+      setCheckoutId(response.checkoutId);
+      setOrderId(response.orderId);
+      
+      // Create payment intent
+      await paymentCreation(response.checkoutId);
+      
+      // Move to payment step
+      setCurrentStep(3);
+    } catch (error) {
+      console.error("Direct checkout error:", error);
+      Alert.alert("Error", error.response?.data?.message || "Failed to process checkout");
+    }
+  };
 
-  //     const finalOrderPayload = {
-  //       checkoutId: checkoutId,
-  //       paymentStatus: "paid",
+  // Update handleNext function
+  const handleNext = async () => {
+    if (currentStep === 1) {
+      // Validate basic details
+      const { firstName, lastName, email, mobile } = formData;
+      if (!firstName || !lastName || !email || !mobile) {
+        Alert.alert("Missing Information", "Please fill all basic details.");
+        return;
+      }
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      // Validate address selection
+      if (!formData.selectedAddressId) {
+        Alert.alert("Address Required", "Please select an address.");
+        return;
+      }
 
-  //       firstName: formData.firstName,
-  //       lastName: formData.lastName,
-  //       email: formData.email,
-  //       mobile: formData.mobile,
-  //       addressId: formData.selectedAddressId,
-  //       totalAmount: cartItems.totalPrice,
-  //       items: cartItems.items.map((item) => ({
-  //         productId: item.productId,
-  //         name: item.name,
-  //         quantity: item.quantity,
-  //         price: item.price,
-  //       })),
-  //       orderDate: new Date().toISOString(),
-  //     };
-  //     console.log("Finalizing order with payload:", finalOrderPayload);
+      // If this is a direct checkout, handle it differently
+      if (isDirectCheckout && directProductId) {
+        await handleDirectCheckout();
+        return;
+      }
 
-  //     clearCart();
-  //     clearCheckoutData(); // Clear checkout related data from store
-  //     setPaymentProcessing(false);
-  //     router.replace("/shop");
-  //   }
-  // };
+      // Otherwise, proceed with normal checkout flow
+      try {
+        const checkoutData = {
+          cartId: cartItems.cartId,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          mobile: formData.mobile,
+          email: formData.email,
+          addressId: formData.selectedAddressId,
+        };
+
+        const res = await placeOrder(checkoutData);
+        if (res?.checkoutId) {
+          setCheckoutId(res.checkoutId);
+          setOrderId(res.orderId);
+          await paymentCreation(res.checkoutId);
+          setCurrentStep(3);
+        } else {
+          Alert.alert("Error", "Checkout failed. Please try again.");
+        }
+      } catch (err) {
+        console.error("Checkout error:", err);
+        Alert.alert("Error", "Failed to process your order.");
+      }
+    }
+  };
+
+  // Address management
+  const handleAddOrUpdateAddress = () => {
+    const { streetAddress, buildingName, flatNo, area, emirate, country } = formData.newAddress;
+    if (!streetAddress || !buildingName || !flatNo || !area || !emirate || !country) {
+      Alert.alert("Missing Information", "Please fill all required address fields.");
+      return;
+    }
+
+    if (isEditingAddress && addressToEdit) {
+      updateAddress({
+        ...formData.newAddress,
+        addressId: addressToEdit.addressId,
+      });
+    } else {
+      addAddress(formData.newAddress);
+    }
+    
+    // Reset form
+    setFormData((prev) => ({
+      ...prev,
+      newAddress: {
+        streetAddress: "",
+        buildingName: "",
+        flatNo: "",
+        area: "",
+        emirate: "Dubai",
+        country: "UAE",
+        landmark: "",
+        addressType: "Home",
+        default: true,
+        formattedAddress: "",
+      },
+    }));
+    setShowAddressForm(false);
+    setIsEditingAddress(false);
+    setAddressToEdit(null);
+  };
+
+  const handleEditAddress = (address) => {
+    setFormData((prev) => ({
+      ...prev,
+      newAddress: { ...address },
+    }));
+    setIsEditingAddress(true);
+    setAddressToEdit(address);
+    setShowAddressForm(true);
+  };
+
+  const handleDeleteAddress = (id) => {
+    deleteAddress(id);
+  };
+
+  // Payment processing
+  const handleCompleteOrder = async () => {
+    if (!cardDetails?.complete) {
+      Alert.alert("Incomplete Card Details", "Please enter complete card details.");
+      return;
+    }
+
+    setPaymentProcessing(true);
+
+    try {
+      const billingDetails = {
+        email: formData.email,
+        phone: formData.mobile,
+        name: `${formData.firstName} ${formData.lastName}`,
+      };
+
+      const { error, paymentIntent } = await confirmPayment(clientSecret, {
+        paymentMethodType: 'Card',
+        paymentMethodData: {
+          billingDetails,
+        },
+      });
+
+      if (error) {
+        console.error('Payment confirmation error:', error);
+        Alert.alert('Payment Failed', error.message);
+      } else if (paymentIntent) {
+        const response = await axiosInstance.get(
+          `/payments/confirm/${paymentIntent.id}?orderId=${orderId}`
+        );
+        
+        if (response.data.success) {
+          clearCart();
+          clearCheckoutData(); // Now this should work
+          router.push('/shop/order-confirmation');
+        } else {
+          Alert.alert('Payment Error', 'Payment was processed but order confirmation failed.');
+        }
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      Alert.alert('Payment Error', error.message || 'An error occurred during payment processing');
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
 
   // Render progress bar
   const renderProgressBar = () => (

@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TouchableOpacity, Image, TextInput, FlatList } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, Image, TextInput, FlatList, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
@@ -36,7 +36,6 @@ export default function Service() {
           />
         </View>
 
-
         <View className={` ${viewMode === 'grid' ? 'flex gap-3 p-3 -mt-2 bg-white rounded-t-xl' : ' p-3 flex-1 bg-white jsustify justify-start gap-1 '}`}>
           <Text 
             className="text-gray-800 font-semibold text-base" 
@@ -54,22 +53,74 @@ export default function Service() {
             {item.shortDescription}
           </Text>
 
-         
-
-          {viewMode === 'grid' && (
+          <View className="flex-row justify-between mt-2">
             <TouchableOpacity 
-            className="flex-row items-center justify-center bg-blue-50 px-4 py-2.5 rounded-lg"
-            onPress={() => handleServicePress(item)}
-            activeOpacity={0.7}
-          >
-            <Text className="text-blue-600 font-medium text-sm mr-2">View Details</Text>
-            <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
-          </TouchableOpacity>
-          )}
+              className="flex-row items-center justify-center bg-blue-50 px-4 py-2.5 rounded-lg"
+              onPress={() => handleServicePress(item)}
+              activeOpacity={0.7}
+            >
+              <Text className="text-blue-600 font-medium text-sm mr-2">View Details</Text>
+              <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
+            </TouchableOpacity>
+            
+            {/* Add Book Now button */}
+            {item.relatedProducts && item.relatedProducts.length > 0 && (
+              <TouchableOpacity 
+                className="flex-row items-center justify-center bg-blue-500 px-4 py-2.5 rounded-lg ml-2"
+                onPress={() => handleBookService(item)}
+                activeOpacity={0.7}
+              >
+                <Text className="text-white font-medium text-sm">Book Now</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
   );
+
+  // Add function to handle booking a service
+  const handleBookService = (service) => {
+    if (service.relatedProducts && service.relatedProducts.length > 0) {
+      // Get the first related product to book a service for
+      const product = service.relatedProducts[0];
+      
+      // Determine service type based on service title using backend enum values
+      let serviceType = 'OTS'; // Default to one-time service
+      const title = service.title.toLowerCase();
+      
+      if (title.includes('monthly') || title.includes('mmc')) {
+        serviceType = 'MMC';
+      } else if (title.includes('annual') || title.includes('amc')) {
+        if (title.includes('basic')) {
+          serviceType = 'AMC_BASIC';
+        } else if (title.includes('gold') || title.includes('premium')) {
+          serviceType = 'AMC_GOLD';
+        } else {
+          serviceType = 'AMC_BASIC'; // Default to basic if not specified
+        }
+      }
+      
+      // Navigate to checkout with service parameters
+      router.push({
+        pathname: '/shop/checkout',
+        params: { 
+          direct: 'true',
+          productId: product.productId,
+          productType: 'SERVICE', // This is just for our frontend routing
+          quantity: 1,
+          serviceType: serviceType, // This will be used as the actual productType in the API call
+          serviceName: service.title
+        }
+      });
+    } else {
+      // If no related products, show an alert
+      Alert.alert(
+        "No Products Available", 
+        "There are no products available for this service."
+      );
+    }
+  };
 
   const renderFooter = () => (
     <LinearGradient

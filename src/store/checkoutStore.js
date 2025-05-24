@@ -10,6 +10,7 @@ const useCheckoutStore = create((set, get) => ({
   error: null,
   checkoutId: null,
   clientSecret: null,
+  directCheckoutData: null,
 
   // Actions
   placeOrder: async (orderData) => {
@@ -17,7 +18,7 @@ const useCheckoutStore = create((set, get) => ({
     const accessToken = await SecureStore.getItemAsync('auth_token');
 
     try {
-          axiosInstance.defaults.headers.common['Authorization'] = 
+      axiosInstance.defaults.headers.common['Authorization'] = 
         `Bearer ${accessToken}`;
       const response = await axiosInstance.post('/checkouts', orderData);
       set({ checkoutId: response.data.checkoutId, loading: false });
@@ -29,17 +30,49 @@ const useCheckoutStore = create((set, get) => ({
       });
       throw error;
     }
-    
-    
+  },
+
+  // Updated method for direct checkout from product page
+  directCheckout: async (productId, payload) => {
+    set({ loading: true, error: null });
+    const accessToken = await SecureStore.getItemAsync('auth_token');
+
+    try {
+      axiosInstance.defaults.headers.common['Authorization'] = 
+        `Bearer ${accessToken}`;
+      
+      console.log('Sending buy-now request with payload:', JSON.stringify(payload));
+      
+      // Use the buy-now endpoint with the provided payload
+      const response = await axiosInstance.post(`/products/${productId}/buy-now`, payload);
+      
+      console.log('Buy-now response:', JSON.stringify(response.data));
+      
+      // Store the checkout data for use in the checkout flow
+      set({ 
+        directCheckoutData: response.data,
+        loading: false 
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Buy-now error:', error.response?.data || error.message);
+      
+      set({ 
+        error: error.response?.data?.message || 'Failed to create direct checkout',
+        loading: false 
+      });
+      throw error;
+    }
   },
 
   paymentCreation: async (id) => {
     set({ loading: true, error: null });
     const accessToken = await SecureStore.getItemAsync('auth_token');
-     try {
-          axios.defaults.headers.common['Authorization'] = 
+    try {
+      axios.defaults.headers.common['Authorization'] = 
         `Bearer ${accessToken}`;
-      const response = await axios.post('https://8jo1qshtyzzh.share.zrok.io/api/v1/payments/create-payment-intent', {checkoutId:id});
+      const response = await axiosInstance.post('/payments/create-payment-intent', {checkoutId:id});
       set({ clientSecret: response.data.clientSecret, loading: false });
       return response.data;
     } catch (error) {
@@ -51,10 +84,15 @@ const useCheckoutStore = create((set, get) => ({
     }
   },
 
-
-  // Clear order
-  clearOrder: () => {
-    set({ order: null });
+  // Clear checkout data
+  clearCheckoutData: () => {
+    set({ 
+      order: null,
+      checkoutId: null,
+      clientSecret: null,
+      directCheckoutData: null,
+      error: null
+    });
   },
 
   // Clear error

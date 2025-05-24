@@ -8,9 +8,11 @@ import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import LottieView from "lottie-react-native";
 import SplashScreen from "../../src/components/widget/SplashScreen";
+import useCheckoutStore from '../../src/store/checkoutStore';
 
 export default function TabLayout() {
   const { isAuthenticated, initAuth, isLoadingAuth } = useAuthStore();
+  const { clearCheckoutData } = useCheckoutStore();
   const [isFirstVisit, setIsFirstVisit] = useState(true);
 
   useEffect(() => {
@@ -56,6 +58,10 @@ export default function TabLayout() {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
+  const handleTabPress = () => {
+    clearCheckoutData();
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -64,6 +70,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: { paddingBottom: 5, height: 60 },
       }}
+      screenListeners={{ tabPress: handleTabPress }}
     >
       <Tabs.Screen
         name="(home)"
