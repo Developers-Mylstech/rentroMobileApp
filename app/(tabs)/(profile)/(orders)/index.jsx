@@ -20,8 +20,6 @@ export default function OrdersList() {
         )
     }
 
-
-
     const handleOrderPress = (orderId) => {
         router.push(`/(tabs)/(profile)/(orders)/${orderId}`)
     }
@@ -49,7 +47,10 @@ export default function OrdersList() {
 
                 <TouchableOpacity
                     className="flex-row items-center bg-blue-50 px-3 py-1.5 rounded-full"
-                    onPress={() => router.push(`/(tabs)/(profile)/(orders)/track?orderId=${item.id}`)}
+                    onPress={() => router.push({
+                        pathname: `/(tabs)/(profile)/(orders)/${item?.orderId}`,
+                        params: { track: "true" }
+                    })}
                 >
                     <Ionicons name="location-outline" size={14} color="#3B82F6" />
                     <Text className="text-blue-500 font-medium text-xs ml-1">Track</Text>

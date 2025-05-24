@@ -11,7 +11,7 @@ const useOrderStore = create((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      const response = await axiosInstance.get('/orders');
+      const response = await axiosInstance.get('/orders/user');
       set({ orders: response.data, isLoading: false });
       return response.data;
     } catch (error) {

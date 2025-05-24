@@ -7,15 +7,21 @@ import useOrderStore from '../../../../src/store/orderStore'
 import OrderTrackingSheet from '../../../../src/components/orders/OrderTrackingSheet'
 
 export default function OrderDetails() {
-  const { orderId } = useLocalSearchParams()
+  const { orderId, track } = useLocalSearchParams()
   const router = useRouter()
   const [trackingSheetVisible, setTrackingSheetVisible] = useState(false)
   
   const { getOrderById, currentOrder, isLoading, error } = useOrderStore();
+  console.log(track, 'track');
 
   useEffect(() => {
     getOrderById(orderId)
-  }, [orderId])
+    
+    // Automatically open tracking sheet if track parameter is true
+    if (track === "true") {
+      setTrackingSheetVisible(true)
+    }
+  }, [orderId, track])
 
   const getStatusIcon = (status) => {
     switch(status?.toLowerCase()) {
