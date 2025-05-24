@@ -72,7 +72,7 @@ const useCheckoutStore = create((set, get) => ({
     try {
       axios.defaults.headers.common['Authorization'] = 
         `Bearer ${accessToken}`;
-      const response = await axios.post('https://8jo1qshtyzzh.share.zrok.io/api/v1/payments/create-payment-intent', {checkoutId:id});
+      const response = await axiosInstance.post('/payments/create-payment-intent', {checkoutId:id});
       set({ clientSecret: response.data.clientSecret, loading: false });
       return response.data;
     } catch (error) {

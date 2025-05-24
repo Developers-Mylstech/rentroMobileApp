@@ -30,6 +30,8 @@ export default function Checkout() {
   const directProductId = params.productId;
   const directProductType = params.productType;
   const directQuantity = params.quantity;
+  const directServiceType = params.serviceType; // New parameter for service type
+  const directServiceName = params.serviceName; // New parameter for service name
   
   const { directCheckout, directCheckoutData, paymentCreation, clientSecret, loading, error } = useCheckoutStore();
   const [checkoutId, setCheckoutId] = useState(null);
@@ -186,7 +188,6 @@ export default function Checkout() {
 
       // Create payload with user entered data and selected address
       const payload = {
-        productType: directProductType,
         quantity: parseInt(directQuantity) || 1,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -205,6 +206,17 @@ export default function Checkout() {
           default: addressToUse.default || true
         }
       };
+      
+      // Map the product type to the correct enum value expected by the backend
+      if (directProductType === 'SERVICE') {
+        // For services, use the specific service type instead of 'SERVICE'
+        payload.productType = directServiceType || 'OTS';
+      } else {
+        // For non-services, use the product type directly (SELL or RENT)
+        payload.productType = directProductType;
+      }
+
+      console.log('Direct checkout payload:', JSON.stringify(payload));
 
       // Call directCheckout with the product ID and payload
       const response = await directCheckout(directProductId, payload);

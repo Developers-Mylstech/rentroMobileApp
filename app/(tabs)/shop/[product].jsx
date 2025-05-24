@@ -425,65 +425,30 @@ export default function ProductDetails() {
 
   // Function to book service
   const handleBookService = (title, isAmc, selectedAmcPlan) => {
-    // Show loading dialog
-    showDialog({
-      title: 'Booking Service',
-      message: 'Please wait while we process your service booking...',
-      type: 'loading'
-    });
-    
-    // Determine the correct service type
-    let serviceType = 'ots'; // Default to one-time service
+    // Determine the correct service type based on backend enum values
+    let serviceType = 'OTS'; // Default to one-time service
     
     if (isAmc) {
-      serviceType = selectedAmcPlan === 'basic' ? 'amcBasic' : 'amcGold';
+      serviceType = selectedAmcPlan === 'basic' ? 'AMC_BASIC' : 'AMC_GOLD';
     } else {
       // Check if this is an MMC service
       if (title.toLowerCase().includes('monthly') || title.toLowerCase().includes('mmc')) {
-        serviceType = 'mmc';
+        serviceType = 'MMC';
       }
     }
     
-    // Create simplified payload for cart API
-    const payload = {
-      productId: currentProduct.id,
-      productType: 'SERVICE',
-      quantity: 1,
-      serviceType: serviceType
-    };
-    
-    // Add to cart with service type
-    addToCart(payload)
-      .then(() => {
-        // Show success dialog with option to view cart
-        showDialog({
-          title: 'Service Booked',
-          message: `${title} has been added to your cart`,
-          type: 'success',
-          actionText: 'View Cart',
-          onAction: () => {
-            setDialogVisible(false);
-            openCart();
-          },
-          secondaryActionText: 'Continue Shopping',
-          onSecondaryAction: () => setDialogVisible(false)
-        });
-      })
-      .catch(error => {
-        // Show error dialog
-        const errorMessage = error.response?.data?.message || 
-                            error.message || 
-                            'Please try again later';
-        
-        showDialog({
-          title: 'Booking Failed',
-          message: errorMessage,
-          type: 'error',
-          actionText: 'Try Again',
-          onAction: () => handleBookService(title, isAmc, selectedAmcPlan),
-          secondaryActionText: 'Cancel'
-        });
-      });
+    // Navigate directly to checkout with service parameters
+    router.push({
+      pathname: '/shop/checkout',
+      params: { 
+        direct: 'true',
+        productId: currentProduct.productId,
+        productType: 'SERVICE', // This is just for our frontend routing
+        quantity: 1,
+        serviceType: serviceType, // This will be used as the actual productType in the API call
+        serviceName: title
+      }
+    });
   };
 
   // Function to handle Buy Now

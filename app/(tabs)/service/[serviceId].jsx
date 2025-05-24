@@ -1,24 +1,79 @@
-import { View, Text, SafeAreaView, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native'
-import React, { useEffect } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import { LinearGradient } from 'expo-linear-gradient'
-import OurServiceSingleSkeleton from '../../../src/components/Skeleton/OurServiceSingleSkeleton'
-import useServiceStore from '../../../src/store/ServiceStore'
+import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import useServiceStore from "../../../src/store/ServiceStore";
+import OurServiceSingleSkeleton from "../../../src/components/Skeleton/OurServiceSingleSkeleton";
 
 export default function SingleService() {
-  const { serviceId } = useLocalSearchParams()
-  const router = useRouter()
-  const { getServiceById, selectedService, isLoading, error } = useServiceStore()
+  const { serviceId } = useLocalSearchParams();
+  const router = useRouter();
+  const { getServiceById, selectedService, isLoading, error } = useServiceStore();
+  
   useEffect(() => {
     if (serviceId) {
-      getServiceById(serviceId)
+      getServiceById(serviceId);
     }
-  }, [serviceId])
+  }, [serviceId]);
 
   const handleViewProduct = (productId) => {
-    router.push(`/shop/${productId}`)
-  }
+    router.push(`/shop/${productId}`);
+  };
+
+  // New function to handle booking a service
+  const handleBookService = () => {
+    if (selectedService && selectedService.relatedProducts && selectedService.relatedProducts.length > 0) {
+      // Get the first related product to book a service for
+      const product = selectedService.relatedProducts[0];
+      
+      // Determine service type based on service title using backend enum values
+      let serviceType = 'OTS'; // Default to one-time service
+      const title = selectedService.title.toLowerCase();
+      
+      if (title.includes('monthly') || title.includes('mmc')) {
+        serviceType = 'MMC';
+      } else if (title.includes('annual') || title.includes('amc')) {
+        if (title.includes('basic')) {
+          serviceType = 'AMC_BASIC';
+        } else if (title.includes('gold') || title.includes('premium')) {
+          serviceType = 'AMC_GOLD';
+        } else {
+          serviceType = 'AMC_BASIC'; // Default to basic if not specified
+        }
+      }
+      
+      // Navigate to checkout with service parameters
+      router.push({
+        pathname: '/shop/checkout',
+        params: { 
+          direct: 'true',
+          productId: product.productId,
+          productType: 'SERVICE', // This is just for our frontend routing
+          quantity: 1,
+          serviceType: serviceType, // This will be used as the actual productType in the API call
+          serviceName: selectedService.title
+        }
+      });
+    } else {
+      // If no related products, show an alert or navigate to products
+      Alert.alert(
+        "No Products Available", 
+        "There are no products available for this service. Please browse our products.",
+        [
+          { text: "OK", onPress: () => router.push("/shop") }
+        ]
+      );
+    }
+  };
 
   const renderRelatedProduct = ({ item }) => (
     <View className="mr-4 relative bg-white rounded-lg w-52 border border-gray-100 shadow-sm overflow-hidden">
@@ -31,17 +86,17 @@ export default function SingleService() {
         <Text className="font-medium text-gray-900 mb-1" numberOfLines={1}>{item.name}</Text>
         <Text className="text-gray-500 text-xs mb-2" numberOfLines={2}>{item.description}</Text>
       </View>
-        <TouchableOpacity 
-          className=" absolute rounded-full p-1 top-2 right-2 bg-blue-500  items-center"
-          onPress={() => handleViewProduct(item.productId)}
-        >
-          <Ionicons name="eye-outline" size={16} color="white" />
-        </TouchableOpacity>
+      <TouchableOpacity 
+        className="absolute rounded-full p-1 top-2 right-2 bg-blue-500 items-center"
+        onPress={() => handleViewProduct(item.productId)}
+      >
+        <Ionicons name="eye-outline" size={16} color="white" />
+      </TouchableOpacity>
     </View>
-  )
+  );
 
   if (isLoading) {
-    return <OurServiceSingleSkeleton />
+    return <OurServiceSingleSkeleton />;
   }
 
   if (error) {
@@ -49,7 +104,7 @@ export default function SingleService() {
       <View className="flex-1 items-center justify-center p-4">
         <Text>{error}</Text>
       </View>
-    )
+    );
   }
 
   return (
@@ -67,6 +122,16 @@ export default function SingleService() {
                 colors={['rgba(0,0,0,0.7)', 'transparent']}
                 className="absolute left-0 right-0 top-0 h-32"
               />
+              
+              {/* Add Book Now button */}
+              <View className="absolute bottom-4 right-4">
+                <TouchableOpacity
+                  onPress={handleBookService}
+                  className="bg-blue-500 px-6 py-3 rounded-lg shadow-md"
+                >
+                  <Text className="text-white font-bold">Book Now</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View className="bg-white rounded-t-3xl -mt-6 px-4 pt-8 pb-12">
@@ -135,5 +200,5 @@ export default function SingleService() {
         )}
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
