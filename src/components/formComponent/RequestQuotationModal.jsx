@@ -23,6 +23,7 @@ const RequestQuotationModal = ({
   productId, 
   productName, 
   productImage,
+  productImageId,
   fromProductDetails = false 
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -52,8 +53,12 @@ const RequestQuotationModal = ({
   useEffect(() => {
     if (productImage) {
       setProductImageUrl(productImage);
+      console.log("Product image set:", productImage);
+      console.log("Product image ID:", productImageId);
+    } else {
+      console.log("No product image provided");
     }
-  }, [productImage]);
+  }, [productImage, productImageId]);
 
   const selectedCountry = watch('locationCountry');
 
@@ -97,7 +102,7 @@ const RequestQuotationModal = ({
     setSubmitStatus(null);
     setStatusMessage('');
     try {
-      let imageUrl = '';
+      let imageData = null;
       
       // If user selected an image, upload it
       if (selectedImage) {
@@ -113,12 +118,32 @@ const RequestQuotationModal = ({
         });
 
         if (uploadResponse?.data?.fileUrl) {
-          imageUrl = uploadResponse.data.fileUrl;
+          imageData = {
+            imageUrl: uploadResponse.data.fileUrl,
+            imageId: uploadResponse.data.imageId || null
+          };
         }
       } 
       // If no user-selected image but we have a product image, use that
       else if (productImageUrl) {
-        imageUrl = productImageUrl;
+        // For product images, we use the imageId that was passed as a prop
+        imageData = {
+          imageUrl: productImageUrl,
+          imageId: productImageId || null
+        };
+      }
+
+      // Log the image data for debugging
+      console.log("Image data before payload:", imageData);
+      console.log("Product image URL:", productImageUrl);
+      console.log("Product image ID:", productImageId);
+
+      // Always provide a default image if none is available
+      if (!imageData) {
+        imageData = { 
+          imageUrl: "https://via.placeholder.com/150", 
+          imageId: 1 
+        };
       }
 
       const payload = {
@@ -133,10 +158,14 @@ const RequestQuotationModal = ({
           country: data.locationCountry,
           gmapLink: data.locationGmapLink,
         },
-        productImages: imageUrl ? [imageUrl] : [],
+        image: imageData,
         productId: productId || null,
         productName: productName || null,
+        status: "WAITING_FOR_APPROVAL" // Using a valid enum value from the error message
       };
+
+      // Log the final payload for debugging
+      console.log("Final payload:", JSON.stringify(payload));
 
       const response = await axiosInstance.post('/request-quotations', payload);
       setQuoteRequestId(response?.data?.requestQuotationCode);
@@ -146,7 +175,7 @@ const RequestQuotationModal = ({
       reset();
       removeImage();
     } catch (error) {
-      console.error(error);
+      console.error("Error submitting form:", error.response?.data || error.message);
       setSubmitStatus('error');
       setStatusMessage(
         error.response?.data?.message || 'Failed to submit. Please try again.'

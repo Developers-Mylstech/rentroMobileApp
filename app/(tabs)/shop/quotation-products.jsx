@@ -175,6 +175,9 @@ export default function QuotationProducts() {
         productImage={selectedProduct?.images && selectedProduct.images.length > 0 
           ? selectedProduct.images[0].imageUrl 
           : null}
+        productImageId={selectedProduct?.images && selectedProduct.images.length > 0 
+          ? selectedProduct.images[0].imageId 
+          : null}
         fromProductDetails={false}
       />
 
@@ -241,6 +244,7 @@ export default function QuotationProducts() {
     </SafeAreaView>
   );
 }
+
 
 
 

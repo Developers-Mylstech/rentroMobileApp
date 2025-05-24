@@ -147,6 +147,21 @@ export default function ProductDetails() {
   // Function to handle request quotation
   const handleRequestQuotation = () => {
     if (currentProduct) {
+      console.log("Selected product for quotation:", currentProduct);
+      console.log("Product images:", currentProduct.images);
+      
+      // Get the first image if available
+      const productImage = currentProduct.images && currentProduct.images.length > 0 
+        ? currentProduct.images[0].imageUrl 
+        : null;
+      
+      const productImageId = currentProduct.images && currentProduct.images.length > 0 
+        ? currentProduct.images[0].imageId 
+        : null;
+      
+      console.log("Product image URL to pass:", productImage);
+      console.log("Product image ID to pass:", productImageId);
+      
       setSelectedProduct(currentProduct);
       setShowQuotationModal(true);
     }
@@ -497,10 +512,13 @@ export default function ProductDetails() {
       <RequestQuotationModal 
         visible={showQuotationModal} 
         onClose={() => setShowQuotationModal(false)}
-        productId={selectedProduct?.productId}
-        productName={selectedProduct?.name}
-        productImage={selectedProduct?.images && selectedProduct.images.length > 0 
-          ? selectedProduct.images[0].imageUrl 
+        productId={currentProduct?.productId}
+        productName={currentProduct?.name}
+        productImage={currentProduct?.images && currentProduct.images.length > 0 
+          ? currentProduct.images[0].imageUrl 
+          : null}
+        productImageId={currentProduct?.images && currentProduct.images.length > 0 
+          ? currentProduct.images[0].imageId 
           : null}
         fromProductDetails={true}
       />
@@ -533,7 +551,7 @@ export default function ProductDetails() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className={`flex-1 ${activeTab === 'service' ? 'mb-0' : 'mb-16'}`}>
+      <ScrollView className={`flex-1 ${activeTab  === 'service' || currentProduct?.productFor?.isAvailableForRequestQuotation === true ? 'mb-0' : 'mb-16'}`}>
         {/* Product Image Carousel */}
         <View className="relative bg-white">
           <FlatList
@@ -577,7 +595,7 @@ export default function ProductDetails() {
         
         {/* Action Buttons */}
         <View className="bg-blue-50 rounded-t-[50px]">
-          <View className="flex-row justify-center py-3 border-b border-gray-200 w-[100%]">
+          <View className={`flex-row justify-center py-3  w-[100%] ${currentProduct?.productFor?.isAvailableForRequestQuotation === true? 'border-none' : ' border-b border-gray-200'}`}>
             {shouldShowTab('rent') && (
               <TouchableOpacity onPress={() => setActiveTab('rent')} className="items-center">
                 <Text className={`${activeTab === 'rent' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-400 border-b-2 border-gray-400'} font-medium px-10 py-3`}>
@@ -666,14 +684,14 @@ export default function ProductDetails() {
             ) : (
               // Quotation product with request quotation button
               <View className="mt-3">
-                <View className="bg-yellow-100 px-3 py-2 rounded-lg mb-3">
-                  <Text className="text-yellow-800 text-sm">
+                <View className="bg-blue-100 px-3 py-2 rounded-lg mb-3">
+                  <Text className="text-blue-800 text-sm">
                     This product requires a quotation. Please click the button below to request a price quote.
                   </Text>
                 </View>
                 
                 <TouchableOpacity 
-                  className="bg-yellow-500 py-3 rounded-lg items-center"
+                  className="bg-blue-500 py-3 rounded-lg items-center"
                   onPress={handleRequestQuotation}
                 >
                   <Text className="text-white font-bold">Request Quotation</Text>
