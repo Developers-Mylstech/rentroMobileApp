@@ -33,12 +33,21 @@ export default function Checkout() {
   const directServiceType = params.serviceType; // New parameter for service type
   const directServiceName = params.serviceName; // New parameter for service name
   
-  const { directCheckout, directCheckoutData, paymentCreation, clientSecret, loading, error } = useCheckoutStore();
+  const { 
+    directCheckout, 
+    directCheckoutData, 
+    paymentCreation, 
+    clientSecret, 
+    loading, 
+    error, 
+    clearCheckoutData, // Make sure this is destructured from the store
+    placeOrder 
+  } = useCheckoutStore();
+  
   const [checkoutId, setCheckoutId] = useState(null);
   const [orderId, setOrderId] = useState(null);
   const { cartItems, clearCart } = useCartStore();
   const { addresses, fetchAddresses, addAddress } = useAddressStore();
-  const { placeOrder } = useCheckoutStore();
   const { confirmPayment } = useStripe();
 
   // Core state
@@ -371,14 +380,15 @@ export default function Checkout() {
         
         if (response.data.success) {
           clearCart();
+          clearCheckoutData(); // Now this should work
           router.push('/shop/order-confirmation');
         } else {
           Alert.alert('Payment Error', 'Payment was processed but order confirmation failed.');
         }
       }
-    } catch (err) {
-      console.error('Payment error:', err);
-      Alert.alert('Error', 'An unexpected error occurred during payment.');
+    } catch (error) {
+      console.error('Payment error:', error);
+      Alert.alert('Payment Error', error.message || 'An error occurred during payment processing');
     } finally {
       setPaymentProcessing(false);
     }
