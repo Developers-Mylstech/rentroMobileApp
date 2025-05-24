@@ -13,16 +13,45 @@ export const useProductStore = create((set, get) => ({
   error: null,
   
   // Actions
-  fetchProducts: async () => {
+  fetchProducts: async (filters = {}) => {
     try {
       set({ isLoading: true, error: null });
-      const response = await axiosInstance.get('/products');
-      set({ products: response.data, isLoading: false });
+      
+      // Build query parameters from filters
+      const queryParams = new URLSearchParams();
+      
+      // Add all filters to query params
+      if (filters) {
+        Object.keys(filters).forEach(key => {
+          if (filters[key] !== undefined && filters[key] !== null) {
+            queryParams.append(key, filters[key]);
+          }
+        });
+      }
+      
+      // Construct URL with query parameters
+      const url = `/products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      console.log("Fetching products with URL:", url);
+      
+      const response = await axiosInstance.get(url);
+      
+      // If we're specifically looking for quotation products, filter them here as well
+      let productsData = response.data;
+      if (filters.isAvailableForRequestQuotation === true) {
+        console.log("Filtering for quotation products on client side");
+        productsData = Array.isArray(productsData) 
+          ? productsData.filter(p => p.productFor?.isAvailableForRequestQuotation === true)
+          : [];
+      }
+      
+      set({ products: productsData, isLoading: false });
+      return productsData;
     } catch (error) {
       set({ 
         error: error.response?.data?.message || 'Failed to fetch products', 
         isLoading: false 
       });
+      return [];
     }
   },
   
