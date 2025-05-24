@@ -84,6 +84,7 @@ export const useAuthStore = create((set, get) => ({
       const refreshToken = await SecureStore.getItemAsync('refresh_token');
       const response = await axiosInstance.post(`/auth/logout?refreshToken=${refreshToken}`);
       await SecureStore.deleteItemAsync('access_token');
+      console.log(refreshToken, 'refresh token');
       set({ user: null, isLoading: false, isAuthenticated: false });
     } catch (error) {
       set({
@@ -100,7 +101,7 @@ export const useAuthStore = create((set, get) => ({
     const token = await SecureStore.getItemAsync('auth_token');
     const refreshtoken = await SecureStore.getItemAsync('refresh_token');
 
-    console.log(token, 'token');
+    console.log(refreshtoken, 'token');
 
     if (token && refreshtoken) {
       const decoded = jwtDecode(token);

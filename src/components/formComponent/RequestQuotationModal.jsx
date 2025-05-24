@@ -384,7 +384,7 @@ const RequestQuotationModal = ({
             )}
 
             <TouchableOpacity
-              className={`bg-blue-600 rounded-lg py-4 items-center mb-6 ${loading ? 'opacity-70' : ''}`}
+              className={`bg-blue-600 rounded-lg py-2 items-center mb-10 ${loading ? 'opacity-70' : ''}`}
               onPress={handleSubmit(onSubmit)}
               disabled={loading}
             >
