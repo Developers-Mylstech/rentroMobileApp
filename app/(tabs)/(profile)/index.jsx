@@ -9,24 +9,24 @@ import ProfileSkeleton from '../../../src/components/Skeleton/ProfileSkeleton'
 
 
 export default function index() {
-  const { isAuthenticated,logout } = useAuthStore()
+  const { isAuthenticated,logout,isLoading: isLoadingAuth } = useAuthStore()
 
   const { fetchProfile, profile, isLoading, error } = useProfileStore()
 
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [isAuthenticated])
 
-  
-
-  if (isLoading) {
-    return <ProfileSkeleton/>
-  }
 
   if (!isAuthenticated) {
     return <Login/>
   }
 
+  if (isLoading) {
+    return <ProfileSkeleton/>
+  }
+
+  
   return (
     <>
 

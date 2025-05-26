@@ -36,7 +36,7 @@ export default function Home() {
 
     const handleProductPress = (product) => {
         router.push({
-            pathname: `/shop/product/${product.productId}`,
+            pathname: `/shop/product/${product?.productId}`,
             params: { from: 'home' }
         });
     };

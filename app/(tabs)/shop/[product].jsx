@@ -22,6 +22,7 @@ import ProductDetailsSkeleton from '../../../src/components/Skeleton/ProductDeta
 import CartNotificationDialog from '../../../src/components/common/CartNotificationDialog';
 import RequestQuotationModal from '../../../src/components/formComponent/RequestQuotationModal';
 import useWishlistStore from '../../../src/store/wishlistStore';
+import { useAuthStore } from '../../../src/store/authStore';
 
 const { width } = Dimensions.get('window');
 
@@ -51,6 +52,7 @@ export default function ProductDetails() {
   const [showQuotationModal, setShowQuotationModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { isAuthenticated } = useAuthStore();
 
   // Dialog state should be inside the component
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -395,6 +397,11 @@ useEffect(() => {
 
   // Function to add product to cart with correct type
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      router.push('/(profile)');
+      return;
+    }
+    
     if (priceInfo.isAvailable && currentProduct) {
       // Determine product type based on active tab
       const productType = activeTab === 'rent' ? 'RENT' : 
@@ -465,11 +472,21 @@ useEffect(() => {
 
   // Function to buy/rent now
   const handleBuyRentNow = () => {
+    if (!isAuthenticated) {
+      router.push('/(profile)');
+      return;
+    }
+    
     handleBuyNow();
   };
 
   // Function to book service
   const handleBookService = (title, isAmc, selectedAmcPlan) => {
+    if (!isAuthenticated) {
+      router.push('/(profile)');
+      return;
+    }
+    
     // Determine the correct service type based on backend enum values
     let serviceType = 'OTS'; // Default to one-time service
     
@@ -518,6 +535,10 @@ useEffect(() => {
   };
 
   const handleAddToWishlist = async () => {
+    if (!isAuthenticated) {
+      router.push('/(profile)');
+      return;
+    }
 
     if(isWishlisted) {
       const res = await removeFromWishlist(currentProduct?.productId);
