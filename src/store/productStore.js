@@ -11,6 +11,7 @@ export const useProductStore = create((set, get) => ({
   currentProduct: null,
   isLoading: false,
   error: null,
+  searchResults: [],
   
   // Actions
   fetchProducts: async (filters = {}) => {
@@ -156,7 +157,7 @@ export const useProductStore = create((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       const response = await axiosInstance.get(`/products/search/${query}`);
-      set({ products: response.data, isLoading: false });
+      set({ searchResults: response.data, isLoading: false });
       return response.data;
     } catch (error) {
       set({ 

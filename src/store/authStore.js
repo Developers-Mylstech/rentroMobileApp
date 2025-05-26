@@ -11,17 +11,11 @@ export const useAuthStore = create((set, get) => ({
   isAuthenticated: false,
   isLoadingAuth: false,
 
-
-
-
-
   login: async (payload) => {
     try {
       set({ isLoading: true, error: null });
       const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/initiate-auth`, payload);
       return response;
-   
-
     } catch (error) {
       set({
         error: error.response?.data?.message || 'Login failed',
@@ -30,6 +24,7 @@ export const useAuthStore = create((set, get) => ({
       return null;
     }
   },
+  
 
   singup: async (userData) => {
     try {
@@ -66,7 +61,7 @@ export const useAuthStore = create((set, get) => ({
         set({ user: response.data, isLoading: false, isAuthenticated: true });
         return response;
       } else {
-        
+
         throw new Error('Verification failed with status: ' + response.status);
       }
     } catch (error) {

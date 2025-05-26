@@ -23,11 +23,19 @@ export default function Home() {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearchBar, setShowSearchBar] = useState(false);
-    const { fetchProducts, products, isLoading, error } = useProductStore();
+    const { fetchProducts, products, isLoading, error, searchProductsApi } = useProductStore();
     const { fetchBanners, banners, isLoading: bannerLoading } = useBannerStore();
     const { getAllServices, services, isLoading: servicesLoading } = useServiceStore();
     const { isAuthenticated, initAuth } = useAuthStore();
-    
+
+    const handleSearchItemPress = (product) => {
+        setShowSearchBar(false); // Hide search bar after selection
+        router.push({
+            pathname: `/(home)/${product?.productId}`,
+            params: { from: 'home' }
+        });
+    };
+
     useEffect(() => {
         fetchProducts();
         fetchBanners();
@@ -36,7 +44,7 @@ export default function Home() {
 
     const handleProductPress = (product) => {
         router.push({
-            pathname: `/shop/product/${product?.productId}`,
+            pathname: `/(home)/${product?.productId}`,
             params: { from: 'home' }
         });
     };
@@ -47,7 +55,7 @@ export default function Home() {
 
     return (
         <SafeAreaView className="flex-1 bg-white">
-            
+
             <View className="flex-1 p-5">
                 <Header
                     onProfilePress={() => router.push('/profile')}
@@ -59,6 +67,8 @@ export default function Home() {
                     <SearchBar
                         value={searchQuery}
                         onChangeText={setSearchQuery}
+                        onItemPress={handleSearchItemPress}
+                        placeholder="Search for products..."
                     />
                 )}
 
@@ -106,7 +116,7 @@ export default function Home() {
                             </View>
                         )
                     )}
-                    
+
                     {servicesLoading ? (
                         <ProductSkeleton />
                     ) : (
@@ -122,11 +132,11 @@ export default function Home() {
                             </View>
                         )
                     )}
-                    
+
                     <NoProductsFound />
                 </ScrollView>
             </View>
         </SafeAreaView>
-        
+
     );
 }
