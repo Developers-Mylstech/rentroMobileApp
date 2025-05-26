@@ -82,7 +82,7 @@ export default function CartDrawer({
     
     // Get the correct quantity - if productDetail.quantity is 0 or undefined, use 1 as default
     // For logged-in users, we should have a separate quantity field at the root level
-    const quantity = item.quantity || 1;
+    const quantity = item?.productDetail?.quantity || 1;
     
     // Get the correct price based on API response structure
     const itemPrice = parseFloat(item.price || 0);
@@ -109,9 +109,13 @@ export default function CartDrawer({
             {productName}
           </Text>
           
-          {isRentProduct && (
-            <Text className="text-xs text-blue-500 mb-1">Rental</Text>
-          )}
+          {isRentProduct ? (
+            <Text className="text-xs text-blue-500 ">Rental</Text>
+          ):
+          (
+            <Text className="text-xs text-blue-500 ">Sell</Text>
+          )
+          }
           
           <View className="flex-row items-center justify-between mt-1">
             <View>
@@ -152,7 +156,7 @@ export default function CartDrawer({
         {/* Delete Button */}
         <TouchableOpacity 
           onPress={() => handleDelete(item.cartItemId)}
-          className="p-2"
+          className="px-2"
         >
           <Ionicons name="trash-outline" size={20} color="#ef4444" />
         </TouchableOpacity>
