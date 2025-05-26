@@ -216,13 +216,64 @@ const useCartStore = create((set, get) => ({
     
     try {
       const isLoggedIn = get().isUserLoggedIn();
+      console.log(`Updating quantity for item ${itemId} to ${quantity}. User logged in: ${isLoggedIn}`);
+      
+      // Ensure quantity is always a valid number (minimum 1)
+      const validQuantity = Math.max(1, quantity || 1);
       
       if (isLoggedIn) {
         // User is logged in, use API
-        await axiosInstance.put(`/cart-items/${itemId}`, { quantity });
-        await get().fetchCartItems();
+        console.log(`Calling API to update quantity to ${validQuantity}`);
+        
+        try {
+          // Fix the API endpoint - it should be /carts/items/{itemId}
+          await axiosInstance.put(`/cart-items/${itemId}`, {quantity:validQuantity });
+          console.log(`Successfully updated quantity to ${validQuantity}`);
+          
+          // Update the local cart state immediately for better UX
+          const currentCart = get().cartItems;
+          if (currentCart && Array.isArray(currentCart.items)) {
+            const updatedItems = currentCart.items.map(item => {
+              if (item.cartItemId === itemId) {
+                return { ...item, quantity: validQuantity };
+              }
+              return item;
+            });
+            
+            // Calculate new totals
+            const totalItems = updatedItems.reduce((total, item) => 
+              total + (item.quantity || 1), 0);
+            
+            const totalAmount = updatedItems.reduce((total, item) => {
+              if (item.isQuotationProduct) return total;
+              return total + ((parseFloat(item.price) || 0) * (item.quantity || 1));
+            }, 0);
+            
+            // Update state with new values
+            set({
+              cartItems: { 
+                ...currentCart,
+                items: updatedItems,
+                totalPrice: totalAmount,
+                totalItems: totalItems
+              },
+              totalItems,
+              totalAmount,
+              loading: false
+            });
+          }
+          
+          // Fetch the updated cart to ensure we have the latest data
+          console.log("Fetching updated cart after quantity change");
+          await get().fetchCartItems();
+          return { success: true };
+        } catch (error) {
+          console.error("Error updating cart item quantity:", error);
+          throw error;
+        }
       } else {
         // User is not logged in, use AsyncStorage
+        console.log("Updating local cart item quantity");
         const localCartItems = await get().getLocalCartItems();
         const itemIndex = localCartItems.findIndex(item => item.cartItemId === itemId);
         
@@ -230,8 +281,6 @@ const useCartStore = create((set, get) => ({
           throw new Error('Item not found in cart');
         }
         
-        // Ensure quantity is always a valid number (minimum 1)
-        const validQuantity = Math.max(1, quantity || 1);
         localCartItems[itemIndex].quantity = validQuantity;
         
         // Save updated cart to AsyncStorage
@@ -241,11 +290,17 @@ const useCartStore = create((set, get) => ({
         const totalItems = localCartItems.reduce((total, item) => 
           total + (item.quantity || 1), 0);
         
-        const totalAmount = localCartItems.reduce((total, item) => 
-          total + ((item.price || 0) * (item.quantity || 1)), 0);
+        const totalAmount = localCartItems.reduce((total, item) => {
+          if (item.isQuotationProduct) return total;
+          return total + ((parseFloat(item.price) || 0) * (item.quantity || 1));
+        }, 0);
         
         set({
-          cartItems: { items: localCartItems },
+          cartItems: { 
+            items: localCartItems,
+            totalPrice: totalAmount,
+            totalItems: totalItems
+          },
           totalItems,
           totalAmount,
           loading: false
@@ -254,6 +309,7 @@ const useCartStore = create((set, get) => ({
         return { success: true };
       }
     } catch (error) {
+      console.error("Update cart item error:", error);
       set({ 
         error: error.response?.data?.message || 'Failed to update cart item',
         loading: false 

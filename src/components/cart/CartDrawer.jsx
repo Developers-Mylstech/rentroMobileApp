@@ -56,6 +56,8 @@ export default function CartDrawer({
   
   // Render each cart item
   const renderCartItem = ({ item }) => {
+    console.log("Rendering cart item:", item);
+    
     // Fix image handling - ensure imageUrl is a string
     let imageUrl = 'https://via.placeholder.com/60'; // Default fallback image
     
@@ -66,15 +68,32 @@ export default function CartDrawer({
       } else if (item.productImages[0] && typeof item.productImages[0].imageUrl === 'string') {
         imageUrl = item.productImages[0].imageUrl;
       }
+    } else if (item.productDetail && item.productDetail.images && item.productDetail.images.length > 0) {
+      // Handle API response structure
+      if (typeof item.productDetail.images[0] === 'string') {
+        imageUrl = item.productDetail.images[0];
+      } else if (item.productDetail.images[0] && typeof item.productDetail.images[0].imageUrl === 'string') {
+        imageUrl = item.productDetail.images[0].imageUrl;
+      }
     }
     
     // Determine if this is a rent product
     const isRentProduct = item.productType === 'RENT';
     
+    // Get the correct quantity - if productDetail.quantity is 0 or undefined, use 1 as default
+    // For logged-in users, we should have a separate quantity field at the root level
+    const quantity = item.quantity || 1;
+    
+    // Get the correct price based on API response structure
+    const itemPrice = parseFloat(item.price || 0);
+    
     // Calculate item total price based on quantity
-    const itemPrice = parseFloat(item.price) || 0;
-    const quantity = item?.productDetail?.quantity  || 1;
     const itemTotal = (itemPrice * quantity).toFixed(2);
+    
+    // Get product name from the appropriate location
+    const productName = item.productName || (item.productDetail ? item.productDetail.name : 'Product');
+    
+    console.log(`Item details: ${productName}, quantity: ${quantity}, price: ${itemPrice}, total: ${itemTotal}`);
     
     return (
       <View className="flex-row items-center py-3 border-b border-gray-100">
@@ -82,13 +101,12 @@ export default function CartDrawer({
         <Image 
           source={{ uri: imageUrl }} 
           className="w-16 h-16 rounded-md mr-3"
-          // defaultSource={require('../../../assets/placeholder.png')}
         />
         
         {/* Product Details */}
         <View className="flex-1">
           <Text className="font-semibold text-gray-800" numberOfLines={1}>
-            {item.productName || 'Product'}
+            {productName}
           </Text>
           
           {isRentProduct && (
@@ -108,21 +126,21 @@ export default function CartDrawer({
             {/* Quantity Controls */}
             <View className="flex-row items-center">
               <TouchableOpacity 
-                onPress={() => updateCartItemQuantity(item.cartItemId, (item?.productDetail?.quantity  || 1) - 1)}
-                disabled={(item?.productDetail?.quantity  || 1) <= 1}
+                onPress={() => updateCartItemQuantity(item.cartItemId, quantity - 1)}
+                disabled={quantity <= 1}
                 className="p-1"
               >
                 <Ionicons 
                   name="remove-circle" 
                   size={20} 
-                  color={(item?.productDetail?.quantity || 1) <= 1 ? "#d1d5db" : "#3b82f6"} 
+                  color={quantity <= 1 ? "#d1d5db" : "#3b82f6"} 
                 />
               </TouchableOpacity>
               
-              <Text className="mx-2 font-semibold">{item?.productDetail?.quantity  || 1}</Text>
+              <Text className="mx-2 font-semibold">{quantity}</Text>
               
               <TouchableOpacity 
-                onPress={() => updateCartItemQuantity(item.cartItemId, (item?.productDetail?.quantity || 1) + 1)}
+                onPress={() => updateCartItemQuantity(item.cartItemId, quantity + 1)}
                 className="p-1"
               >
                 <Ionicons name="add-circle" size={20} color="#3b82f6" />
@@ -147,11 +165,19 @@ export default function CartDrawer({
     if (!cartItemsArray || cartItemsArray.length === 0) return "0.00";
     
     const total = cartItemsArray.reduce((sum, item) => {
-      const price = parseFloat(item.price) || 0;
-      const quantity = item?.productDetail?.quantity  || 1;
-      return sum + (price * quantity);
+      if (item.isQuotationProduct) return sum;
+      
+      // Get the correct price and quantity
+      const price = parseFloat(item.price || 0);
+      const quantity = item.quantity || 1;
+      
+      const itemTotal = price * quantity;
+      console.log(`Item ${item.productName || 'Product'}: price=${price}, quantity=${quantity}, total=${itemTotal}`);
+      
+      return sum + itemTotal;
     }, 0);
     
+    console.log(`Calculated total: ${total.toFixed(2)}`);
     return total.toFixed(2);
   };
   
