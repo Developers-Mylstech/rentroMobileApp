@@ -7,30 +7,31 @@ import { useAuthStore } from '../../../src/store/authStore'
 import useProfileStore from '../../../src/store/profileStore'
 import ProfileSkeleton from '../../../src/components/Skeleton/ProfileSkeleton'
 import { useRouter } from 'expo-router'
-// import { useRoute } from '@react-navigation/native'
+
 
 
 
 export default function index() {
-  const { isAuthenticated,logout } = useAuthStore()
+
   const router = useRouter()
+  const { isAuthenticated,logout,isLoading: isLoadingAuth } = useAuthStore()
 
   const { fetchProfile, profile, isLoading, error } = useProfileStore()
 
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [isAuthenticated])
 
-  
-
-  if (isLoading) {
-    return <ProfileSkeleton/>
-  }
 
   if (!isAuthenticated) {
     return <Login/>
   }
 
+  if (isLoading) {
+    return <ProfileSkeleton/>
+  }
+
+  
   return (
     <>
 

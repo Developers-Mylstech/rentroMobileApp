@@ -50,6 +50,7 @@ export default function BannerCarousel({
 
   return (
     <View>
+      
       <FlatList
         ref={flatListRef}
         data={banners || []}

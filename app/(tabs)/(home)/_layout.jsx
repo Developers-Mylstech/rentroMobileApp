@@ -22,9 +22,10 @@ export default function HomeLayout() {
         options={{ 
           title: "Wishlist",
           headerShown: true,
+          
         }} 
       />
-     
+    
     </Stack>
   );
 }

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Modal,
   View,
   Text,
   TextInput,
@@ -14,6 +13,7 @@ import {
   Dimensions,
   Keyboard,
   StyleSheet,
+  Modal
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useForm, Controller } from 'react-hook-form';
@@ -328,6 +328,22 @@ const RequestQuotationModal = ({
             <Text className="text-white font-semibold">Close</Text>
           </TouchableOpacity>
         </View>
+        
+        <View className="bg-blue-50 p-4 rounded-lg mb-6">
+          <Text className="text-gray-600 mb-1">Your Request ID:</Text>
+          <TouchableOpacity onPress={copyToClipboard} className="flex-row items-center justify-center">
+            <Text className="text-blue-700 font-bold text-lg">{quoteRequestId}</Text>
+            <Text className="text-blue-500 ml-2">📋</Text>
+          </TouchableOpacity>
+          <Text className="text-xs text-gray-500 text-center mt-1">Tap to copy</Text>
+        </View>
+        
+        <TouchableOpacity 
+          className="bg-blue-600 py-3 rounded-lg items-center"
+          onPress={handleCloseSuccess}
+        >
+          <Text className="text-white font-bold">Done</Text>
+        </TouchableOpacity>
       </View>
     </Modal>
   );
@@ -534,7 +550,20 @@ const RequestQuotationModal = ({
         </View>
       </Modal>
       
-      <SuccessDialog />
+      {/* Success dialog remains as a modal */}
+      {showSuccessDialog && (
+        <View className="absolute inset-0 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-xl p-6 w-[85%] max-w-md">
+            {/* Success dialog content remains the same */}
+            <TouchableOpacity 
+              className="bg-blue-600 py-3 rounded-lg items-center"
+              onPress={handleCloseSuccess}
+            >
+              <Text className="text-white font-bold">Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </>
   );
 };

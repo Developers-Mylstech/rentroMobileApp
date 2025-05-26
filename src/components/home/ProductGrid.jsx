@@ -11,12 +11,13 @@ export default function ProductGrid({
   const seletecedProducts = products.slice(0, 8);
 
   return (
-    <View className="py-4 mb-16">
+    <View className="py-4">
       <Text className="font-bold text-heading-4 uppercase mb-3">{title}</Text>
       <FlatList
         data={seletecedProducts}
         numColumns={2} 
         scrollEnabled={false}
+
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View className="w-[48.5%] m-1">

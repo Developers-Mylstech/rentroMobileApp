@@ -152,6 +152,21 @@ export const useProductStore = create((set, get) => ({
     );
   },
   
+  searchProductsApi: async (query) => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await axiosInstance.get(`/products/search/${query}`);
+      set({ products: response.data, isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to search products', 
+        isLoading: false 
+      });
+      return [];
+    }
+  },
+  
   clearCurrentProduct: () => {
     set({ currentProduct: null });
   },

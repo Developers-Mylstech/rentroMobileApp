@@ -28,12 +28,19 @@ const useWishlistStore = create((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      const response = await axiosInstance.post('/wishlist', { productId });
-      set(state => ({ 
-        wishlistItems: [...state.wishlistItems, response.data],
+      const response = await axiosInstance.post(`/wishlist/products/${productId}`);
+      
+      // Fetch product details to add to wishlist items
+      const productResponse = await axiosInstance.get(`/products/${productId}`);
+      set((state) => ({ 
+        wishlistItems: {
+          ...state.wishlistItems,
+          products: [...(state.wishlistItems?.products || []), productResponse.data]
+        },
         isLoading: false 
       }));
-      return response.data;
+      
+      return response;
     } catch (error) {
       set({ 
         error: error.response?.data?.message || 'Failed to add item to wishlist', 
@@ -47,6 +54,18 @@ const useWishlistStore = create((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       await axiosInstance.delete(`/wishlist/products/${productId}`);
+      
+      // Update wishlist items by filtering out the removed product
+      set((state) => ({
+        wishlistItems: {
+          ...state.wishlistItems,
+          products: (state.wishlistItems?.products || []).filter(
+            product => product.productId !== productId
+          )
+        },
+        isLoading: false
+      }));
+      
       return true;
     } catch (error) {
       set({ 

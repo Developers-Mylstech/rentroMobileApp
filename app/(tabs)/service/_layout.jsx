@@ -26,6 +26,16 @@ export default function ServiceLayout() {
           headerShown: true
         }} 
       />
+      <Stack.Screen 
+        name="RequestQoutation" 
+        options={{ 
+          title: "Request Qoutation",
+          headerShown: true,
+          headerBackTitle: "Back",
+          headerBackVisible: true,
+          presentation: 'modal'
+        }} 
+      />
     </Stack>
   );
 }

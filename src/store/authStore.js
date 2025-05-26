@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
 
 
 
-  
+
 
   login: async (payload) => {
     try {
@@ -66,6 +66,7 @@ export const useAuthStore = create((set, get) => ({
         set({ user: response.data, isLoading: false, isAuthenticated: true });
         return response;
       } else {
+        
         throw new Error('Verification failed with status: ' + response.status);
       }
     } catch (error) {
@@ -84,7 +85,7 @@ export const useAuthStore = create((set, get) => ({
       const refreshToken = await SecureStore.getItemAsync('refresh_token');
       const response = await axiosInstance.post(`/auth/logout?refreshToken=${refreshToken}`);
       await SecureStore.deleteItemAsync('access_token');
-      console.log(refreshToken, 'refresh token');
+      await SecureStore.deleteItemAsync('refresh_token');
       set({ user: null, isLoading: false, isAuthenticated: false });
     } catch (error) {
       set({
@@ -105,7 +106,7 @@ export const useAuthStore = create((set, get) => ({
 
     if (token && refreshtoken) {
       const decoded = jwtDecode(token);
-      const currentTime = Math.floor(Date.now() / 1000); // current time in seconds
+      const currentTime = Math.floor(Date.now() / 1000);
 
       if (decoded.exp && decoded.exp < currentTime) {
         // Token is expired
@@ -126,7 +127,10 @@ export const useAuthStore = create((set, get) => ({
 },
 
   signIn: (userData) => set({ user: userData, isAuthenticated: true }),
-  signOut: () => set({ user: null, isAuthenticated: false }),
+  signOut: () => {
+    set({ user: null, isAuthenticated: false });
+    return true;
+  },
   checkAuth: () => get().isAuthenticated,
   clearError: () => set({ error: null })
 }));

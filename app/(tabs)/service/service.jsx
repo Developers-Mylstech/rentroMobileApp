@@ -82,7 +82,7 @@ export default function Service() {
         </Text>
         <TouchableOpacity
           className="bg-blue-600 px-4 py-3 rounded-lg"
-          onPress={() => console.log('Request quotation')}
+          onPress={() => router.push('/service/RequestQoutation')}
         >
           <Text className="text-white font-semibold text-subheading">Request Quote</Text>
         </TouchableOpacity>
