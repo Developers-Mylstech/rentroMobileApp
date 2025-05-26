@@ -7,6 +7,7 @@ import Header from '../../../src/components/home/Header';
 import SearchBar from '../../../src/components/home/SearchBar';
 import CategorySection from '../../../src/components/home/CategorySection';
 import ProductGrid from '../../../src/components/home/ProductGrid';
+import ServiceGrid from '../../../src/components/home/ServiceGrid';
 import BannerCarousel from '../../../src/components/home/BannerCarousel';
 
 import ProductSkeleton from '../../../src/components/Skeleton/ProductSkeleton';
@@ -16,6 +17,7 @@ import { useBannerStore } from '../../../src/store/BannerStore';
 import SplashScreen from '../../../src/components/widget/SplashScreen';
 import NoProductsFound from '../../../src/components/home/NoProductsFound';
 import { useAuthStore } from '../../../src/store/authStore';
+import useServiceStore from '../../../src/store/ServiceStore';
 
 export default function Home() {
     const router = useRouter();
@@ -23,10 +25,13 @@ export default function Home() {
     const [showSearchBar, setShowSearchBar] = useState(false);
     const { fetchProducts, products, isLoading, error } = useProductStore();
     const { fetchBanners, banners, isLoading: bannerLoading } = useBannerStore();
-const{isAuthenticated, initAuth} = useAuthStore()
+    const { getAllServices, services, isLoading: servicesLoading } = useServiceStore();
+    const { isAuthenticated, initAuth } = useAuthStore();
+    
     useEffect(() => {
         fetchProducts();
-        fetchBanners()
+        fetchBanners();
+        getAllServices();
     }, []);
 
     const handleProductPress = (product) => {
@@ -34,6 +39,10 @@ const{isAuthenticated, initAuth} = useAuthStore()
             pathname: `/shop/product/${product.productId}`,
             params: { from: 'home' }
         });
+    };
+
+    const handleServicePress = (service) => {
+        router.push(`/service/${service.ourServiceId}`);
     };
 
     return (
@@ -96,8 +105,24 @@ const{isAuthenticated, initAuth} = useAuthStore()
                                 <Text>No Products</Text>
                             </View>
                         )
-                        
                     )}
+                    
+                    {servicesLoading ? (
+                        <ProductSkeleton />
+                    ) : (
+                        services.length > 0 ? (
+                            <ServiceGrid
+                                title="Top Services"
+                                services={services}
+                                onServicePress={handleServicePress}
+                            />
+                        ) : (
+                            <View className="flex-1 items-center justify-center mt-4">
+                                <Text>No Services</Text>
+                            </View>
+                        )
+                    )}
+                    
                     <NoProductsFound />
                 </ScrollView>
             </View>

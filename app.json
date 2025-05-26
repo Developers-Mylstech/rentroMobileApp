@@ -4,7 +4,7 @@
     "slug": "rentroApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/rentro.png",
+     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
@@ -12,7 +12,7 @@
       "expo-secure-store"
     ],
     "splash": {
-      "image": "../assets/rentro.png",
+     "image": "assets/icon.png",  
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

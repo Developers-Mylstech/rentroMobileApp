@@ -12,7 +12,7 @@ import {
 
 } from 'react-native';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
 import  useCartStore  from '../../../src/store/cartStore';
@@ -21,12 +21,14 @@ import CartDrawer from '../../../src/components/cart/CartDrawer';
 import ProductDetailsSkeleton from '../../../src/components/Skeleton/ProductDetailsSkeleton';
 import CartNotificationDialog from '../../../src/components/common/CartNotificationDialog';
 import RequestQuotationModal from '../../../src/components/formComponent/RequestQuotationModal';
+import useWishlistStore from '../../../src/store/wishlistStore';
 
 const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { addToWishlist , removeFromWishlist,wishlistItems ,isLoading: wishlistLoading,fetchWishlist } = useWishlistStore();
   const productId = params.product;
   const { fetchProductById, currentProduct, isLoading, error, clearCurrentProduct } = useProductStore();
   const { 
@@ -48,7 +50,8 @@ export default function ProductDetails() {
   const [localLoading, setLocalLoading] = useState(true);
   const [showQuotationModal, setShowQuotationModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
   // Dialog state should be inside the component
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogProps, setDialogProps] = useState({
@@ -199,8 +202,9 @@ export default function ProductDetails() {
     return false;
   };
 
-  // Set initial active tab based on available options
   useEffect(() => {
+    fetchWishlist();
+
     if (currentProduct?.productFor) {
       if (currentProduct.productFor.rent) setActiveTab('rent');
       else if (currentProduct.productFor.sell) setActiveTab('sell');
@@ -208,7 +212,14 @@ export default function ProductDetails() {
     }
   }, [currentProduct]);
 
-  // Render service card with improved design
+useEffect(() => {
+    if (wishlistItems?.products) {
+      const isWishlisted = wishlistItems?.products?.some(product => product?.productId === currentProduct?.productId);
+      console.log('isWishlisted', isWishlisted);
+      setIsWishlisted(isWishlisted);
+    }
+  }, [wishlistItems, currentProduct]);
+
   const renderServiceCard = (serviceType, title, price, benefits) => {
     // Check if service is available
     const isAvailable = !!price;
@@ -506,6 +517,24 @@ export default function ProductDetails() {
     }
   };
 
+  const handleAddToWishlist = async () => {
+
+    if(isWishlisted) {
+      const res = await removeFromWishlist(currentProduct?.productId);
+      if (res?.status === 200) {
+        setIsWishlisted(false);
+        console.log('Product removed from wishlist');
+      }
+      return;
+    }else{
+      const res = await addToWishlist(currentProduct.productId);
+      if (res?.status === 200) {
+        setIsWishlisted(true);
+        console.log('Product added to wishlist');
+      }
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Request Quotation Modal */}
@@ -575,9 +604,13 @@ export default function ProductDetails() {
             )}
           />
           
-          {/* Wishlist Heart Button */}
-          <TouchableOpacity className="absolute top-4 right-4 bg-white rounded-full p-2 shadow z-10">
-            <Ionicons name="heart-outline" size={24} color="#999" />
+          
+          <TouchableOpacity onPress={handleAddToWishlist} className="absolute top-4 right-4 bg-white rounded-full p-2 shadow z-10">
+            {wishlistLoading ? (
+              <ActivityIndicator size="small" color="#999" />
+            ) : (
+              <AntDesign name={isWishlisted ? "heart" : "hearto"} size={24} color={isWishlisted ? '#e11d48' : '#999'} />
+            )}
           </TouchableOpacity>
           
           {/* Pagination Dots */}
