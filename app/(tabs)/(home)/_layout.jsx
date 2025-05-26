@@ -20,6 +20,9 @@ export default function HomeLayout() {
       <Stack.Screen 
         name="wishlist" 
         options={{ 
+          headerBackTitle: "Back",
+          headerBackVisible: true,
+
           title: "Wishlist",
           headerShown: true,
           

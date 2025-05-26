@@ -4,7 +4,7 @@
     "slug": "rentroApp",
     "version": "1.0.0",
     "orientation": "portrait",
-     "icon": "./assets/icon.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
@@ -12,20 +12,21 @@
       "expo-secure-store"
     ],
     "splash": {
-     "image": "assets/icon.png",  
+      "image": "assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.xyaistic.rentroApp",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
+  "supportsTablet": true,
+  "bundleIdentifier": "com.xyaistic.rentroApp",
+  "infoPlist": {
+    "ITSAppUsesNonExemptEncryption": false
+  },
+  "icon": "./assets/icon.png"
+},
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -33,7 +34,7 @@
     },
     "web": {
       "bundler": "metro",
-      "favicon": "./assets/rentro.png"
+      "favicon": "./assets/icon.png"
     },
     "extra": {
       "router": {},
