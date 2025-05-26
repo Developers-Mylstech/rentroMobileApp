@@ -219,7 +219,7 @@ const useCartStore = create((set, get) => ({
       
       if (isLoggedIn) {
         // User is logged in, use API
-        await axiosInstance.put(`/carts/items/${itemId}`, { quantity });
+        await axiosInstance.put(`/cart-items/${itemId}`, { quantity });
         await get().fetchCartItems();
       } else {
         // User is not logged in, use AsyncStorage
