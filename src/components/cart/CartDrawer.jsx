@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
-import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import useCartStore from '../../store/cartStore';
+import { useAuthStore } from '../../store/authStore';
+import { useRouter } from 'expo-router';
 
 export default function CartDrawer({ 
   isVisible, 
@@ -21,24 +22,33 @@ export default function CartDrawer({
     fetchCartItems
   } = useCartStore();
   
+  const { isAuthenticated } = useAuthStore();
+  
   // Fetch cart items when drawer opens
   useEffect(() => {
     if (isVisible) {
+      console.log("Cart drawer opened, fetching items. Auth state:", isAuthenticated);
       fetchCartItems().catch(error => 
         console.error('Failed to fetch cart items:', error)
       );
     }
-  }, [isVisible, fetchCartItems]);
+  }, [isVisible, fetchCartItems, isAuthenticated]);
 
   const handleDelete = (itemId) => {
     removeFromCart(itemId);
-    setTimeout(() => {
-      fetchCartItems().catch(error => 
-        console.error('Failed to fetch cart items:', error)
-      );
-    }, 100);
-
-
+    fetchCartItems().catch(error => 
+      console.error('Failed to fetch cart items:', error)
+    );
+  };
+  
+  // Handle checkout or login
+  const handleCheckoutAction = () => {
+    onClose();
+    if (isAuthenticated) {
+      router.push('/(tabs)/shop/checkout');
+    } else {
+      router.push('/(tabs)/(profile)');
+    }
   };
   
   // Get cart items array from the cart object
@@ -46,13 +56,25 @@ export default function CartDrawer({
   
   // Render each cart item
   const renderCartItem = ({ item }) => {
-    // Get the first image from productImages array or use placeholder
-    const imageUrl = item.productImages && item.productImages.length > 0 
-      ? item.productImages[0] 
-      : 'https://via.placeholder.com/60';
+    // Fix image handling - ensure imageUrl is a string
+    let imageUrl = 'https://via.placeholder.com/60'; // Default fallback image
+    
+    if (item.productImages && item.productImages.length > 0) {
+      // Check if the image is an object with imageUrl property or a direct string
+      if (typeof item.productImages[0] === 'string') {
+        imageUrl = item.productImages[0];
+      } else if (item.productImages[0] && typeof item.productImages[0].imageUrl === 'string') {
+        imageUrl = item.productImages[0].imageUrl;
+      }
+    }
     
     // Determine if this is a rent product
     const isRentProduct = item.productType === 'RENT';
+    
+    // Calculate item total price based on quantity
+    const itemPrice = parseFloat(item.price) || 0;
+    const quantity = item?.productDetail?.quantity  || 1;
+    const itemTotal = (itemPrice * quantity).toFixed(2);
     
     return (
       <View className="flex-row items-center py-3 border-b border-gray-100">
@@ -60,77 +82,91 @@ export default function CartDrawer({
         <Image 
           source={{ uri: imageUrl }} 
           className="w-16 h-16 rounded-md mr-3"
-          resizeMode="cover"
+          // defaultSource={require('../../../assets/placeholder.png')}
         />
         
         {/* Product Details */}
         <View className="flex-1">
-          <Text className="font-medium text-gray-800" numberOfLines={1}>
+          <Text className="font-semibold text-gray-800" numberOfLines={1}>
             {item.productName || 'Product'}
           </Text>
           
-          <Text className="text-blue-500 font-bold mt-1">
-            {item.price || 0} AED
-            {isRentProduct ? '/month' : ''}
-          </Text>
+          {isRentProduct && (
+            <Text className="text-xs text-blue-500 mb-1">Rental</Text>
+          )}
           
-          <View className="flex-row items-center mt-2">
-            <Text className="text-gray-500 mr-2">
-              {isRentProduct ? 'Rent' : 
-               item.productType === 'SELL' ? 'Buy' : 'Service'}
-            </Text>
+          <View className="flex-row items-center justify-between mt-1">
+            <View>
+              <Text className="font-bold text-gray-800">
+                AED {itemPrice.toFixed(2)}
+              </Text>
+              <Text className="text-xs text-gray-500">
+                Total: AED {itemTotal}
+              </Text>
+            </View>
             
-            {/* Quantity Controls - Only show for non-rent products */}
-    
-              <View className="flex-row items-center border border-gray-200 rounded-md">
-                <TouchableOpacity 
-                  className="px-2 py-1" 
-                  onPress={() => updateCartItemQuantity(item?.cartItemId, Math.max(1, (item?.productDetail?.quantity) - 1))}
-                >
-                  <Ionicons name="remove" size={16} color="#666" />
-                </TouchableOpacity>
-                
-                <Text className="px-2 min-w-[30px] text-center">
-                  {item?.productDetail?.quantity}
-                </Text>
-                
-                <TouchableOpacity 
-                  className="px-2 py-1" 
-                  onPress={() => updateCartItemQuantity(item?.cartItemId, (item?.productDetail?.quantity) + 1)}
-                >
-                  <Ionicons name="add" size={16} color="#666" />
-                </TouchableOpacity>
-              </View>
-    
-            
-            {/* For rent products, just show the quantity */}
-          
+            {/* Quantity Controls */}
+            <View className="flex-row items-center">
+              <TouchableOpacity 
+                onPress={() => updateCartItemQuantity(item.cartItemId, (item?.productDetail?.quantity  || 1) - 1)}
+                disabled={(item?.productDetail?.quantity  || 1) <= 1}
+                className="p-1"
+              >
+                <Ionicons 
+                  name="remove-circle" 
+                  size={20} 
+                  color={(item?.productDetail?.quantity || 1) <= 1 ? "#d1d5db" : "#3b82f6"} 
+                />
+              </TouchableOpacity>
+              
+              <Text className="mx-2 font-semibold">{item?.productDetail?.quantity  || 1}</Text>
+              
+              <TouchableOpacity 
+                onPress={() => updateCartItemQuantity(item.cartItemId, (item?.productDetail?.quantity || 1) + 1)}
+                className="p-1"
+              >
+                <Ionicons name="add-circle" size={20} color="#3b82f6" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         
-        {/* Remove Button */}
+        {/* Delete Button */}
         <TouchableOpacity 
-          className="p-2" 
           onPress={() => handleDelete(item.cartItemId)}
+          className="p-2"
         >
-          <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+          <Ionicons name="trash-outline" size={20} color="#ef4444" />
         </TouchableOpacity>
       </View>
     );
   };
   
+  // Calculate the total amount properly
+  const calculateTotal = () => {
+    if (!cartItemsArray || cartItemsArray.length === 0) return "0.00";
+    
+    const total = cartItemsArray.reduce((sum, item) => {
+      const price = parseFloat(item.price) || 0;
+      const quantity = item?.productDetail?.quantity  || 1;
+      return sum + (price * quantity);
+    }, 0);
+    
+    return total.toFixed(2);
+  };
+  
+  const cartTotal = calculateTotal();
+  
   return (
     <Modal
       isVisible={isVisible}
-  onBackdropPress={onClose}
-  onBackButtonPress={onClose}
-  animationIn="slideInUp"
-  animationOut="slideOutDown"
-  swipeDirection="down"
-  onSwipeComplete={onClose}
-  style={{ margin: 0, justifyContent: 'flex-end', alignItems: 'center' }}
-      // style={{ margin: 0, justifyContent: 'flex-end', alignItems: 'flex-end' }}
-      className=""
+      onBackdropPress={onClose}
+      onBackButtonPress={onClose}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      swipeDirection="down"
+      onSwipeComplete={onClose}
+      style={{ margin: 0, justifyContent: 'flex-end', alignItems: 'center' }}
     >
       <View className="bg-white h-[70%] w-[100%] shadow-xl rounded-t-2xl">
         {/* Header */}
@@ -171,22 +207,25 @@ export default function CartDrawer({
           <View className="p-4 border-t border-gray-200">
             <View className="flex-row justify-between mb-4">
               <Text className="text-gray-600">Total:</Text>
-              <Text className="font-bold text-lg">{totalAmount} AED</Text>
+              <Text className="font-bold text-lg">AED {cartTotal}</Text>
             </View>
             
             <View className="flex-row">
-             
-              
               <TouchableOpacity 
                 className="flex-1 bg-blue-500 py-3 rounded-md items-center"
-                onPress={() => {
-                  onClose();
-                  router.push('/(tabs)/shop/checkout');
-                }}
+                onPress={handleCheckoutAction}
               >
-                <Text className="text-white font-medium">Checkout</Text>
+                <Text className="text-white font-medium">
+                  {isAuthenticated ? "Checkout" : "Login to Checkout"}
+                </Text>
               </TouchableOpacity>
             </View>
+            
+            {!isAuthenticated && (
+              <Text className="text-center text-gray-500 text-xs mt-2">
+                Login to save your cart and complete checkout
+              </Text>
+            )}
           </View>
         )}
       </View>

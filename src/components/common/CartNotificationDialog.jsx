@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from 'expo-router';
 
 const CartNotificationDialog = ({ 
   visible, 
@@ -11,8 +12,16 @@ const CartNotificationDialog = ({
   actionText = 'OK',
   onAction = null,
   secondaryActionText = null,
-  onSecondaryAction = null
+  onSecondaryAction = null,
+  showLoginPrompt = false
 }) => {
+  const router = useRouter();
+  
+  const handleLoginRedirect = () => {
+    onClose();
+    router.push('/(profile)');
+  };
+
   return (
     <Modal
       visible={visible}
@@ -44,6 +53,12 @@ const CartNotificationDialog = ({
                 {message}
               </Text>
             )}
+            
+            {showLoginPrompt && (
+              <Text className="text-blue-600 text-center mt-4">
+                Sign in to sync your cart across devices
+              </Text>
+            )}
           </View>
           
           {/* Action buttons */}
@@ -54,6 +69,15 @@ const CartNotificationDialog = ({
                 onPress={onSecondaryAction || onClose}
               >
                 <Text className="text-gray-800 font-bold">{secondaryActionText}</Text>
+              </TouchableOpacity>
+            )}
+            
+            {showLoginPrompt && (
+              <TouchableOpacity
+                className="bg-blue-500 rounded-lg py-3 px-6 mr-3"
+                onPress={handleLoginRedirect}
+              >
+                <Text className="text-white font-bold">Sign In</Text>
               </TouchableOpacity>
             )}
             
