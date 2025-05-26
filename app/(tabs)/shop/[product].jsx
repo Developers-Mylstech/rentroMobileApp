@@ -290,7 +290,6 @@ useEffect(() => {
     );
   };
 
-  // Render AMC switch with improved design
   const renderAmcSwitch = () => {
     const hasAmcBasic = !!currentProduct?.productFor?.service?.amcBasic?.price;
     const hasAmcGold = !!currentProduct?.productFor?.service?.amcGold?.price;
@@ -558,7 +557,7 @@ useEffect(() => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Request Quotation Modal */}
+     
       <RequestQuotationModal 
         visible={showQuotationModal} 
         onClose={() => setShowQuotationModal(false)}
@@ -573,7 +572,6 @@ useEffect(() => {
         fromProductDetails={true}
       />
 
-      {/* Cart Drawer */}
       <CartDrawer
         visible={isCartOpen}
         onClose={closeCart}

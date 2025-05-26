@@ -66,6 +66,7 @@ export const useAuthStore = create((set, get) => ({
         set({ user: response.data, isLoading: false, isAuthenticated: true });
         return response;
       } else {
+        
         throw new Error('Verification failed with status: ' + response.status);
       }
     } catch (error) {

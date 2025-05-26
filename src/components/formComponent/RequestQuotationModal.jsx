@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Modal,
   View,
   Text,
   TextInput,
@@ -192,221 +191,227 @@ const RequestQuotationModal = ({
 
   // Success dialog component
   const SuccessDialog = () => (
-    <Modal visible={showSuccessDialog} transparent animationType="fade">
-      <View className="flex-1 bg-black/50 justify-center items-center">
-        <View className="bg-white rounded-xl p-6 w-[85%] max-w-md">
-          <View className="items-center mb-4">
-            <View className="w-20 h-20 rounded-full bg-green-100 items-center justify-center mb-4">
-              <Text className="text-green-600 text-4xl">✓</Text>
-            </View>
-            <Text className="text-2xl font-bold text-gray-800">{statusMessage}</Text>
-            <Text className="text-gray-600 text-center mt-2">
-              Our team will get back to you within 24 hours.
-            </Text>
+    <View className="absolute inset-0 bg-black/50 justify-center items-center">
+      <View className="bg-white rounded-xl p-6 w-[85%] max-w-md">
+        <View className="items-center mb-4">
+          <View className="w-20 h-20 rounded-full bg-green-100 items-center justify-center mb-4">
+            <Text className="text-green-600 text-4xl">✓</Text>
           </View>
-          
-          <View className="bg-blue-50 p-4 rounded-lg mb-6">
-            <Text className="text-gray-600 mb-1">Your Request ID:</Text>
-            <TouchableOpacity onPress={copyToClipboard} className="flex-row items-center justify-center">
-              <Text className="text-blue-700 font-bold text-lg">{quoteRequestId}</Text>
-              <Text className="text-blue-500 ml-2">📋</Text>
-            </TouchableOpacity>
-            <Text className="text-xs text-gray-500 text-center mt-1">Tap to copy</Text>
-          </View>
-          
-          <TouchableOpacity 
-            className="bg-blue-600 py-3 rounded-lg items-center"
-            onPress={handleCloseSuccess}
-          >
-            <Text className="text-white font-bold">Done</Text>
-          </TouchableOpacity>
+          <Text className="text-2xl font-bold text-gray-800">{statusMessage}</Text>
+          <Text className="text-gray-600 text-center mt-2">
+            Our team will get back to you within 24 hours.
+          </Text>
         </View>
+        
+        <View className="bg-blue-50 p-4 rounded-lg mb-6">
+          <Text className="text-gray-600 mb-1">Your Request ID:</Text>
+          <TouchableOpacity onPress={copyToClipboard} className="flex-row items-center justify-center">
+            <Text className="text-blue-700 font-bold text-lg">{quoteRequestId}</Text>
+            <Text className="text-blue-500 ml-2">📋</Text>
+          </TouchableOpacity>
+          <Text className="text-xs text-gray-500 text-center mt-1">Tap to copy</Text>
+        </View>
+        
+        <TouchableOpacity 
+          className="bg-blue-600 py-3 rounded-lg items-center"
+          onPress={handleCloseSuccess}
+        >
+          <Text className="text-white font-bold">Done</Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
   );
 
   return (
     <>
-      <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <View className="flex-1 bg-white">
-          <View className="bg-blue-600 py-4 px-5">
-            <Text className="text-2xl font-bold text-white">Request Quotation</Text>
-          </View>
+      <View className="flex-1 bg-white">
+        
+        
+        <ScrollView className="flex-1 px-5 pt-6">
+          {(productName || productImageUrl) && (
+            <View className="bg-blue-50 p-4 rounded-lg mb-6">
+              {productImageUrl && (
+                <Image 
+                  source={{ uri: productImageUrl }} 
+                  className="w-full h-40 mb-2 rounded-md" 
+                  resizeMode="contain"
+                />
+              )}
+              {productName && (
+                <Text className="font-bold text-gray-800">{productName}</Text>
+              )}
+            </View>
+          )}
           
-          <ScrollView className="flex-1 px-5 pt-6">
-            {/* Product Info Section - Only show if product info is provided */}
-            {(productName || productImageUrl) && (
-              <View className="bg-blue-50 p-4 rounded-lg mb-6">
-                {productImageUrl && (
-                  <Image 
-                    source={{ uri: productImageUrl }} 
-                    className="w-full h-40 mb-2 rounded-md" 
-                    resizeMode="contain"
-                  />
-                )}
-                {productName && (
-                  <Text className="font-bold text-gray-800">{productName}</Text>
-                )}
-              </View>
-            )}
-            
-            {/* Image Upload Section - Only show if not from product details page */}
-            {!fromProductDetails && (
-              <TouchableOpacity
-                className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
-                onPress={pickImage}
-              >
-                {selectedImage ? (
-                  <>
-                    <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
-                    <TouchableOpacity 
-                      onPress={removeImage}
-                      className="bg-red-100 px-3 py-1 rounded-full"
-                    >
-                      <Text className="text-red-600">✕</Text>
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <View className="items-center py-6">
-                    <Text className="text-blue-500 text-lg mb-2">
-                      Upload Product Image
-                    </Text>
-                    <Text className="text-gray-500 text-center">
-                      Tap here to select an image of your product
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            )}
-
-            <Text className="text-lg font-semibold mb-2 text-gray-700">Contact Information</Text>
-            
-            {/* Name and Mobile */}
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                  placeholder="Your Name"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            
-            <Controller
-              control={control}
-              name="mobile"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                  placeholder="Mobile Number"
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="phone-pad"
-                />
-              )}
-            />
-            
-            <Controller
-              control={control}
-              name="companyName"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                  placeholder="Company Name (Optional)"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            
-            <Text className="text-lg font-semibold mb-2 text-gray-700">Location Details</Text>
-            
-            <Controller
-              control={control}
-              name="locationCountry"
-              render={({ field: { value } }) => (
-                <View className="mb-4">
+          {/* Image Upload Section - Only show if not from product details page */}
+          {!fromProductDetails && (
+            <TouchableOpacity
+              className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
+              onPress={pickImage}
+            >
+              {selectedImage ? (
+                <>
+                  <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
                   <TouchableOpacity 
-                    className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center"
-                    onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+                    onPress={removeImage}
+                    className="bg-red-100 px-3 py-1 rounded-full"
                   >
-                    <Text>{value}</Text>
-                    <Text className="text-gray-500">▼</Text>
+                    <Text className="text-red-600">✕</Text>
                   </TouchableOpacity>
-                  
-                  {showCountryDropdown && (
-                    <View className="border border-gray-300 rounded-lg mt-1 bg-white z-10">
-                      {emiratesOptions.map((emirate) => (
-                        <TouchableOpacity 
-                          key={emirate} 
-                          className={`px-4 py-3 border-b border-gray-200 ${emirate === value ? 'bg-blue-50' : ''}`}
-                          onPress={() => selectCountry(emirate)}
-                        >
-                          <Text className={emirate === value ? 'text-blue-600 font-semibold' : ''}>{emirate}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
+                </>
+              ) : (
+                <View className="items-center py-6">
+                  <Text className="text-blue-500 text-lg mb-2">
+                    Upload Product Image
+                  </Text>
+                  <Text className="text-gray-500 text-center">
+                    Tap here to select an image of your product
+                  </Text>
                 </View>
               )}
-            />
-            
-            {/* Other location fields */}
-            {[
-              { name: 'locationStreet', placeholder: 'Street' },
-              { name: 'locationArea', placeholder: 'Area' },
-              { name: 'locationBuilding', placeholder: 'Building' },
-              { name: 'locationVillaNo', placeholder: 'Villa No' },
-              { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
-            ].map(({ name, placeholder }) => (
-              <Controller
-                key={name}
-                control={control}
-                name={name}
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                    placeholder={placeholder}
-                    value={value}
-                    onChangeText={onChange}
-                  />
-                )}
-              />
-            ))}
+            </TouchableOpacity>
+          )}
 
-            {submitStatus === 'error' && (
-              <View className="bg-red-50 p-4 rounded-lg mb-4">
-                <Text className="text-red-600">{statusMessage}</Text>
+          <Text className="text-lg font-semibold mb-2 text-gray-700">Contact Information</Text>
+          
+          {/* Name and Mobile */}
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                placeholder="Your Name"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          
+          <Controller
+            control={control}
+            name="mobile"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                placeholder="Mobile Number"
+                value={value}
+                onChangeText={onChange}
+                keyboardType="phone-pad"
+              />
+            )}
+          />
+          
+          <Controller
+            control={control}
+            name="companyName"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                placeholder="Company Name (Optional)"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          
+          <Text className="text-lg font-semibold mb-2 text-gray-700">Location Details</Text>
+          
+          <Controller
+            control={control}
+            name="locationCountry"
+            render={({ field: { value } }) => (
+              <View className="mb-4">
+                <TouchableOpacity 
+                  className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center"
+                  onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+                >
+                  <Text>{value}</Text>
+                  <Text className="text-gray-500">▼</Text>
+                </TouchableOpacity>
+                
+                {showCountryDropdown && (
+                  <View className="border border-gray-300 rounded-lg mt-1 bg-white z-10">
+                    {emiratesOptions.map((emirate) => (
+                      <TouchableOpacity 
+                        key={emirate} 
+                        className={`px-4 py-3 border-b border-gray-200 ${emirate === value ? 'bg-blue-50' : ''}`}
+                        onPress={() => selectCountry(emirate)}
+                      >
+                        <Text className={emirate === value ? 'text-blue-600 font-semibold' : ''}>{emirate}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </View>
             )}
-
-            <TouchableOpacity
-              className={`bg-blue-600 rounded-lg py-4 items-center mb-6 ${loading ? 'opacity-70' : ''}`}
-              onPress={handleSubmit(onSubmit)}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text className="text-white font-bold text-lg">Submit Request</Text>
-              )}
-            </TouchableOpacity>
-          </ScrollView>
+          />
           
-          <TouchableOpacity 
-            onPress={onClose} 
-            className="absolute top-4 right-4 z-10 "
+          {/* Other location fields */}
+          {[
+            { name: 'locationStreet', placeholder: 'Street' },
+            { name: 'locationArea', placeholder: 'Area' },
+            { name: 'locationBuilding', placeholder: 'Building' },
+            { name: 'locationVillaNo', placeholder: 'Villa No' },
+            { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
+          ].map(({ name, placeholder }) => (
+            <Controller
+              key={name}
+              control={control}
+              name={name}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                  placeholder={placeholder}
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+          ))}
+
+          {submitStatus === 'error' && (
+            <View className="bg-red-50 p-4 rounded-lg mb-4">
+              <Text className="text-red-600">{statusMessage}</Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            className={`bg-blue-600 rounded-lg py-4 items-center mb-6 ${loading ? 'opacity-70' : ''}`}
+            onPress={handleSubmit(onSubmit)}
             disabled={loading}
           >
-            <Text className="text-white text-xl font-bold">✕</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white font-bold text-lg">Submit Request</Text>
+            )}
           </TouchableOpacity>
-        </View>
-      </Modal>
+        </ScrollView>
+        
+        <TouchableOpacity 
+          onPress={onClose} 
+          className="absolute top-4 right-4 z-10"
+          disabled={loading}
+        >
+          <Text className="text-white text-xl font-bold">✕</Text>
+        </TouchableOpacity>
+      </View>
       
-      <SuccessDialog />
+      {/* Success dialog remains as a modal */}
+      {showSuccessDialog && (
+        <View className="absolute inset-0 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-xl p-6 w-[85%] max-w-md">
+            {/* Success dialog content remains the same */}
+            <TouchableOpacity 
+              className="bg-blue-600 py-3 rounded-lg items-center"
+              onPress={handleCloseSuccess}
+            >
+              <Text className="text-white font-bold">Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </>
   );
 };

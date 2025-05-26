@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RequestQuotationModal from '../formComponent/RequestQuotationModal';
+import { useRouter } from 'expo-router';
 
 const NoProductsFound = () => {
-  const [showQuotationModal, setShowQuotationModal] = useState(false);
   const shineAnim = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   useEffect(() => {
     const shine = Animated.loop(
@@ -48,7 +49,7 @@ const NoProductsFound = () => {
       <Animated.View style={{ transform: [{ scale: scaleInterpolation }] }}>
         <TouchableOpacity 
           className="flex-row items-center justify-center py-3 px-6 rounded-lg"
-          onPress={() => setShowQuotationModal(true)}
+          onPress={() => router.push('/(home)/RequestQoutation')}
           activeOpacity={0.8}
           style={{
             backgroundColor: colorInterpolation,
@@ -59,10 +60,6 @@ const NoProductsFound = () => {
         </TouchableOpacity>
       </Animated.View>
       
-      <RequestQuotationModal 
-        visible={showQuotationModal}
-        onClose={() => setShowQuotationModal(false)}
-      />
     </View>
   );
 };
