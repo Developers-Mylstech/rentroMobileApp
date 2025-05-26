@@ -62,6 +62,7 @@ const NoProductsFound = () => {
       <RequestQuotationModal 
         visible={showQuotationModal}
         onClose={() => setShowQuotationModal(false)}
+        
       />
     </View>
   );

@@ -11,11 +11,14 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useForm, Controller } from 'react-hook-form';
 import axiosInstance from '../../utils/axiosInstance';
 import Clipboard from '@react-native-clipboard/clipboard';
+
+const { height: screenHeight } = Dimensions.get('window');
 
 const RequestQuotationModal = ({ 
   visible, 
@@ -109,7 +112,7 @@ const RequestQuotationModal = ({
         const formData = new FormData();
         formData.append('file', {
           uri: selectedImage.uri,
-          type: 'image/jpeg',
+          type: 'image/jpeg/png',
           name: 'upload.jpg',
         });
 
@@ -117,10 +120,10 @@ const RequestQuotationModal = ({
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
-        if (uploadResponse?.data?.fileUrl) {
+        if (uploadResponse?.data) {
           imageData = {
-            imageUrl: uploadResponse.data.fileUrl,
-            imageId: uploadResponse.data.imageId || null
+            imageUrl: uploadResponse.data.image.imageUrl,
+            imageId: uploadResponse?.data?.image?.imageId 
           };
         }
       } 
@@ -129,7 +132,7 @@ const RequestQuotationModal = ({
         // For product images, we use the imageId that was passed as a prop
         imageData = {
           imageUrl: productImageUrl,
-          imageId: productImageId || null
+          imageId: productImageId || 0
         };
       }
 
@@ -227,182 +230,184 @@ const RequestQuotationModal = ({
 
   return (
     <>
-      <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <View className="flex-1 bg-white">
-          <View className="bg-blue-600 py-4 px-5">
-            <Text className="text-2xl font-bold text-white">Request Quotation</Text>
-          </View>
-          
-          <ScrollView className="flex-1 px-5 pt-6">
-            {/* Product Info Section - Only show if product info is provided */}
-            {(productName || productImageUrl) && (
-              <View className="bg-blue-50 p-4 rounded-lg mb-6">
-                {productImageUrl && (
-                  <Image 
-                    source={{ uri: productImageUrl }} 
-                    className="w-full h-40 mb-2 rounded-md" 
-                    resizeMode="contain"
-                  />
-                )}
-                {productName && (
-                  <Text className="font-bold text-gray-800">{productName}</Text>
-                )}
-              </View>
-            )}
+      <Modal visible={visible} animationType="slide" onRequestClose={onClose} transparent>
+        <View className="flex-1 bg-black/50 justify-end items-center">
+          <View style={{ height: screenHeight * 0.7 }} className="bg-white w-full rounded-t-3xl overflow-hidden">
+            <View className="bg-blue-600 py-4 px-5">
+              <Text className="text-2xl font-bold text-white">Request Quotation</Text>
+            </View>
             
-            {/* Image Upload Section - Only show if not from product details page */}
-            {!fromProductDetails && (
-              <TouchableOpacity
-                className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
-                onPress={pickImage}
-              >
-                {selectedImage ? (
-                  <>
-                    <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
-                    <TouchableOpacity 
-                      onPress={removeImage}
-                      className="bg-red-100 px-3 py-1 rounded-full"
-                    >
-                      <Text className="text-red-600">✕</Text>
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <View className="items-center py-6">
-                    <Text className="text-blue-500 text-lg mb-2">
-                      Upload Product Image
-                    </Text>
-                    <Text className="text-gray-500 text-center">
-                      Tap here to select an image of your product
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            )}
-
-            <Text className="text-lg font-semibold mb-2 text-gray-700">Contact Information</Text>
-            
-            {/* Name and Mobile */}
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                  placeholder="Your Name"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            
-            <Controller
-              control={control}
-              name="mobile"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                  placeholder="Mobile Number"
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="phone-pad"
-                />
-              )}
-            />
-            
-            <Controller
-              control={control}
-              name="companyName"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                  placeholder="Company Name (Optional)"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            
-            <Text className="text-lg font-semibold mb-2 text-gray-700">Location Details</Text>
-            
-            <Controller
-              control={control}
-              name="locationCountry"
-              render={({ field: { value } }) => (
-                <View className="mb-4">
-                  <TouchableOpacity 
-                    className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center"
-                    onPress={() => setShowCountryDropdown(!showCountryDropdown)}
-                  >
-                    <Text>{value}</Text>
-                    <Text className="text-gray-500">▼</Text>
-                  </TouchableOpacity>
-                  
-                  {showCountryDropdown && (
-                    <View className="border border-gray-300 rounded-lg mt-1 bg-white z-10">
-                      {emiratesOptions.map((emirate) => (
-                        <TouchableOpacity 
-                          key={emirate} 
-                          className={`px-4 py-3 border-b border-gray-200 ${emirate === value ? 'bg-blue-50' : ''}`}
-                          onPress={() => selectCountry(emirate)}
-                        >
-                          <Text className={emirate === value ? 'text-blue-600 font-semibold' : ''}>{emirate}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+            <ScrollView className="flex-1 px-5 pt-6" contentContainerStyle={{ paddingBottom: 20 }}>
+              {/* Product Info Section - Only show if product info is provided */}
+              {(productName || productImageUrl) && (
+                <View className="bg-blue-50 p-4 rounded-lg mb-6">
+                  {productImageUrl && (
+                    <Image 
+                      source={{ uri: productImageUrl }} 
+                      className="w-full h-40 mb-2 rounded-md" 
+                      resizeMode="contain"
+                    />
+                  )}
+                  {productName && (
+                    <Text className="font-bold text-gray-800">{productName}</Text>
                   )}
                 </View>
               )}
-            />
-            
-            {/* Other location fields */}
-            {[
-              { name: 'locationStreet', placeholder: 'Street' },
-              { name: 'locationArea', placeholder: 'Area' },
-              { name: 'locationBuilding', placeholder: 'Building' },
-              { name: 'locationVillaNo', placeholder: 'Villa No' },
-              { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
-            ].map(({ name, placeholder }) => (
+              
+              {/* Image Upload Section - Only show if not from product details page */}
+              {!fromProductDetails && (
+                <TouchableOpacity
+                  className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
+                  onPress={pickImage}
+                >
+                  {selectedImage ? (
+                    <>
+                      <Image source={{ uri: selectedImage.uri }} className="w-40 h-40 mb-2 rounded-md" />
+                      <TouchableOpacity 
+                        onPress={removeImage}
+                        className="bg-red-100 px-3 py-1 rounded-full"
+                      >
+                        <Text className="text-red-600">✕</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <View className="items-center py-6">
+                      <Text className="text-blue-500 text-lg mb-2">
+                        Upload Product Image
+                      </Text>
+                      <Text className="text-gray-500 text-center">
+                        Tap here to select an image of your product
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              )}
+
+              <Text className="text-lg font-semibold mb-2 text-gray-700">Contact Information</Text>
+              
+              {/* Name and Mobile */}
               <Controller
-                key={name}
                 control={control}
-                name={name}
+                name="name"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
                     className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
-                    placeholder={placeholder}
+                    placeholder="Your Name"
                     value={value}
                     onChangeText={onChange}
                   />
                 )}
               />
-            ))}
+              
+              <Controller
+                control={control}
+                name="mobile"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                    placeholder="Mobile Number"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="phone-pad"
+                  />
+                )}
+              />
+              
+              <Controller
+                control={control}
+                name="companyName"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                    placeholder="Company Name (Optional)"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              
+              <Text className="text-lg font-semibold mb-2 text-gray-700">Location Details</Text>
+              
+              <Controller
+                control={control}
+                name="locationCountry"
+                render={({ field: { value } }) => (
+                  <View className="mb-4">
+                    <TouchableOpacity 
+                      className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center"
+                      onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+                    >
+                      <Text>{value}</Text>
+                      <Text className="text-gray-500">▼</Text>
+                    </TouchableOpacity>
+                    
+                    {showCountryDropdown && (
+                      <View className="border border-gray-300 rounded-lg mt-1 bg-white z-10">
+                        {emiratesOptions.map((emirate) => (
+                          <TouchableOpacity 
+                            key={emirate} 
+                            className={`px-4 py-3 border-b border-gray-200 ${emirate === value ? 'bg-blue-50' : ''}`}
+                            onPress={() => selectCountry(emirate)}
+                          >
+                            <Text className={emirate === value ? 'text-blue-600 font-semibold' : ''}>{emirate}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                )}
+              />
+              
+              {/* Other location fields */}
+              {[
+                { name: 'locationStreet', placeholder: 'Street' },
+                { name: 'locationArea', placeholder: 'Area' },
+                { name: 'locationBuilding', placeholder: 'Building' },
+                { name: 'locationVillaNo', placeholder: 'Villa No' },
+                { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
+              ].map(({ name, placeholder }) => (
+                <Controller
+                  key={name}
+                  control={control}
+                  name={name}
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
+                      placeholder={placeholder}
+                      value={value}
+                      onChangeText={onChange}
+                    />
+                  )}
+                />
+              ))}
 
-            {submitStatus === 'error' && (
-              <View className="bg-red-50 p-4 rounded-lg mb-4">
-                <Text className="text-red-600">{statusMessage}</Text>
-              </View>
-            )}
+              {submitStatus === 'error' && (
+                <View className="bg-red-50 p-4 rounded-lg mb-4">
+                  <Text className="text-red-600">{statusMessage}</Text>
+                </View>
+              )}
 
-            <TouchableOpacity
-              className={`bg-blue-600 rounded-lg py-2 items-center mb-10 ${loading ? 'opacity-70' : ''}`}
-              onPress={handleSubmit(onSubmit)}
+              <TouchableOpacity
+                className={`bg-blue-600 rounded-lg py-2 items-center mb-10 ${loading ? 'opacity-70' : ''}`}
+                onPress={handleSubmit(onSubmit)}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text className="text-white font-bold text-lg">Submit Request</Text>
+                )}
+              </TouchableOpacity>
+            </ScrollView>
+            
+            <TouchableOpacity 
+              onPress={onClose} 
+              className="absolute top-4 right-4 z-10"
               disabled={loading}
             >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text className="text-white font-bold text-lg">Submit Request</Text>
-              )}
+              <Text className="text-white text-xl font-bold">✕</Text>
             </TouchableOpacity>
-          </ScrollView>
-          
-          <TouchableOpacity 
-            onPress={onClose} 
-            className="absolute top-4 right-4 z-10 "
-            disabled={loading}
-          >
-            <Text className="text-white text-xl font-bold">✕</Text>
-          </TouchableOpacity>
+          </View>
         </View>
       </Modal>
       
