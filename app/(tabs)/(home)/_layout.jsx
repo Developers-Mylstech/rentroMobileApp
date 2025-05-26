@@ -24,14 +24,7 @@ export default function HomeLayout() {
           headerShown: true,
         }} 
       />
-      <Stack.Screen 
-        name="Request Quotation" 
-        options={{ 
-          title: "RequestQuotation",
-          headerShown: true,
-          presentation: "modal",
-        }} 
-      />
+     
     </Stack>
   );
 }
