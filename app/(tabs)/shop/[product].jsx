@@ -395,11 +395,9 @@ useEffect(() => {
   const priceInfo = getPriceInfo();
 
   // Function to add product to cart with correct type
-  const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      router.push('/(profile)');
-      return;
-    }
+  const handleAddToCart = async () => {
+    // Check if user is logged in
+    const isLoggedIn = await useCartStore.getState().isUserLoggedIn();
     
     if (priceInfo.isAvailable && currentProduct) {
       // Determine product type based on active tab
@@ -418,24 +416,12 @@ useEffect(() => {
       const payload = {
         productId: currentProduct.productId,
         productType: productType,
-        quantity: productQuantity || 1
+        quantity: productQuantity || 1,
+        // Add product details to payload for non-logged in users
+        productName: currentProduct.name,
+        price: priceInfo.price,
+        productImages: currentProduct.images || []
       };
-      
-      // If it's a rent product, add rentPeriod
-      // if (productType === 'RENT' && currentProduct.productFor?.rent) {
-      //   payload.rentPeriod = currentProduct.productFor.rent.rentPeriod || 30; // Default to 30 days
-      // }
-      
-      // // If it's a sell product, rename quantity to sellQuantity if needed
-      // if (productType === 'SELL') {
-      //   payload.sellQuantity = payload.quantity;
-      //   // Keep quantity for the API
-      // }
-      
-      // If it's a service, add service type
-      if (productType === 'SERVICE') {
-        payload.serviceType = activeServiceType || 'ots';
-      }
       
       console.log('Adding to cart with payload:', payload);
       
@@ -447,7 +433,8 @@ useEffect(() => {
             title: 'Added to Cart',
             message: `${currentProduct.name} has been added to your cart`,
             type: 'success',
-            actionText: 'Continue Shopping'
+            actionText: 'Continue Shopping',
+            showLoginPrompt: !isLoggedIn // Show login prompt for non-logged in users
           });
         })
         .catch(error => {

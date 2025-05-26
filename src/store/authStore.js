@@ -97,7 +97,7 @@ export const useAuthStore = create((set, get) => ({
     const token = await SecureStore.getItemAsync('auth_token');
     const refreshtoken = await SecureStore.getItemAsync('refresh_token');
 
-    console.log(token, 'token');
+    console.log(refreshtoken, 'token');
 
     if (token && refreshtoken) {
       const decoded = jwtDecode(token);

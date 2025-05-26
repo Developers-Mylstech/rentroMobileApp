@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import axiosInstance from '../utils/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { useAuthStore } from './authStore';
 
 const useCartStore = create((set, get) => ({
   cartItems: [],
@@ -11,20 +12,150 @@ const useCartStore = create((set, get) => ({
   totalAmount: 0,
   isCartOpen: false,
 
+  // Check if user is logged in using authStore
+  isUserLoggedIn: () => {
+    return useAuthStore.getState().isAuthenticated;
+  },
 
+  // Get cart items from AsyncStorage
+  getLocalCartItems: async () => {
+    try {
+      const localCartItems = await AsyncStorage.getItem('local_cart_items');
+      return localCartItems ? JSON.parse(localCartItems) : [];
+    } catch (error) {
+      console.error('Error getting local cart items:', error);
+      return [];
+    }
+  },
 
+  // Save cart items to AsyncStorage
+  saveLocalCartItems: async (items) => {
+    try {
+      await AsyncStorage.setItem('local_cart_items', JSON.stringify(items));
+    } catch (error) {
+      console.error('Error saving local cart items:', error);
+    }
+  },
+
+  // Helper function to get product price based on type
+  getProductPrice: (product, productType) => {
+    if (!product || !product.productFor) return 0;
+    
+    // For quotation products, return 0 or "Quote" as price
+    if (product.productFor.isAvailableForRequestQuotation === true) {
+      return 0; // We'll handle display separately
+    }
+    
+    // Get price based on product type
+    if (productType === 'SELL' && product.productFor.sell) {
+      return product.productFor.sell.discountPrice || product.productFor.sell.actualPrice || 0;
+    } 
+    else if (productType === 'RENT' && product.productFor.rent) {
+      return product.productFor.rent.discountPrice || product.productFor.rent.monthlyPrice || 0;
+    }
+    else if (productType === 'SERVICE' && product.productFor.service) {
+      // For service, we'll use OTS price as default
+      if (product.productFor.service.ots) {
+        return product.productFor.service.ots.price || 0;
+      }
+    }
+    
+    return 0;
+  },
+
+  // Add to cart - handles both logged in and non-logged in users
   addToCart: async (item) => {
     set({ loading: true, error: null });
     
     try {
+      const isLoggedIn = get().isUserLoggedIn();
+      console.log("Is user logged in:", isLoggedIn);
       
-      const response = await axiosInstance.post('/carts/items', item);
-      
-      // After successful add, fetch the cart again to get updated data
-      await get().fetchCartItems();
-
-      return response.data;
+      if (isLoggedIn) {
+        // User is logged in, use API
+        console.log("Using API for cart");
+        // Create API payload (strip out any extra fields)
+        const apiPayload = {
+          productId: item.productId,
+          productType: item.productType,
+          quantity: item.quantity || 1
+        };
+        
+        const response = await axiosInstance.post('/carts/items', apiPayload);
+        await get().fetchCartItems();
+        return response.data;
+      } else {
+        // User is not logged in, use AsyncStorage
+        console.log("Using AsyncStorage for cart");
+        const localCartItems = await get().getLocalCartItems();
+        
+        // Check if item already exists in cart
+        const existingItemIndex = localCartItems.findIndex(
+          cartItem => cartItem.productId === item.productId && cartItem.productType === item.productType
+        );
+        
+        // Get product details if not provided
+        let productDetails = item;
+        if (!item.productName || !item.price) {
+          try {
+            // Fetch product details if needed
+            const response = await axiosInstance.get(`/products/${item.productId}`);
+            productDetails = response.data;
+            console.log("Fetched product details:", productDetails);
+          } catch (error) {
+            console.error("Failed to fetch product details:", error);
+          }
+        }
+        
+        // Calculate price based on product type
+        const price = item.price || get().getProductPrice(productDetails, item.productType);
+        const isQuotationProduct = productDetails.productFor?.isAvailableForRequestQuotation === true;
+        
+        if (existingItemIndex !== -1) {
+          // Update quantity if item exists
+          localCartItems[existingItemIndex].quantity += item.quantity || 1;
+        } else {
+          // Add new item with a local cartItemId
+          const newItem = {
+            ...item,
+            cartItemId: Date.now(), // Use timestamp as temporary ID
+            price: price,
+            productName: productDetails.name || item.productName || 'Product',
+            productImages: productDetails.images || item.productImages || [],
+            isQuotationProduct: isQuotationProduct,
+            productType: item.productType
+          };
+          localCartItems.push(newItem);
+        }
+        
+        // Save updated cart to AsyncStorage
+        await get().saveLocalCartItems(localCartItems);
+        
+        // Update state
+        const totalItems = localCartItems.reduce((total, item) => 
+          total + (item.quantity || 1), 0);
+        
+        // Calculate total amount excluding quotation products
+        const totalAmount = localCartItems.reduce((total, item) => {
+          if (item.isQuotationProduct) return total;
+          return total + ((item.price || 0) * (item.quantity || 1));
+        }, 0);
+        
+        set({
+          cartItems: { 
+            items: localCartItems,
+            totalPrice: totalAmount,
+            totalItems: totalItems
+          },
+          totalItems,
+          totalAmount,
+          loading: false
+        });
+        
+        return { success: true };
+      }
     } catch (error) {
+      console.error("Add to cart error:", error);
       set({ 
         error: error.response?.data?.message || 'Failed to add item to cart',
         loading: false 
@@ -35,33 +166,41 @@ const useCartStore = create((set, get) => ({
 
   // Remove item from cart
   removeFromCart: async (itemId) => {
-  
+    set({ loading: true, error: null });
     
     try {
-      // Set token in headers for this request
-        const accessToken = await SecureStore.getItemAsync('auth_token');
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer  ${accessToken}  `;
+      const isLoggedIn = get().isUserLoggedIn();
       
-      await axiosInstance.delete(`/carts/items/${itemId}`);
-      
-      set(state => {
-        const newCartItems = state.cartItems.filter(item => item.id !== itemId);
+      if (isLoggedIn) {
+        // User is logged in, use API
+        await axiosInstance.delete(`/carts/items/${itemId}`);
+        await get().fetchCartItems();
+      } else {
+        // User is not logged in, use AsyncStorage
+        const localCartItems = await get().getLocalCartItems();
+        const updatedItems = localCartItems.filter(item => item.cartItemId !== itemId);
         
-        // Recalculate totals
-        const totalItems = newCartItems.reduce((total, item) => 
-          total + (item.productType === "SELL" ? item.sellQuantity : 1), 0);
+        // Save updated cart to AsyncStorage
+        await get().saveLocalCartItems(updatedItems);
         
-        const totalAmount = newCartItems.reduce((total, item) => 
-          total + (item.price * (item.productType === "SELL" ? item.sellQuantity : 1)), 0);
-
-        return {
-          cartItems: newCartItems,
+        // Update state
+        const totalItems = updatedItems.reduce((total, item) => 
+          total + (item.quantity || 1), 0);
+        
+        const totalAmount = updatedItems.reduce((total, item) => 
+          total + ((item.price || 0) * (item.quantity || 1)), 0);
+        
+        set({
+          cartItems: { 
+            items: updatedItems,
+            totalPrice: totalAmount,
+            totalItems: totalItems
+          },
           totalItems,
           totalAmount,
           loading: false
-        };
-      });
+        });
+      }
     } catch (error) {
       set({ 
         error: error.response?.data?.message || 'Failed to remove item from cart',
@@ -71,50 +210,106 @@ const useCartStore = create((set, get) => ({
     }
   },
 
-  // Update item quantity
+  // Update cart item quantity
   updateCartItemQuantity: async (itemId, quantity) => {
     set({ loading: true, error: null });
-      const accessToken = await SecureStore.getItemAsync('auth_token');
     
     try {
-      // Set token in headers for this request
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer ${accessToken}`;
-      
-      // Fix: Access the items array inside cartItems object
-      const cartItemsArray = get().cartItems?.items || [];
-      const cartItem = cartItemsArray.find(item => item.cartItemId === itemId);
-      
-      if (!cartItem) {
-        throw new Error('Item not found in cart');
-      }
+      const isLoggedIn = get().isUserLoggedIn();
+      console.log(`Updating quantity for item ${itemId} to ${quantity}. User logged in: ${isLoggedIn}`);
       
       // Ensure quantity is always a valid number (minimum 1)
       const validQuantity = Math.max(1, quantity || 1);
       
-      let payload = {}
-
-      if (cartItem.productType === "SELL") {
-        payload = {
-          productId: cartItem.productId,
-          productType: cartItem.productType,
-          quantity: validQuantity,
-        };
+      if (isLoggedIn) {
+        // User is logged in, use API
+        console.log(`Calling API to update quantity to ${validQuantity}`);
+        
+        try {
+          // Fix the API endpoint - it should be /carts/items/{itemId}
+          await axiosInstance.put(`/cart-items/${itemId}`, {quantity:validQuantity });
+          console.log(`Successfully updated quantity to ${validQuantity}`);
+          
+          // Update the local cart state immediately for better UX
+          const currentCart = get().cartItems;
+          if (currentCart && Array.isArray(currentCart.items)) {
+            const updatedItems = currentCart.items.map(item => {
+              if (item.cartItemId === itemId) {
+                return { ...item, quantity: validQuantity };
+              }
+              return item;
+            });
+            
+            // Calculate new totals
+            const totalItems = updatedItems.reduce((total, item) => 
+              total + (item.quantity || 1), 0);
+            
+            const totalAmount = updatedItems.reduce((total, item) => {
+              if (item.isQuotationProduct) return total;
+              return total + ((parseFloat(item.price) || 0) * (item.quantity || 1));
+            }, 0);
+            
+            // Update state with new values
+            set({
+              cartItems: { 
+                ...currentCart,
+                items: updatedItems,
+                totalPrice: totalAmount,
+                totalItems: totalItems
+              },
+              totalItems,
+              totalAmount,
+              loading: false
+            });
+          }
+          
+          // Fetch the updated cart to ensure we have the latest data
+          console.log("Fetching updated cart after quantity change");
+          await get().fetchCartItems();
+          return { success: true };
+        } catch (error) {
+          console.error("Error updating cart item quantity:", error);
+          throw error;
+        }
       } else {
-        payload = {
-          productId: cartItem.productId,
-          productType: cartItem.productType,
-          quantity: validQuantity,
-        };
+        // User is not logged in, use AsyncStorage
+        console.log("Updating local cart item quantity");
+        const localCartItems = await get().getLocalCartItems();
+        const itemIndex = localCartItems.findIndex(item => item.cartItemId === itemId);
+        
+        if (itemIndex === -1) {
+          throw new Error('Item not found in cart');
+        }
+        
+        localCartItems[itemIndex].quantity = validQuantity;
+        
+        // Save updated cart to AsyncStorage
+        await get().saveLocalCartItems(localCartItems);
+        
+        // Update state
+        const totalItems = localCartItems.reduce((total, item) => 
+          total + (item.quantity || 1), 0);
+        
+        const totalAmount = localCartItems.reduce((total, item) => {
+          if (item.isQuotationProduct) return total;
+          return total + ((parseFloat(item.price) || 0) * (item.quantity || 1));
+        }, 0);
+        
+        set({
+          cartItems: { 
+            items: localCartItems,
+            totalPrice: totalAmount,
+            totalItems: totalItems
+          },
+          totalItems,
+          totalAmount,
+          loading: false
+        });
+        
+        return { success: true };
       }
-      
-      const response = await axiosInstance.put(`/cart-items/${itemId}`, payload);
-      
-      // After successful update, fetch the cart again to get updated data
-      await get().fetchCartItems();
-      
-      return response.data;
     } catch (error) {
+      console.error("Update cart item error:", error);
       set({ 
         error: error.response?.data?.message || 'Failed to update cart item',
         loading: false 
@@ -126,75 +321,110 @@ const useCartStore = create((set, get) => ({
   // Fetch cart items
   fetchCartItems: async () => {
     set({ loading: true, error: null });
-    const accessToken =   await SecureStore.getItemAsync('auth_token');
-    console.log(accessToken,"access token in context");
-
+    
     try {
-      // Set token in headers for this request
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer ${accessToken}`;
+      // Use authStore to check if user is authenticated
+      const isLoggedIn = get().isUserLoggedIn();
+      console.log("Fetch cart - is user logged in:", isLoggedIn);
       
-      const response = await axiosInstance.get('/carts');
-      
-      // Assuming the API returns cart items with product details
-      const cartItemsFetched = response.data;
-      console.log(cartItemsFetched, "cart items from context");
-      
-      set({ 
-        cartItems: cartItemsFetched,
-        totalItems: cartItemsFetched?.items?.length || 0,
-        totalAmount: cartItemsFetched?.totalPrice || 0,
-        loading: false 
-      });
-      
-      return cartItemsFetched; // Return the fetched data instead of undefined cartItems
+      if (isLoggedIn) {
+        // User is logged in, use API
+        console.log("Fetching cart from API");
+        try {
+          const response = await axiosInstance.get('/carts');
+          console.log("Cart API response status:", response.status);
+          const cartItemsFetched = response.data;
+          
+          set({ 
+            cartItems: cartItemsFetched,
+            totalItems: cartItemsFetched?.items?.length || 0,
+            totalAmount: cartItemsFetched?.totalPrice || 0,
+            loading: false 
+          });
+          
+          return cartItemsFetched;
+        } catch (apiError) {
+          console.error("API cart fetch error:", apiError);
+          // If API call fails, fall back to local storage
+          throw apiError;
+        }
+      } else {
+        // User is not logged in, use AsyncStorage
+        console.log("User not logged in - fetching cart from AsyncStorage");
+        const localCartItems = await get().getLocalCartItems();
+        
+        // Calculate totals
+        const totalItems = localCartItems.reduce((total, item) => 
+          total + (item.quantity || 1), 0);
+        
+        // Calculate total amount excluding quotation products
+        const totalAmount = localCartItems.reduce((total, item) => {
+          if (item.isQuotationProduct) return total;
+          return total + ((item.price || 0) * (item.quantity || 1));
+        }, 0);
+        
+        // Format to match API response structure
+        const formattedCart = {
+          items: localCartItems,
+          totalPrice: totalAmount,
+          totalItems: totalItems
+        };
+        
+        set({ 
+          cartItems: formattedCart,
+          totalItems,
+          totalAmount,
+          loading: false 
+        });
+        
+        return formattedCart;
+      }
     } catch (error) {
+      console.error("Fetch cart error:", error);
+      
+      // Always fall back to local storage on any error
+      const localCartItems = await get().getLocalCartItems();
+      const totalItems = localCartItems.reduce((total, item) => 
+        total + (item.quantity || 1), 0);
+      const totalAmount = localCartItems.reduce((total, item) => 
+        total + ((item.price || 0) * (item.quantity || 1)), 0);
+      
+      const formattedCart = {
+        items: localCartItems,
+        totalPrice: totalAmount,
+        totalItems: totalItems
+      };
+      
       set({ 
-        error: error.response?.data?.message || 'Failed to fetch cart items',
-        loading: false 
+        cartItems: formattedCart,
+        totalItems,
+        totalAmount,
+        loading: false,
+        error: error.response?.data?.message || 'Failed to fetch cart items'
       });
-      throw error;
+      
+      return formattedCart;
     }
   },
 
-  addMutipleProducts: async (items) => {
-    set({ loading: true, error: null });
-  
-    try {
-      // Set token in headers for this request
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
-      
-      const response = await axiosInstance.post('/carts/items/batch', items);
-  
-      set((state) => ({
-        // cartItems: [...state.cartItems, ...response.data], // Assuming response.data is an array
-        loading: false
-      }));
-  
-      return response.data;
-    } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to add item(s) to cart',
-        loading: false 
-      });
-      throw error;
-    }
-  },
-  
   // Clear cart
-  clearCart: async (id) => {
+  clearCart: async () => {
     set({ loading: true, error: null });
     
     try {
-      // Set token in headers for this request
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDc4MTEzMTgsImV4cCI6MTc0Nzg5NzcxOH0.1brNKTMXhz6TdbsbczVPeBwGGtA6LPUtpGU3fP8ggyU`;
+      const isLoggedIn = get().isUserLoggedIn();
       
-      await axiosInstance.delete(`/carts/items/${id}`);
+      if (isLoggedIn) {
+        // User is logged in, use API
+        // Clear cart via API
+        await axiosInstance.delete('/carts/items');
+      }
+      
+      // Always clear local storage as well
+      await AsyncStorage.removeItem('local_cart_items');
       
       set({ 
-        cartItems: [],
+        cartItems: { items: [] },
         totalItems: 0,
         totalAmount: 0,
         loading: false 
@@ -205,6 +435,70 @@ const useCartStore = create((set, get) => ({
         loading: false 
       });
       throw error;
+    }
+  },
+  
+  // Migrate local cart to server when user logs in
+  migrateLocalCartToServer: async () => {
+    try {
+      const localCartItems = await get().getLocalCartItems();
+      
+      if (localCartItems.length === 0) {
+        console.log("No local cart items to migrate");
+        return; // No items to migrate
+      }
+      
+      // Check if user is logged in using authStore
+      const isLoggedIn = get().isUserLoggedIn();
+      
+      if (!isLoggedIn) {
+        console.log("User not logged in, can't migrate cart");
+        return; // User is not logged in, can't migrate
+      }
+      
+      set({ loading: true });
+      
+      // Create batch payload for API
+      const batchPayload = localCartItems.map(item => ({
+        productId: item.productId,
+        productType: item.productType,
+        quantity: item.quantity || 1
+      }));
+      
+      console.log('Migrating cart items to server:', batchPayload);
+      
+      // Use batch endpoint to add all items at once
+      try {
+        await axiosInstance.post('/carts/items/batch', batchPayload);
+        console.log('Successfully migrated cart to server');
+      } catch (error) {
+        console.error('Error migrating cart to server:', error);
+        // If batch fails, try individual items as fallback
+        for (const item of localCartItems) {
+          const payload = {
+            productId: item.productId,
+            productType: item.productType,
+            quantity: item.quantity || 1
+          };
+          
+          try {
+            await axiosInstance.post('/carts/items', payload);
+          } catch (itemError) {
+            console.error('Error migrating individual item to server:', itemError);
+          }
+        }
+      }
+      
+      // Clear local cart after migration
+      await AsyncStorage.removeItem('local_cart_items');
+      
+      // Fetch the updated cart from server
+      await get().fetchCartItems();
+      
+      set({ loading: false });
+    } catch (error) {
+      console.error('Error migrating local cart to server:', error);
+      set({ loading: false });
     }
   },
   

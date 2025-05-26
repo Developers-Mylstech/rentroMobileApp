@@ -11,13 +11,15 @@ import {
 } from 'react-native'
 import { EvilIcons, Ionicons } from '@expo/vector-icons'
 import { useAuthStore } from '../../store/authStore'
+import useCartStore from '../../store/cartStore'
 import LottieView from 'lottie-react-native'
 
 export default function OtpModal({ visible, onClose, email }) {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const inputRefs = useRef([])
   const slideAnim = useRef(new Animated.Value(0)).current
-  const { verifyOtp  } = useAuthStore()
+  const { verifyOtp } = useAuthStore()
+  const { migrateLocalCartToServer, getLocalCartItems } = useCartStore()
   const [isLoading, setIsLoading] = useState(false)
   
   useEffect(() => {
@@ -61,13 +63,35 @@ export default function OtpModal({ visible, onClose, email }) {
       otp: otpValue
     }
     setIsLoading(true)
-    const res = await verifyOtp(payload)
-    if (res?.status === 200 || res?.status === 201) {
-      onClose()
+    try {
+      const res = await verifyOtp(payload)
+      
+      if (res?.status === 200 || res?.status === 201) {
+        console.log('OTP verified successfully')
+        
+        // Check if there are any local cart items before attempting migration
+        const localCartItems = await getLocalCartItems()
+        
+        if (localCartItems && localCartItems.length > 0) {
+          console.log(`Found ${localCartItems.length} local cart items, starting migration...`)
+          // Add a small delay to ensure auth state is fully updated
+          setTimeout(() => {
+            migrateLocalCartToServer()
+          }, 500)
+        } else {
+          console.log('No local cart items found, skipping migration')
+        }
+        
+        onClose()
+        setIsLoading(false)
+      } else {
+        console.log('OTP verification failed')
+        setIsLoading(false)
+      }
+    } catch (error) {
+      console.error('Error during OTP verification:', error)
       setIsLoading(false)
     }
-
-    onClose()
   }
 
   return (

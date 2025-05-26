@@ -25,6 +25,13 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="personalInfo"
         options={{
+          title: "Addresses",
+          headerShown: true
+        }}
+      />
+      <Stack.Screen
+        name="UserInfo"
+        options={{
           title: "Personal Info",
           headerShown: true
         }}

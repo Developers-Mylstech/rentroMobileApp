@@ -6,9 +6,14 @@ import Login from '../../../src/components/login'
 import { useAuthStore } from '../../../src/store/authStore'
 import useProfileStore from '../../../src/store/profileStore'
 import ProfileSkeleton from '../../../src/components/Skeleton/ProfileSkeleton'
+import { useRouter } from 'expo-router'
+
+
 
 
 export default function index() {
+
+  const router = useRouter()
   const { isAuthenticated,logout,isLoading: isLoadingAuth } = useAuthStore()
 
   const { fetchProfile, profile, isLoading, error } = useProfileStore()
@@ -35,7 +40,7 @@ export default function index() {
           {/* Header */}
           <Text className="text-3xl font-semibold mb-5">Profile</Text>
 
-          <TouchableOpacity className="flex-row items-center mb-5 pb-5 border-b border-gray-200">
+          <TouchableOpacity onPress={() => router.push('/UserInfo')} className="flex-row items-center mb-5 pb-5 border-b border-gray-200">
             <Ionicons name="person-circle-outline" size={50} color="#4b5563" className="mr-3" />
             
             <View className="ml-4 flex-1">
@@ -63,7 +68,7 @@ export default function index() {
           <Link href="/(tabs)/(profile)/personalInfo" asChild>
             <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
               <Ionicons name="person-circle-outline" size={24} color="#4b5563" className="mr-3" />
-              <Text className="flex-1 text-base">Personal information</Text>
+              <Text className="flex-1 text-base">Addresses</Text>
               <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
             </TouchableOpacity>
           </Link>

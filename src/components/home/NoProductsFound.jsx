@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 const NoProductsFound = () => {
   const shineAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
+  const [showQuotationModal, setShowQuotationModal] = useState(false);
 
   useEffect(() => {
     const shine = Animated.loop(
@@ -40,6 +41,10 @@ const NoProductsFound = () => {
     outputRange: [1, 1.02, 1] // Subtle pulse effect
   });
 
+  const handleRequestQuotation = () => {
+    setShowQuotationModal(true);
+  };
+
   return (
     <View className="flex-1 items-center justify-between gap-4 rounded-lg shadow-sm bg-blue-50 p-6">
       <Text className="text-heading-3 text-center text-gray-500 mb-2 text-sm">
@@ -49,17 +54,20 @@ const NoProductsFound = () => {
       <Animated.View style={{ transform: [{ scale: scaleInterpolation }] }}>
         <TouchableOpacity 
           className="flex-row items-center justify-center py-3 px-6 rounded-lg"
-          onPress={() => router.push('/(home)/RequestQoutation')}
+          onPress={handleRequestQuotation}
           activeOpacity={0.8}
           style={{
             backgroundColor: colorInterpolation,
           }}
         >
-          
-          <Text className=" text-white font-bold text-md">Request Quotation</Text>
+          <Text className="text-white font-bold text-md">Request Quotation</Text>
         </TouchableOpacity>
       </Animated.View>
       
+      <RequestQuotationModal 
+        visible={showQuotationModal}
+        onClose={() => setShowQuotationModal(false)}
+      />
     </View>
   );
 };
