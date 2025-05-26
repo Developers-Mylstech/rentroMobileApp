@@ -267,7 +267,7 @@ const RequestQuotationModal = ({
       setQuoteRequestId(response?.data?.requestQuotationCode);
       setSubmitStatus('success');
       setStatusMessage('Thank you for your query!');
-      setShowSuccessDialog(true);
+      setShowSuccessDialog(true); // Make sure this is being set to true
       reset();
       removeImage();
     } catch (error) {
@@ -303,7 +303,7 @@ const RequestQuotationModal = ({
   const SuccessDialog = () => (
     <Modal visible={showSuccessDialog} transparent animationType="fade">
       <View className="flex-1 justify-center items-center bg-black/50">
-        <View className="bg-white rounded-xl p-6 m-5 w-11/12 max-w-md">
+        <View className="bg-white z-50 rounded-xl p-6 m-5 w-11/12 max-w-md">
           <View className="items-center mb-4">
             <View className="w-16 h-16 rounded-full bg-green-100 items-center justify-center mb-3">
               <Text className="text-green-600 text-3xl">✓</Text>
@@ -325,25 +325,13 @@ const RequestQuotationModal = ({
             className="bg-blue-600 py-3 rounded-lg items-center"
             onPress={handleCloseSuccess}
           >
-            <Text className="text-white font-semibold">Close</Text>
+            <Text className="text-white font-semibold">Done</Text>
           </TouchableOpacity>
         </View>
         
-        <View className="bg-blue-50 p-4 rounded-lg mb-6">
-          <Text className="text-gray-600 mb-1">Your Request ID:</Text>
-          <TouchableOpacity onPress={copyToClipboard} className="flex-row items-center justify-center">
-            <Text className="text-blue-700 font-bold text-lg">{quoteRequestId}</Text>
-            <Text className="text-blue-500 ml-2">📋</Text>
-          </TouchableOpacity>
-          <Text className="text-xs text-gray-500 text-center mt-1">Tap to copy</Text>
-        </View>
+     
         
-        <TouchableOpacity 
-          className="bg-blue-600 py-3 rounded-lg items-center"
-          onPress={handleCloseSuccess}
-        >
-          <Text className="text-white font-bold">Done</Text>
-        </TouchableOpacity>
+       
       </View>
     </Modal>
   );
@@ -548,6 +536,7 @@ const RequestQuotationModal = ({
             </ScrollView>
           </View>
         </View>
+        <SuccessDialog className="bg-white z-50"/>
       </Modal>
       
       {/* Success dialog remains as a modal */}
