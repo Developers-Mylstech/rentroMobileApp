@@ -17,14 +17,16 @@ export default function CategorySection() {
         {/* All Products */}
         <TouchableOpacity
           className="bg-blue-50 rounded-lg p-4 mb-4 w-[48%]"
-          onPress={() => router.push('/(tabs)/shop')}
+          onPress={() => router.push({
+              pathname: '/(tabs)/shop',
+              params: { type: null },
+            })}
         >
           <Ionicons name="grid-outline" size={24} color="#3b82f6" />
           <Text className="font-semibold text-gray-800 mt-2">All Products</Text>
           <Text className="text-gray-500 text-xs mt-1">Browse all products</Text>
         </TouchableOpacity>
 
-        {/* Sell Products */}
         <TouchableOpacity
           className="bg-green-50 rounded-lg p-4 mb-4 w-[48%]"
           onPress={() =>

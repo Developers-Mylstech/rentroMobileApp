@@ -30,6 +30,9 @@ export default function Shop() {
   } = useCartStore();
 
   useEffect(() => {
+    if(type==null){
+      setLocalType(null);
+    }
     if (type) {
       setLocalType(type);
       handleProducts(type);
