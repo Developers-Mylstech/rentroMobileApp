@@ -46,7 +46,7 @@ export default function Checkout() {
   
   const [checkoutId, setCheckoutId] = useState(null);
   const [orderId, setOrderId] = useState(null);
-  const { cartItems, clearCart } = useCartStore();
+  const { cartItems } = useCartStore();
   const { addresses, fetchAddresses, addAddress } = useAddressStore();
   const { confirmPayment } = useStripe();
 
@@ -379,7 +379,7 @@ export default function Checkout() {
         );
         
         if (response.data.success) {
-          clearCart();
+  
           clearCheckoutData(); // Now this should work
           router.push('/shop/order-confirmation');
         } else {
