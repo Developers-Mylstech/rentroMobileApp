@@ -28,6 +28,18 @@ export default function HomeLayout() {
           
         }} 
       />
+      <Stack.Screen 
+        name="RequestQoutation" 
+        options={{ 
+          headerBackTitle: "Back",
+          headerBackVisible: true,
+
+          title: "Request Quotation",
+          headerShown: true,
+          presentation: 'modal'
+          
+        }} 
+      />
     
     </Stack>
   );

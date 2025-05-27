@@ -11,27 +11,24 @@ import {
   Alert,
   ScrollView,
   Dimensions,
-  Keyboard,
-  StyleSheet,
-  Modal
+  Keyboard
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useForm, Controller } from 'react-hook-form';
 import axiosInstance from '../../utils/axiosInstance';
-import Clipboard from '@react-native-clipboard/clipboard';
 import axios from 'axios';
 import { Platform } from 'react-native';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
-const RequestQuotationModal = ({ 
-  visible, 
-  onClose, 
-  productId, 
-  productName, 
+const RequestQuotationModal = ({
+  visible,
+  onClose,
+  productId,
+  productName,
   productImage,
   productImageId,
-  fromProductDetails = false 
+  fromProductDetails = false
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -56,12 +53,9 @@ const RequestQuotationModal = ({
     },
   });
 
-  // Set product image when productImage prop changes
   useEffect(() => {
     if (productImage) {
       setProductImageUrl(productImage);
-      console.log("Product image set:", productImage);
-      console.log("Product image ID:", productImageId);
     } else {
       console.log("No product image provided");
     }
@@ -115,8 +109,10 @@ const RequestQuotationModal = ({
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(quoteRequestId);
-    Alert.alert('Copied', 'Request ID copied to clipboard!');
+    // Using Alert directly instead of Clipboard
+    Alert.alert('Request ID', quoteRequestId, [
+      { text: 'OK' }
+    ]);
   };
 
   const onSubmit = async (data) => {
@@ -125,17 +121,17 @@ const RequestQuotationModal = ({
     setStatusMessage('');
     try {
       let imageData = null;
-      
+
       // If user selected an image, upload it first
       if (selectedImage) {
         console.log("Selected image to upload:", selectedImage);
-        
+
         try {
           // Check if the image is valid
           if (!selectedImage.uri) {
             throw new Error("Invalid image: missing URI");
           }
-          
+
           // Create proper FormData object for image upload
           const formData = new FormData();
           formData.append('file', {
@@ -145,7 +141,7 @@ const RequestQuotationModal = ({
           });
 
           console.log("Image URI:", selectedImage.uri);
-          
+
           // Use fetch instead of axios for more reliable file uploads in React Native
           const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/image-entities/upload?quality=80&fallbackToJpeg=true`, {
             method: 'POST',
@@ -155,11 +151,11 @@ const RequestQuotationModal = ({
             },
             body: formData,
           });
-          
+
           if (!response.ok) {
             throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
           }
-          
+
           const responseData = await response.json();
           console.log("Image upload API response:", JSON.stringify(responseData));
 
@@ -167,7 +163,7 @@ const RequestQuotationModal = ({
           if (responseData?.image) {
             imageData = {
               imageUrl: responseData.image.imageUrl,
-              imageId: responseData.image.imageId 
+              imageId: responseData.image.imageId
             };
           } else if (responseData?.imageUrl) {
             imageData = {
@@ -177,16 +173,16 @@ const RequestQuotationModal = ({
           } else {
             throw new Error("Invalid image upload response format");
           }
-          
+
           // Continue with form submission
           await proceedWithFormSubmission(data, imageData);
-          
+
         } catch (uploadError) {
           console.error("Image upload error:", uploadError.message);
-          
+
           // Alert the user about the image upload failure
           Alert.alert(
-            "Image Upload Failed", 
+            "Image Upload Failed",
             `We couldn't upload your image. Would you like to continue without an image?`,
             [
               {
@@ -200,9 +196,9 @@ const RequestQuotationModal = ({
                 text: "Continue",
                 onPress: () => {
                   // Use default image
-                  const defaultImageData = { 
-                    imageUrl: "https://via.placeholder.com/150", 
-                    imageId: 1 
+                  const defaultImageData = {
+                    imageUrl: "https://via.placeholder.com/150",
+                    imageId: 1
                   };
                   // Continue with form submission
                   proceedWithFormSubmission(data, defaultImageData);
@@ -212,17 +208,15 @@ const RequestQuotationModal = ({
           );
         }
       } else if (productImageUrl) {
-        // If no user-selected image but we have a product image, use that
         const productImageData = {
           imageUrl: productImageUrl,
           imageId: productImageId || 0
         };
         await proceedWithFormSubmission(data, productImageData);
       } else {
-        // Default image if none is available
-        const defaultImageData = { 
-          imageUrl: "https://via.placeholder.com/150", 
-          imageId: 1 
+        const defaultImageData = {
+          imageUrl: "https://via.placeholder.com/150",
+          imageId: 1
         };
         await proceedWithFormSubmission(data, defaultImageData);
       }
@@ -261,9 +255,7 @@ const RequestQuotationModal = ({
       const response = await axiosInstance.post('/request-quotations', payload, {
         timeout: 15000, // Set a reasonable timeout
       });
-      
-      console.log("Request quotation response:", response?.data);
-      
+
       setQuoteRequestId(response?.data?.requestQuotationCode);
       setSubmitStatus('success');
       setStatusMessage('Thank you for your query!');
@@ -273,21 +265,21 @@ const RequestQuotationModal = ({
     } catch (error) {
       console.error("Form submission error:", error);
       console.error("Error details:", error.response?.data);
-      
+
       let errorMessage = 'Network error. Please check your connection and try again.';
-      
+
       if (error.response) {
-        errorMessage = error.response.data?.message || 
-                      `Server error (${error.response.status}). Please try again later.`;
+        errorMessage = error.response.data?.message ||
+          `Server error (${error.response.status}). Please try again later.`;
       } else if (error.request) {
         errorMessage = 'No response from server. Please check your connection.';
       }
-      
+
       setSubmitStatus('error');
       setStatusMessage(errorMessage);
-      
+
       Alert.alert(
-        'Submission Failed', 
+        'Submission Failed',
         errorMessage,
         [{ text: 'OK' }]
       );
@@ -296,447 +288,222 @@ const RequestQuotationModal = ({
 
   const handleCloseSuccess = () => {
     setShowSuccessDialog(false);
-    onClose();
   };
 
   // Success dialog component
   const SuccessDialog = () => (
-    <Modal visible={showSuccessDialog} transparent animationType="fade">
-      <View className="flex-1 justify-center items-center bg-black/50">
-        <View className="bg-white z-50 rounded-xl p-6 m-5 w-11/12 max-w-md">
-          <View className="items-center mb-4">
-            <View className="w-16 h-16 rounded-full bg-green-100 items-center justify-center mb-3">
-              <Text className="text-green-600 text-3xl">✓</Text>
-            </View>
-            <Text className="text-xl font-bold text-gray-800">Request Submitted!</Text>
-            <Text className="text-gray-600 text-center mt-2">
-              Your quotation request has been submitted successfully.
-            </Text>
+    <View className="absolute inset-0 bg-black/50 justify-center items-center z-50">
+      <View className="bg-white rounded-xl p-6 m-5 w-[85%] max-w-[400px]">
+        <View className="items-center mb-4">
+          <View className="w-16 h-16 rounded-full bg-green-100 items-center justify-center mb-3">
+            <Text className="text-green-500 text-3xl font-bold">✓</Text>
           </View>
-          
-          <View className="bg-gray-100 rounded-lg p-3 mb-4 flex-row justify-between items-center">
-            <Text className="text-gray-700">Request ID: {quoteRequestId}</Text>
-            <TouchableOpacity onPress={copyToClipboard}>
-              <Text className="text-blue-600">Copy</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <TouchableOpacity 
-            className="bg-blue-600 py-3 rounded-lg items-center"
-            onPress={handleCloseSuccess}
-          >
-            <Text className="text-white font-semibold">Done</Text>
+          <Text className="text-xl font-bold text-gray-800 mb-2">Request Submitted!</Text>
+          <Text className="text-gray-500 text-center">
+            Your quotation request has been submitted successfully.
+          </Text>
+        </View>
+
+        <View className="bg-gray-100 rounded-lg p-3 mb-4 flex-row justify-between items-center">
+          <Text className="text-gray-600">Request ID: {quoteRequestId}</Text>
+          <TouchableOpacity onPress={copyToClipboard}>
+            <Text className="text-blue-600">Copy</Text>
           </TouchableOpacity>
         </View>
-        
-     
-        
-       
+
+        <TouchableOpacity
+          className="bg-blue-600 rounded-lg py-3 items-center"
+          onPress={handleCloseSuccess}
+        >
+          <Text className="text-white font-bold text-base">Done</Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
   );
 
   return (
     <>
-      <Modal 
-        visible={visible} 
-        animationType="slide" 
-        onRequestClose={onClose} 
-        transparent
-        // This is the key property to prevent keyboard from pushing content
-        statusBarTranslucent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.header}>
-              <Text style={styles.headerText}>Request Quotation</Text>
-              <TouchableOpacity 
-                onPress={onClose} 
-                style={styles.closeButton}
-                disabled={loading}
-              >
-                <Text style={styles.closeButtonText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <ScrollView 
-              style={styles.scrollView}
-              contentContainerStyle={styles.scrollViewContent}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="interactive"
-            >
-              {/* Product Info Section - Only show if product info is provided */}
-              {(productName || productImageUrl) && (
-                <View style={styles.productInfoContainer}>
-                  {productImageUrl && (
-                    <Image 
-                      source={{ uri: productImageUrl }} 
-                      style={styles.productImage}
-                      resizeMode="contain"
-                    />
-                  )}
-                  {productName && (
-                    <Text style={styles.productName}>{productName}</Text>
-                  )}
-                </View>
-              )}
-              
-              {/* Image Upload Section - Only show if not from product details page */}
-              {!fromProductDetails && (
-                <TouchableOpacity
-                  style={styles.imageUploadContainer}
-                  onPress={pickImage}
-                >
-                  {selectedImage ? (
-                    <>
-                      <Image source={{ uri: selectedImage.uri }} style={styles.selectedImage} />
-                      <TouchableOpacity 
-                        onPress={removeImage}
-                        style={styles.removeImageButton}
-                      >
-                        <Text style={styles.removeImageButtonText}>✕</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <View style={styles.uploadPromptContainer}>
-                      <Text style={styles.uploadPromptTitle}>
-                        Upload Product Image
-                      </Text>
-                      <Text style={styles.uploadPromptSubtitle}>
-                        Tap here to select an image of your product
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              )}
 
-              <Text style={styles.sectionTitle}>Contact Information</Text>
-              
-              {/* Name and Mobile */}
-              <Controller
-                control={control}
-                name="name"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Your Name"
-                    value={value}
-                    onChangeText={onChange}
+      <View className="flex-1 bg-white justify-center items-center">
+        <View className=" w-full h-full rounded-t-3xl overflow-hidden p-4">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            className="flex-1 px-1 pt-6"
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+          >
+            {(productName || productImageUrl) && (
+              <View className="bg-blue-50 p-4 rounded-lg mb-6">
+                {productImageUrl && (
+                  <Image
+                    source={{ uri: productImageUrl }}
+                    className="w-full h-40 mb-2 rounded-md"
+                    resizeMode="contain"
                   />
                 )}
-              />
-              
-              <Controller
-                control={control}
-                name="mobile"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Mobile Number"
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType="phone-pad"
-                  />
+                {productName && (
+                  <Text className="font-bold text-gray-800">{productName}</Text>
                 )}
-              />
-              
-              <Controller
-                control={control}
-                name="companyName"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Company Name (Optional)"
-                    value={value}
-                    onChangeText={onChange}
-                  />
-                )}
-              />
-              
-              <Text style={styles.sectionTitle}>Location Details</Text>
-              
-              <Controller
-                control={control}
-                name="locationCountry"
-                render={({ field: { value } }) => (
-                  <View style={styles.dropdownContainer}>
-                    <TouchableOpacity 
-                      style={styles.dropdownButton}
-                      onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+              </View>
+            )}
+
+            {/* Image Upload Section - Only show if not from product details page */}
+            {!fromProductDetails && (
+              <TouchableOpacity
+                className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
+                onPress={pickImage}
+              >
+                {selectedImage ? (
+                  <>
+                    <Image source={{ uri: selectedImage.uri }} className="w-full h-40 rounded-md" />
+                    <TouchableOpacity
+                      onPress={removeImage}
+                      className="absolute top-2 right-2 bg-red-500 w-6 h-6 rounded-full items-center justify-center"
                     >
-                      <Text>{value}</Text>
-                      <Text style={styles.dropdownArrow}>▼</Text>
+                      <Text className="text-white font-bold">✕</Text>
                     </TouchableOpacity>
-                    
-                    {showCountryDropdown && (
-                      <View style={styles.dropdownList}>
-                        {emiratesOptions.map((emirate) => (
-                          <TouchableOpacity 
-                            key={emirate} 
-                            style={[
-                              styles.dropdownItem,
-                              emirate === value ? styles.dropdownItemSelected : null
-                            ]}
-                            onPress={() => selectCountry(emirate)}
-                          >
-                            <Text style={emirate === value ? styles.dropdownItemTextSelected : null}>
-                              {emirate}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
+                  </>
+                ) : (
+                  <View className="items-center">
+                    <Text className="font-bold text-gray-700 mb-1">
+                      Upload Product Image
+                    </Text>
+                    <Text className="text-gray-500 text-center">
+                      Tap here to select an image of your product
+                    </Text>
                   </View>
                 )}
-              />
-              
-              {/* Other location fields */}
-              {[
-                { name: 'locationStreet', placeholder: 'Street' },
-                { name: 'locationArea', placeholder: 'Area' },
-                { name: 'locationBuilding', placeholder: 'Building' },
-                { name: 'locationVillaNo', placeholder: 'Villa No' },
-                { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
-              ].map(({ name, placeholder }) => (
-                <Controller
-                  key={name}
-                  control={control}
-                  name={name}
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      style={styles.input}
-                      placeholder={placeholder}
-                      value={value}
-                      onChangeText={onChange}
-                    />
-                  )}
-                />
-              ))}
+              </TouchableOpacity>
+            )}
 
-              {submitStatus === 'error' && (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{statusMessage}</Text>
+            <Text className="text-lg font-bold text-gray-800 mb-3">Contact Information</Text>
+
+            {/* Name and Mobile */}
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="border border-gray-300 rounded-lg p-3 mb-3"
+                  placeholder="Your Name"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="mobile"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="border border-gray-300 rounded-lg p-3 mb-3"
+                  placeholder="Mobile Number"
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="phone-pad"
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="companyName"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="border border-gray-300 rounded-lg p-3 mb-3"
+                  placeholder="Company Name (Optional)"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+
+            <Text className="text-lg font-bold text-gray-800 mb-3">Location Details</Text>
+
+            <Controller
+              control={control}
+              name="locationCountry"
+              render={({ field: { value } }) => (
+                <View className="mb-3">
+                  <TouchableOpacity
+                    className="border border-gray-300 rounded-lg p-3 flex-row justify-between items-center"
+                    onPress={() => setShowCountryDropdown(!showCountryDropdown)}
+                  >
+                    <Text>{value}</Text>
+                    <Text>▼</Text>
+                  </TouchableOpacity>
+
+                  {showCountryDropdown && (
+                    <View className="border border-gray-300 rounded-lg mt-1 bg-white">
+                      {emiratesOptions.map((emirate) => (
+                        <TouchableOpacity
+                          key={emirate}
+                          className={`p-3 ${emirate === value ? 'bg-blue-50' : ''}`}
+                          onPress={() => selectCountry(emirate)}
+                        >
+                          <Text className={emirate === value ? 'text-blue-600' : ''}>
+                            {emirate}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                 </View>
               )}
+            />
 
-              <TouchableOpacity
-                style={[styles.submitButton, loading ? styles.submitButtonDisabled : null]}
-                onPress={handleSubmit(onSubmit)}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Text style={styles.submitButtonText}>Submit Request</Text>
+            {/* Other location fields */}
+            {[
+              { name: 'locationStreet', placeholder: 'Street' },
+              { name: 'locationArea', placeholder: 'Area' },
+              { name: 'locationBuilding', placeholder: 'Building' },
+              { name: 'locationVillaNo', placeholder: 'Villa No' },
+              { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
+            ].map(({ name, placeholder }) => (
+              <Controller
+                key={name}
+                control={control}
+                name={name}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="border border-gray-300 rounded-lg p-3 mb-3"
+                    placeholder={placeholder}
+                    value={value}
+                    onChangeText={onChange}
+                  />
                 )}
-              </TouchableOpacity>
-              
-              {/* Add extra padding at the bottom to ensure content is visible when keyboard is open */}
-              <View style={{ height: 100 }} />
-            </ScrollView>
-          </View>
-        </View>
-        <SuccessDialog className="bg-white z-50"/>
-      </Modal>
-      
-      {/* Success dialog remains as a modal */}
-      {showSuccessDialog && (
-        <View className="absolute inset-0 bg-black/50 justify-center items-center">
-          <View className="bg-white rounded-xl p-6 w-[85%] max-w-md">
-            {/* Success dialog content remains the same */}
-            <TouchableOpacity 
-              className="bg-blue-600 py-3 rounded-lg items-center"
-              onPress={handleCloseSuccess}
+              />
+            ))}
+
+            {submitStatus === 'error' && (
+              <View className="bg-red-50 p-3 rounded-lg mb-3">
+                <Text className="text-red-600">{statusMessage}</Text>
+              </View>
+            )}
+
+            <TouchableOpacity
+              className={`bg-blue-600 rounded-lg py-3 items-center mb-3 ${loading ? 'opacity-70' : ''}`}
+              onPress={handleSubmit(onSubmit)}
+              disabled={loading}
             >
-              <Text className="text-white font-bold">Done</Text>
+              {loading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text className="text-white font-bold">Submit Request</Text>
+              )}
             </TouchableOpacity>
-          </View>
+
+            {/* Add extra padding at the bottom to ensure content is visible when keyboard is open */}
+            <View className="h-24" />
+          </ScrollView>
         </View>
-      )}
+        {showSuccessDialog && <SuccessDialog />}
+      </View>
+
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    width: '100%',
-    height: screenHeight * 0.85, // Increased height to 85% of screen
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    overflow: 'hidden',
-    // Add this to ensure the modal stays at the bottom
-    position: 'absolute',
-    bottom: 0,
-  },
-  header: {
-    backgroundColor: '#2563EB', // blue-600
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  closeButton: {
-    padding: 5,
-  },
-  closeButtonText: {
-    color: 'white',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 24,
-  },
-  scrollViewContent: {
-    paddingBottom: 40,
-  },
-  productInfoContainer: {
-    backgroundColor: '#EFF6FF', // blue-50
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
-  },
-  productImage: {
-    width: '100%',
-    height: 160,
-    marginBottom: 8,
-    borderRadius: 6,
-  },
-  productName: {
-    fontWeight: 'bold',
-    color: '#1F2937', // gray-800
-  },
-  imageUploadContainer: {
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: '#93C5FD', // blue-300
-    padding: 20,
-    alignItems: 'center',
-    borderRadius: 8,
-    marginBottom: 24,
-    backgroundColor: '#EFF6FF', // blue-50
-  },
-  selectedImage: {
-    width: 160,
-    height: 160,
-    marginBottom: 8,
-    borderRadius: 6,
-  },
-  removeImageButton: {
-    backgroundColor: '#FEE2E2', // red-100
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  removeImageButtonText: {
-    color: '#DC2626', // red-600
-  },
-  uploadPromptContainer: {
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  uploadPromptTitle: {
-    color: '#3B82F6', // blue-500
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  uploadPromptSubtitle: {
-    color: '#6B7280', // gray-500
-    textAlign: 'center',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#374151', // gray-700
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB', // gray-300
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  dropdownContainer: {
-    marginBottom: 16,
-  },
-  dropdownButton: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB', // gray-300
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  dropdownArrow: {
-    color: '#6B7280', // gray-500
-  },
-  dropdownList: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB', // gray-300
-    borderRadius: 8,
-    marginTop: 4,
-    backgroundColor: 'white',
-    zIndex: 10,
-  },
-  dropdownItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB', // gray-200
-  },
-  dropdownItemSelected: {
-    backgroundColor: '#EFF6FF', // blue-50
-  },
-  dropdownItemTextSelected: {
-    color: '#2563EB', // blue-600
-    fontWeight: '600',
-  },
-  errorContainer: {
-    backgroundColor: '#FEF2F2', // red-50
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#DC2626', // red-600
-  },
-  submitButton: {
-    backgroundColor: '#2563EB', // blue-600
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  submitButtonDisabled: {
-    opacity: 0.7,
-  },
-  submitButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-});
-
 export default RequestQuotationModal;
-
-
-

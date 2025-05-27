@@ -152,10 +152,7 @@ export default function ProductDetails() {
   // Function to handle request quotation
   const handleRequestQuotation = () => {
     if (currentProduct) {
-      console.log("Selected product for quotation:", currentProduct);
-      console.log("Product images:", currentProduct.images);
-      
-      // Get the first image if available
+     
       const productImage = currentProduct.images && currentProduct.images.length > 0 
         ? currentProduct.images[0].imageUrl 
         : null;
@@ -164,9 +161,7 @@ export default function ProductDetails() {
         ? currentProduct.images[0].imageId 
         : null;
       
-      console.log("Product image URL to pass:", productImage);
-      console.log("Product image ID to pass:", productImageId);
-      
+     
       setSelectedProduct(currentProduct);
       setShowQuotationModal(true);
     }
