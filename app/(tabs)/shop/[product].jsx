@@ -13,14 +13,13 @@ import {
 } from 'react-native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
 import  useCartStore  from '../../../src/store/cartStore';
 import useCheckoutStore from "../../../src/store/checkoutStore";
 import CartDrawer from '../../../src/components/cart/CartDrawer';
 import ProductDetailsSkeleton from '../../../src/components/Skeleton/ProductDetailsSkeleton';
 import CartNotificationDialog from '../../../src/components/common/CartNotificationDialog';
-import RequestQuotationModal from '../../../src/components/formComponent/RequestQuotationModal';
 import useWishlistStore from '../../../src/store/wishlistStore';
 import { useAuthStore } from '../../../src/store/authStore';
 
@@ -49,8 +48,6 @@ export default function ProductDetails() {
   const [selectedAmcPlan, setSelectedAmcPlan] = useState('basic'); // 'basic' or 'gold'
   const [productQuantity, setProductQuantity] = useState(1); // Add quantity state
   const [localLoading, setLocalLoading] = useState(true);
-  const [showQuotationModal, setShowQuotationModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { isAuthenticated } = useAuthStore();
 
@@ -152,18 +149,20 @@ export default function ProductDetails() {
   // Function to handle request quotation
   const handleRequestQuotation = () => {
     if (currentProduct) {
-     
-      const productImage = currentProduct.images && currentProduct.images.length > 0 
-        ? currentProduct.images[0].imageUrl 
-        : null;
-      
-      const productImageId = currentProduct.images && currentProduct.images.length > 0 
-        ? currentProduct.images[0].imageId 
-        : null;
-      
-     
-      setSelectedProduct(currentProduct);
-      setShowQuotationModal(true);
+      router.push({
+        pathname: '/(tabs)/(home)/RequestQoutation',
+        params: {
+          productId: currentProduct.productId,
+          productName: currentProduct.name,
+          productImage: currentProduct.images && currentProduct.images.length > 0 
+            ? currentProduct.images[0].imageUrl 
+            : null,
+          productImageId: currentProduct.images && currentProduct.images.length > 0 
+            ? currentProduct.images[0].imageId 
+            : null,
+          fromProductDetails: true
+        }
+      });
     }
   };
 
@@ -539,21 +538,6 @@ useEffect(() => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-     
-      <RequestQuotationModal 
-        visible={showQuotationModal} 
-        onClose={() => setShowQuotationModal(false)}
-        productId={currentProduct?.productId}
-        productName={currentProduct?.name}
-        productImage={currentProduct?.images && currentProduct.images.length > 0 
-          ? currentProduct.images[0].imageUrl 
-          : null}
-        productImageId={currentProduct?.images && currentProduct.images.length > 0 
-          ? currentProduct.images[0].imageId 
-          : null}
-        fromProductDetails={true}
-      />
-
       <CartDrawer
         visible={isCartOpen}
         onClose={closeCart}
