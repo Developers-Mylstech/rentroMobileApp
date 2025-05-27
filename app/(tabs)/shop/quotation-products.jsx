@@ -101,8 +101,20 @@ export default function QuotationProducts() {
 
   // Handle request quotation
   const handleRequestQuotation = (product) => {
-    setSelectedProduct(product);
-    setShowQuotationModal(true);
+    router.push({
+      pathname: '/(tabs)/(home)/RequestQoutation',
+      params: {
+        productId: product.productId,
+        productName: product.name,
+        productImage: product.images && product.images.length > 0 
+          ? product.images[0].imageUrl 
+          : null,
+        productImageId: product.images && product.images.length > 0 
+          ? product.images[0].imageId 
+          : null,
+        fromProductDetails: false
+      }
+    });
   };
 
   // Filter products based on search query
@@ -166,9 +178,6 @@ export default function QuotationProducts() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Request Quotation Modal */}
-      
-
       {/* Debug info - remove in production */}
      
 
@@ -232,6 +241,7 @@ export default function QuotationProducts() {
     </SafeAreaView>
   );
 }
+
 
 
 

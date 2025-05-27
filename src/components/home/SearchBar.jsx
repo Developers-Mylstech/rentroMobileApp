@@ -3,6 +3,7 @@ import { View, TextInput, FlatList, Text, TouchableOpacity, Image, ActivityIndic
 import { Ionicons } from "@expo/vector-icons";
 import { useProductStore } from '../../store/productStore';
 import debounce from 'lodash.debounce';
+import { Platform } from 'react-native';
 
 export default function SearchBar({
   value = "",
@@ -97,7 +98,7 @@ export default function SearchBar({
         onItemPress(item);
         setShowResults(false);
       }}
-      className="p-3 border-b flex-row gap-3 items-center border-gray-100"
+      className={` ${Platform.OS === 'android' ? 'p-3' : 'p-3'} border-b flex-row gap-3 items-center border-gray-100`}
     >
       <Image
         source={{ uri: item.images?.[0]?.imageUrl || 'https://via.placeholder.com/100' }}
@@ -115,16 +116,17 @@ export default function SearchBar({
 
   return (
     <View className="py-2 relative">
-      <View className="flex-row items-center border border-gray-200 rounded-lg px-4 py-3">
+      <View className={`flex-row items-center border border-gray-200 rounded-lg px-4   ${Platform.OS === 'android' ? 'py-1' : 'py-3'}`}>
         <TextInput
           value={value}
           onChangeText={handleTextChange}
           onSubmitEditing={handleSearch}
           placeholder={placeholder}
-          className="flex-1 text-gray-700"
+          className={`flex-1 text-gray-700  ${Platform.OS === 'android' ? 'p-3' : 'p-0'}`}
           returnKeyType="search"
           placeholderTextColor="#9CA3AF"
           clearButtonMode="while-editing"
+          
         />
         <TouchableOpacity onPress={handleSearch} className="ml-2">
           <Ionicons name="search" size={20} color="#007AFF" />
