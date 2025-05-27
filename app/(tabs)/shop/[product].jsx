@@ -539,9 +539,8 @@ useEffect(() => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <CartDrawer
-        visible={isCartOpen}
+        isVisible={isCartOpen}
         onClose={closeCart}
-        cartItems={cartItems}
         onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
         onClearCart={clearCart}

@@ -79,8 +79,8 @@ export const useAuthStore = create((set, get) => ({
       set({ isLoading: true, error: null });
       const refreshToken = await SecureStore.getItemAsync('refresh_token');
       const response = await axiosInstance.post(`/auth/logout?refreshToken=${refreshToken}`);
-      await SecureStore.deleteItemAsync('access_token');
       await SecureStore.deleteItemAsync('refresh_token');
+      await SecureStore.deleteItemAsync('access_token');
       set({ user: null, isLoading: false, isAuthenticated: false });
     } catch (error) {
       set({

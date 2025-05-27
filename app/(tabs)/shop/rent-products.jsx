@@ -109,9 +109,8 @@ export default function RentProducts() {
       <CartDrawer 
         isVisible={isCartOpen}
         onClose={closeCart}
-        cartItems={cartItems}
-        onClearAll={clearCart}
-        onRemoveItem={removeFromCart}
+        onClearCart={clearCart}
+        onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
       />
       

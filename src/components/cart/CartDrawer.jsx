@@ -8,7 +8,12 @@ import { useRouter } from 'expo-router';
 
 export default function CartDrawer({ 
   isVisible, 
-  onClose
+  onClose,
+  // Remove cartItems from props since we're getting it from the store
+  onRemove,
+  onUpdateQuantity,
+  onClearCart,
+  onCheckout
 }) {
   const router = useRouter();
   const { 

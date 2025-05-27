@@ -117,9 +117,8 @@ export default function Shop() {
       <CartDrawer
         isVisible={isCartOpen}
         onClose={closeCart}
-        cartItems={cartItems}
-        onClearAll={clearCart}
-        onRemoveItem={removeFromCart}
+        onClearCart={clearCart}
+        onRemove={removeFromCart}
         onUpdateQuantity={updateCartItemQuantity}
       />
 
@@ -128,7 +127,7 @@ export default function Shop() {
         <ShopSkeleton />
       ) : (
         <>
-          <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
+          <View className="flex-row items-center justify-between px-3 py-0 border-b border-gray-200">
             <View className="flex-1">
               <SearchBar
                 value={searchQuery}
@@ -137,7 +136,7 @@ export default function Shop() {
                 placeholder="Search for products..."
               />
             </View>
-            <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
+            <View className="flex-row items-center justify-between px-2 py-4 border-b border-gray-200">
               <TouchableOpacity onPress={openCart} className="relative">
                 <Ionicons name="cart-outline" size={24} color="black" />
                 {totalItems > 0 && (
