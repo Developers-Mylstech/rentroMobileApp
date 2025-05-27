@@ -54,7 +54,7 @@ const NoProductsFound = () => {
       <Animated.View style={{ transform: [{ scale: scaleInterpolation }] }}>
         <TouchableOpacity 
           className="flex-row items-center justify-center py-3 px-6 rounded-lg"
-          onPress={handleRequestQuotation}
+          onPress={() => router.push('/(home)/RequestQoutation')}
           activeOpacity={0.8}
           style={{
             backgroundColor: colorInterpolation,
@@ -64,10 +64,10 @@ const NoProductsFound = () => {
         </TouchableOpacity>
       </Animated.View>
       
-      <RequestQuotationModal 
+      {/* <RequestQuotationModal 
         visible={showQuotationModal}
         onClose={() => setShowQuotationModal(false)}
-      />
+      /> */}
     </View>
   );
 };
