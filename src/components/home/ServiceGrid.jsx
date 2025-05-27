@@ -12,7 +12,7 @@ export default function ServiceGrid({
   const renderServiceItem = ({ item }) => (
     <TouchableOpacity 
       onPress={() => onServicePress(item)}
-      className=" w-[48.5%] bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200"
+      className=" w-[48.5%] mb-3 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200"
       activeOpacity={0.7}
     >
       <Image
@@ -44,7 +44,7 @@ export default function ServiceGrid({
       <Text className="font-bold text-heading-4 uppercase mb-3">{title}</Text>
       <FlatList
         data={selectedServices}
-        columnWrapperStyle={{ justifyContent: 'space-between',gap: 8 }}
+        columnWrapperStyle={{ justifyContent: 'space-between',gap: 8, }}
         numColumns={2}
         scrollEnabled={false}
         keyExtractor={(item, index) => index.toString()}

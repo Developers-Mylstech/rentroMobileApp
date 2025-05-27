@@ -30,7 +30,7 @@ export default function OrderConfirmation() {
   const handleViewOrders = () => {
     // Clear checkout data and navigate
     clearCheckoutData();
-    router.push('/(tabs)');
+    router.push('/(tabs)/(profile)/(orders)');
   };
 
   return (
