@@ -167,19 +167,7 @@ export default function QuotationProducts() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Request Quotation Modal */}
-      <RequestQuotationModal 
-        visible={showQuotationModal} 
-        onClose={() => setShowQuotationModal(false)}
-        productId={selectedProduct?.productId}
-        productName={selectedProduct?.name}
-        productImage={selectedProduct?.images && selectedProduct.images.length > 0 
-          ? selectedProduct.images[0].imageUrl 
-          : null}
-        productImageId={selectedProduct?.images && selectedProduct.images.length > 0 
-          ? selectedProduct.images[0].imageId 
-          : null}
-        fromProductDetails={false}
-      />
+      
 
       {/* Debug info - remove in production */}
      

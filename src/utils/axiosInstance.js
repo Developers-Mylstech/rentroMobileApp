@@ -29,7 +29,6 @@ axiosInstance.interceptors.request.use(
     }
 );
 
-// Create a response interceptor that handles token refresh
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -43,7 +42,7 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        
+
         if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
             originalRequest._retry = true;
 

@@ -1,7 +1,7 @@
-import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput, Pressable } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
 import useCartStore from '../../../src/store/cartStore';
 import CartDrawer from '../../../src/components/cart/CartDrawer';
@@ -12,8 +12,11 @@ export default function Shop() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { type } = useLocalSearchParams();
+  const [products, setProducts] = useState([]);
+  const [localType, setLocalType] = useState(null);
 
-  const { fetchProducts, products, error } = useProductStore();
+  const { fetchProducts, error, fetchProductsByType } = useProductStore();
   const {
     cartItems,
     isCartOpen,
@@ -27,14 +30,31 @@ export default function Shop() {
   } = useCartStore();
 
   useEffect(() => {
-
-    fetchProducts();
+    if (type) {
+      setLocalType(type);
+      handleProducts(type);
+    } else {
+      handleProducts(null);
+    }
     fetchCartItems();
-  }, []);
+  }, [type]);
+
+  const handleProducts = async (localType) => {
+
+    if (localType === 'SELL') {
+      const sellProducts = await fetchProductsByType(localType);
+      setProducts(sellProducts);
+    } else if (localType === 'RENT') {
+      const rentProducts = await fetchProductsByType(localType);
+      setProducts(rentProducts);
+    } else {
+      const allProducts = await fetchProducts();
+      setProducts(allProducts);
+    }
+  }
 
   const handleProductPress = (product) => {
-    console.log(`Navigating to product ${product.productId}`);
-    router.push(`/shop/${product.productId}`);
+    router.push(`/shop/${product?.productId}`);
   };
 
   const handleSearchItemPress = (product) => {
@@ -113,7 +133,7 @@ export default function Shop() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-     
+
       <CartDrawer
         isVisible={isCartOpen}
         onClose={closeCart}
@@ -145,6 +165,62 @@ export default function Shop() {
                     <Text className="text-white text-xs font-bold">{totalItems}</Text>
                   </View>
                 )}
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View className="flex-row items-center px-4 py-3 border-b border-gray-200">
+            <View className="flex-row">
+              <TouchableOpacity
+                onPress={() => {
+                  if (localType === 'SELL') {
+                    setLocalType(null);
+                    handleProducts(null);
+                  } else {
+                    setLocalType('SELL');
+                    handleProducts('SELL');
+                  }
+                }}
+                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex items-center justify-center ${
+                  localType === 'SELL' ? 'bg-blue-500' : 'bg-gray-100'
+                }`}
+              >
+                <Text className={`${localType === 'SELL' ? 'text-white' : 'text-gray-700'}`}>
+                  Sell
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                onPress={() => {
+                  if (localType === 'RENT') {
+                    setLocalType(null);
+                    handleProducts(null);
+                  } else {
+                    setLocalType('RENT');
+                    handleProducts('RENT');
+                  }
+                }}
+                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex items-center justify-center ${
+                  localType === 'RENT' ? 'bg-blue-500' : 'bg-gray-100'
+                }`}
+              >
+                <Text className={`${localType === 'RENT' ? 'text-white' : 'text-gray-700'}`}>
+                  Rent
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                onPress={() => {
+                  setLocalType(null);
+                  handleProducts(null);
+                }}
+                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex items-center justify-center ${
+                  localType === null ? 'bg-blue-500' : 'bg-gray-100'
+                }`}
+              >
+                <Text className={`${localType === null ? 'text-white' : 'text-gray-700'}`}>
+                  All
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

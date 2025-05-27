@@ -13,46 +13,42 @@ export default function ShopLayout() {
   const isFocused = useIsFocused();
 
   // Handle back button press to ensure proper navigation
-  useEffect(() => {
-    if (isFocused) {
-      const backAction = () => {
-        const state = navigation.getState();
-        // If we're not on the main shop screen and back button is pressed
-        if (state.routes[state.index].name !== 'index') {
-          // Navigate to the main shop screen
-          navigation.navigate('(tabs)', { screen: 'shop/index' });
-          return true; // Prevent default behavior
-        }
-        return false; // Let the default behavior happen
-      };
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     const backAction = () => {
+  //       const state = navigation.getState();
+  //       if (state.routes[state.index].name !== 'index') {
+  //         navigation.navigate('(tabs)', { screen: 'shop/index' });
+  //         return true; // Prevent default behavior
+  //       }
+  //       return false; // Let the default behavior happen
+  //     };
 
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        backAction
-      );
+  //     const backHandler = BackHandler.addEventListener(
+  //       'hardwareBackPress',
+  //       backAction
+  //     );
 
-      return () => backHandler.remove();
-    }
-  }, [isFocused, navigation]);
+  //     return () => backHandler.remove();
+  //   }
+  // }, [isFocused, navigation]);
 
-  // Clear checkout data when returning to the main shop screen
-  useFocusEffect(
-    React.useCallback(() => {
-      const unsubscribe = () => {
-        // This runs when the screen is unfocused
-        clearCheckoutData();
-      };
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const unsubscribe = () => {
+  //       clearCheckoutData();
+  //     };
 
-      return unsubscribe;
-    }, [])
-  );
+  //     return unsubscribe;
+  //   }, [])
+  // );
 
   return (
     <Stack
       screenOptions={{
-        headerBackTitle: "Back", // For iOS
-        headerBackTitleVisible: true, // Show back title on iOS
-        headerBackVisible: true, // Ensure back button is visible
+        headerBackTitle: "Back", 
+        headerBackTitleVisible: true, 
+        headerBackVisible: true, 
       }}
     >
       <Stack.Screen 
@@ -70,51 +66,7 @@ export default function ShopLayout() {
           animation: "slide_from_right",
         }} 
       />
-      <Stack.Screen 
-        name="rent-products" 
-        options={{ 
-          title: "Rent Products",
-          // Add custom back button behavior
-          // headerLeft: () => (
-          //   <TouchableOpacity 
-          //     onPress={() => navigation.navigate('(tabs)', { screen: 'shop/index' })}
-          //     style={{ marginLeft: 10 }}
-          //   >
-          //     <Ionicons name="arrow-back" size={24} color="#007AFF" />
-          //   </TouchableOpacity>
-          // ),
-        }} 
-      />
-      <Stack.Screen 
-        name="sell-products" 
-        options={{ 
-          title: "Sell Products",
-          // Add custom back button behavior
-          // headerLeft: () => (
-          //   <TouchableOpacity 
-          //     onPress={() => navigation.navigate('(tabs)', { screen: 'shop/index' })}
-          //     style={{ marginLeft: 10 }}
-          //   >
-          //     <Ionicons name="arrow-back" size={24} color="#007AFF" />
-          //   </TouchableOpacity>
-          // ),
-        }} 
-      />
-      <Stack.Screen 
-        name="quotation-products" 
-        options={{ 
-          title: "Request Quotation",
-          // Add custom back button behavior
-          // headerLeft: () => (
-          //   <TouchableOpacity 
-          //     onPress={() => navigation.navigate('(tabs)', { screen: 'shop/index' })}
-          //     style={{ marginLeft: 10 }}
-          //   >
-          //     <Ionicons name="arrow-back" size={24} color="#007AFF" />
-          //   </TouchableOpacity>
-          // ),
-        }} 
-      />
+
       <Stack.Screen 
         name="checkout" 
         options={{ 

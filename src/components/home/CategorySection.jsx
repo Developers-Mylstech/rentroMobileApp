@@ -5,10 +5,8 @@ import { useRouter } from 'expo-router';
 
 export default function CategorySection() {
   const router = useRouter();
-  
+
   const handleNavigation = (path) => {
-    // Use push instead of replace to create a new navigation entry
-    router.push(path);
   };
 
   return (
@@ -17,7 +15,7 @@ export default function CategorySection() {
 
       <View className="flex-row flex-wrap justify-between">
         {/* All Products */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-blue-50 rounded-lg p-4 mb-4 w-[48%]"
           onPress={() => router.push('/(tabs)/shop')}
         >
@@ -25,29 +23,38 @@ export default function CategorySection() {
           <Text className="font-semibold text-gray-800 mt-2">All Products</Text>
           <Text className="text-gray-500 text-xs mt-1">Browse all products</Text>
         </TouchableOpacity>
-        
+
         {/* Sell Products */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-green-50 rounded-lg p-4 mb-4 w-[48%]"
-          onPress={() => router.push('/(tabs)/shop/sell-products')}
-        >
+          onPress={() =>
+            router.push({
+              pathname: '/(tabs)/shop',
+              params: { type: 'SELL' },
+            })
+          }        >
           <Ionicons name="cart-outline" size={24} color="#22c55e" />
           <Text className="font-semibold text-gray-800 mt-2">Buy Products</Text>
           <Text className="text-gray-500 text-xs mt-1">Products available for purchase</Text>
         </TouchableOpacity>
-        
+
         {/* Rent Products */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-purple-50 rounded-lg p-4 mb-4 w-[48%]"
-          onPress={() => router.push('/(tabs)/shop/rent-products')}
+          onPress={() =>
+            router.push({
+              pathname: '/(tabs)/shop',
+              params: { type: 'RENT' },
+            })
+          }    
         >
           <Ionicons name="calendar-outline" size={24} color="#8b5cf6" />
           <Text className="font-semibold text-gray-800 mt-2">Rent Products</Text>
           <Text className="text-gray-500 text-xs mt-1">Products available for rent</Text>
         </TouchableOpacity>
-        
+
         {/* Quotation Products */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-yellow-50 rounded-lg p-4 mb-4 w-[48%]"
           onPress={() => router.push('/(tabs)/shop/quotation-products')}
         >
