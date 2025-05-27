@@ -323,9 +323,8 @@ const RequestQuotationModal = ({
 
   return (
     <>
-
       <View className="flex-1 bg-white justify-center items-center">
-        <View className=" w-full h-full rounded-t-3xl overflow-hidden p-4">
+        <View className="w-full h-full rounded-t-3xl overflow-hidden p-4">
           <ScrollView
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
@@ -348,7 +347,6 @@ const RequestQuotationModal = ({
               </View>
             )}
 
-            {/* Image Upload Section - Only show if not from product details page */}
             {!fromProductDetails && (
               <TouchableOpacity
                 className="border-2 border-dashed border-blue-300 p-5 items-center rounded-lg mb-6 bg-blue-50"
@@ -398,7 +396,7 @@ const RequestQuotationModal = ({
               name="mobile"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3 mb-3"
+                  className="border border-gray-300 rounded-lg p-3 mb-3 dark:text-gray-900"
                   placeholder="Mobile Number"
                   value={value}
                   onChangeText={onChange}

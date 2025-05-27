@@ -24,7 +24,7 @@ export const useAuthStore = create((set, get) => ({
       return null;
     }
   },
-  
+
 
   singup: async (userData) => {
     try {
@@ -79,9 +79,11 @@ export const useAuthStore = create((set, get) => ({
       set({ isLoading: true, error: null });
       const refreshToken = await SecureStore.getItemAsync('refresh_token');
       const response = await axiosInstance.post(`/auth/logout?refreshToken=${refreshToken}`);
-      await SecureStore.deleteItemAsync('access_token');
-      await SecureStore.deleteItemAsync('refresh_token');
-      set({ user: null, isLoading: false, isAuthenticated: false });
+      if(response?.status === 200){
+        await SecureStore.deleteItemAsync('refresh_token');
+        await SecureStore.deleteItemAsync('access_token');
+        set({ user: null, isLoading: false, isAuthenticated: false });
+      }
     } catch (error) {
       set({
         error: error.response?.data?.message || 'Logout failed',
@@ -97,19 +99,15 @@ export const useAuthStore = create((set, get) => ({
     const token = await SecureStore.getItemAsync('auth_token');
     const refreshtoken = await SecureStore.getItemAsync('refresh_token');
 
-    console.log(refreshtoken, 'token');
-
     if (token && refreshtoken) {
       const decoded = jwtDecode(token);
       const currentTime = Math.floor(Date.now() / 1000);
 
       if (decoded.exp && decoded.exp < currentTime) {
-        // Token is expired
         await SecureStore.deleteItemAsync('auth_token');
         await SecureStore.deleteItemAsync('refresh_token');
         set({ isLoadingAuth: false, isAuthenticated: false });
       } else {
-        // Token is valid
         set({ isLoadingAuth: false, isAuthenticated: true });
       }
     } else {

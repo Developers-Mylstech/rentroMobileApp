@@ -5,7 +5,7 @@ import { useAuthStore } from "../../src/store/authStore";
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
 import LottieView from "lottie-react-native";
 import SplashScreen from "../../src/components/widget/SplashScreen";
 
@@ -14,7 +14,7 @@ export default function TabLayout() {
   const [isFirstVisit, setIsFirstVisit] = useState(true);
 
   useEffect(() => {
-    
+
     initAuth();
     checkFirstVisit();
   }, []);
@@ -22,7 +22,7 @@ export default function TabLayout() {
   const checkFirstVisit = async () => {
     try {
       const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-  
+
       if (!hasVisited) {
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
@@ -37,7 +37,7 @@ export default function TabLayout() {
   const handleSplashComplete = () => {
     setIsFirstVisit(false);
   };
- 
+
   if (isLoadingAuth) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -52,57 +52,60 @@ export default function TabLayout() {
     );
   }
 
-   if (isFirstVisit) {
+  if (isFirstVisit) {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "#3b82f6",
-        tabBarInactiveTintColor: "#64748b",
-        headerShown: false,
-        tabBarStyle: { paddingBottom: 5, height: 60 },
-      }}
-    >
-      <Tabs.Screen
-        name="(home)"
-        options={{
-          title: "Home",
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={20} color={color} />
-          ),
-        }}
-      />
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
 
-      <Tabs.Screen
-        name="shop"
-        options={{
-          title: "Shop",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="bag-handle" size={20} color={color} />
-          ),
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: "#3b82f6",
+          tabBarInactiveTintColor: "#64748b",
+          headerShown: false,
+          // tabBarStyle: { paddingBottom: 5, height: 60 },
         }}
-      />
-      <Tabs.Screen
-        name="service"
-        options={{
-          title: "Service",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="logo-dropbox" size={20} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(profile)"
-        options={{
-          title: isAuthenticated ? "Profile" : "Login",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name={isAuthenticated ? "person-sharp" : "lock-closed"} size={20} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="(home)"
+          options={{
+            title: "Home",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="home" size={20} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="shop"
+          options={{
+            title: "Shop",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="bag-handle" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="service"
+          options={{
+            title: "Service",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="logo-dropbox" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="(profile)"
+          options={{
+            title: isAuthenticated ? "Profile" : "Login",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name={isAuthenticated ? "person-sharp" : "lock-closed"} size={20} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
   );
 }

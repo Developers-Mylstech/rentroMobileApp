@@ -90,6 +90,14 @@ export default function Service() {
     </LinearGradient>
   );
 
+
+  const filteredServices = searchQuery.trim() === '' 
+    ? services 
+    : services.filter(service => 
+        service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (service.shortDescription && service.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 px-5 pt-2">
@@ -129,7 +137,7 @@ export default function Service() {
           </View>
         ) : (
           <FlatList
-            data={services}
+            data={filteredServices}
             renderItem={renderServiceItem}
             keyExtractor={(item,index) => index.toString()}
             numColumns={viewMode === 'grid' ? 2 : 1}
