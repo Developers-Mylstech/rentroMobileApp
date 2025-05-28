@@ -62,6 +62,9 @@ export default function CartDrawer({
   // Render each cart item
   const renderCartItem = ({ item }) => {
     console.log("Rendering cart item:", item);
+    console.log("Cart item data structure:", JSON.stringify(item, null, 2));
+    console.log("Item quantity from direct property:", item.quantity);
+    console.log("Item quantity from productDetail:", item.productDetail?.quantity);
     
     // Fix image handling - ensure imageUrl is a string
     let imageUrl = 'https://via.placeholder.com/60'; // Default fallback image
@@ -85,9 +88,8 @@ export default function CartDrawer({
     // Determine if this is a rent product
     const isRentProduct = item.productType === 'RENT';
     
-    // Get the correct quantity - if productDetail.quantity is 0 or undefined, use 1 as default
-    // For logged-in users, we should have a separate quantity field at the root level
-    const quantity = item?.productDetail?.quantity || 1;
+    // Get the correct quantity from the right location
+    const quantity = item.quantity || (item.productDetail?.quantity) || 1;
     
     // Get the correct price based on API response structure
     const itemPrice = parseFloat(item.price || 0);
