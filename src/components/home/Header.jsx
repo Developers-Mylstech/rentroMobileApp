@@ -11,14 +11,12 @@ export default function Header({
 }) {
   return (
     <View className="flex-row justify-between items-center py-3 mb-2 border-gray-200 border-b">
-      <TouchableOpacity onPress={onProfilePress}>
+      
         <Image 
           source={ require('../../../assets/adaptive-icon.png')}
           className="w-24 h-10"
           resizeMode="contain"
         />
-      </TouchableOpacity>
-      {/* <Text className="text-primary font-bold text-heading-3">Rentro</Text> */}
 
       <View className="flex-row">
         <TouchableOpacity className="mr-4" onPress={onHeartPress}>
