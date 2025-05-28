@@ -76,6 +76,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# @end expo-clipackage-lock.json
-android
-ios
+
