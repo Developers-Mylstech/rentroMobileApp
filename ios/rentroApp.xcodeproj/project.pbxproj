@@ -7,29 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D711B7CD302267CCBA1D146 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D14BBB369CB86C349E50EAC2 /* ExpoModulesProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		93BAC1319C624CCB7EFE10A1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 00BE3ED391E7E0A243D0B72A /* PrivacyInfo.xcprivacy */; };
-		9C1576AB0C314F33840B15C0 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A3BFD54EEF8EDD3AAD23CF /* ExpoModulesProvider.swift */; };
+		56E9AE17D201427E3F956995 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FF4E9A5A70BE0899071D1643 /* PrivacyInfo.xcprivacy */; };
+		93628C8FCD7A866EA1396B12 /* libPods-rentroApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50E6FAF36D678EEFEC928FEF /* libPods-rentroApp.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		CD2B5AED365A9E09BB2B083B /* libPods-rentroApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FE923ED6A2954680256F584 /* libPods-rentroApp.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		00BE3ED391E7E0A243D0B72A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = rentroApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* rentroApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = rentroApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = rentroApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = rentroApp/Info.plist; sourceTree = "<group>"; };
-		5FE923ED6A2954680256F584 /* libPods-rentroApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-rentroApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6CB34F0FFDC2005CA0A9182A /* Pods-rentroApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-rentroApp.release.xcconfig"; path = "Target Support Files/Pods-rentroApp/Pods-rentroApp.release.xcconfig"; sourceTree = "<group>"; };
+		451065094FC4333AC3AD2506 /* Pods-rentroApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-rentroApp.release.xcconfig"; path = "Target Support Files/Pods-rentroApp/Pods-rentroApp.release.xcconfig"; sourceTree = "<group>"; };
+		50E6FAF36D678EEFEC928FEF /* libPods-rentroApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-rentroApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = rentroApp/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D8578C4400DB583216A87787 /* Pods-rentroApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-rentroApp.debug.xcconfig"; path = "Target Support Files/Pods-rentroApp/Pods-rentroApp.debug.xcconfig"; sourceTree = "<group>"; };
-		E6A3BFD54EEF8EDD3AAD23CF /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-rentroApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		BB964F3AEE465F8E52691EDB /* Pods-rentroApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-rentroApp.debug.xcconfig"; path = "Target Support Files/Pods-rentroApp/Pods-rentroApp.debug.xcconfig"; sourceTree = "<group>"; };
+		D14BBB369CB86C349E50EAC2 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-rentroApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = rentroApp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* rentroApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "rentroApp-Bridging-Header.h"; path = "rentroApp/rentroApp-Bridging-Header.h"; sourceTree = "<group>"; };
+		FF4E9A5A70BE0899071D1643 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = rentroApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD2B5AED365A9E09BB2B083B /* libPods-rentroApp.a in Frameworks */,
+				93628C8FCD7A866EA1396B12 /* libPods-rentroApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				00BE3ED391E7E0A243D0B72A /* PrivacyInfo.xcprivacy */,
+				FF4E9A5A70BE0899071D1643 /* PrivacyInfo.xcprivacy */,
 			);
 			name = rentroApp;
 			sourceTree = "<group>";
@@ -62,24 +62,16 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5FE923ED6A2954680256F584 /* libPods-rentroApp.a */,
+				50E6FAF36D678EEFEC928FEF /* libPods-rentroApp.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		620326EB89BE2CBA05781917 /* ExpoModulesProviders */ = {
+		33C954AE4340DE723B3BC334 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				EE973935147D0C064802E5F3 /* rentroApp */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		7C830F7BB7AD889A3FF2E4C5 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D8578C4400DB583216A87787 /* Pods-rentroApp.debug.xcconfig */,
-				6CB34F0FFDC2005CA0A9182A /* Pods-rentroApp.release.xcconfig */,
+				BB964F3AEE465F8E52691EDB /* Pods-rentroApp.debug.xcconfig */,
+				451065094FC4333AC3AD2506 /* Pods-rentroApp.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -99,8 +91,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				7C830F7BB7AD889A3FF2E4C5 /* Pods */,
-				620326EB89BE2CBA05781917 /* ExpoModulesProviders */,
+				33C954AE4340DE723B3BC334 /* Pods */,
+				CEE1BF08B07D675ABA2FE488 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -124,10 +116,18 @@
 			path = rentroApp/Supporting;
 			sourceTree = "<group>";
 		};
-		EE973935147D0C064802E5F3 /* rentroApp */ = {
+		CEE1BF08B07D675ABA2FE488 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				E6A3BFD54EEF8EDD3AAD23CF /* ExpoModulesProvider.swift */,
+				ED042E0A1EAFF32C00881E7A /* rentroApp */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		ED042E0A1EAFF32C00881E7A /* rentroApp */ = {
+			isa = PBXGroup;
+			children = (
+				D14BBB369CB86C349E50EAC2 /* ExpoModulesProvider.swift */,
 			);
 			name = rentroApp;
 			sourceTree = "<group>";
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "rentroApp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				2802B284D3A7BA0605056D77 /* [Expo] Configure project */,
+				314C45BAC0DA35C5CA5770CD /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				1A629E0516E68921C79BC9AA /* [CP] Embed Pods Frameworks */,
+				3D26907D39D2AEE35ECBAA77 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				93BAC1319C624CCB7EFE10A1 /* PrivacyInfo.xcprivacy in Resources */,
+				56E9AE17D201427E3F956995 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,25 +240,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1A629E0516E68921C79BC9AA /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-rentroApp/Pods-rentroApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-rentroApp/Pods-rentroApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2802B284D3A7BA0605056D77 /* [Expo] Configure project */ = {
+		314C45BAC0DA35C5CA5770CD /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -276,6 +258,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-rentroApp/expo-configure-project.sh\"\n";
+		};
+		3D26907D39D2AEE35ECBAA77 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-rentroApp/Pods-rentroApp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-rentroApp/Pods-rentroApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -343,7 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				9C1576AB0C314F33840B15C0 /* ExpoModulesProvider.swift in Sources */,
+				0D711B7CD302267CCBA1D146 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,7 +352,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D8578C4400DB583216A87787 /* Pods-rentroApp.debug.xcconfig */;
+			baseConfigurationReference = BB964F3AEE465F8E52691EDB /* Pods-rentroApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -388,7 +388,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6CB34F0FFDC2005CA0A9182A /* Pods-rentroApp.release.xcconfig */;
+			baseConfigurationReference = 451065094FC4333AC3AD2506 /* Pods-rentroApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
