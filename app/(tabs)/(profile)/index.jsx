@@ -61,43 +61,41 @@ export default function index() {
             </View>
           </View>
 
-          {/* Settings Section */}
           <Text className="text-2xl font-semibold mb-4">Settings</Text>
 
           {/* Settings Menu Items */}
-          <Link href="/(tabs)/(profile)/personalInfo" asChild>
-            <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
+
+            <TouchableOpacity onPress={() => router.push('/personalInfo')} className="flex-row items-center py-4 border-b border-gray-200">
               <Ionicons name="location-outline" size={24} color="#4b5563" className="mr-3" />
               <Text className="flex-1 text-base">Addresses</Text>
               <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
             </TouchableOpacity>
-          </Link>
-          <Link href="/(tabs)/(profile)/payment" asChild>
+  
 
-            <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
+       
+            <TouchableOpacity onPress={() => router.push('/payment')} className="flex-row items-center py-4 border-b border-gray-200">
               <Ionicons name="wallet-outline" size={24} color="#4b5563" className="mr-3" />
               <Text className="flex-1 text-base">Payments and payouts</Text>
               <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
             </TouchableOpacity>
-          </Link>
 
-          <Link href="/(tabs)/(profile)/(orders)" asChild>
-            <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
+
+          
+            <TouchableOpacity onPress={() => router.push('/(orders)')} className="flex-row items-center py-4 border-b border-gray-200">
               <Ionicons name="document-text-outline" size={24} color="#4b5563" className="mr-3" />
               <Text className="flex-1 text-base">Orders</Text>
               <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
             </TouchableOpacity>
-          </Link>
 
-          <Link href="/(tabs)/(profile)/security" asChild>
 
-            <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
+          
+
+            <TouchableOpacity onPress={() => router.push('/security')} className="flex-row items-center py-4 border-b border-gray-200">
               <Ionicons name="shield-outline" size={24} color="#4b5563" className="mr-3" />
               <Text className="flex-1 text-base">Login & security</Text>
               <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
             </TouchableOpacity>
 
-          </Link>
 
           
           <TouchableOpacity 
