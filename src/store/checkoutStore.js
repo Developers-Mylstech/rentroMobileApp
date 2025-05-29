@@ -37,12 +37,6 @@ const useCheckoutStore = create((set, get) => ({
     const accessToken = await SecureStore.getItemAsync('auth_token');
 
     try {
-      axiosInstance.defaults.headers.common['Authorization'] = 
-        `Bearer ${accessToken}`;
-      
-      console.log('Sending buy-now request with payload:', JSON.stringify(payload));
-      
-      // Use the buy-now endpoint with the provided payload
       const response = await axiosInstance.post(`/products/${productId}/buy-now`, payload);
       
       console.log('Buy-now response:', JSON.stringify(response.data));
@@ -67,16 +61,26 @@ const useCheckoutStore = create((set, get) => ({
 
   paymentCreation: async (id) => {
     set({ loading: true, error: null });
-    const accessToken = await SecureStore.getItemAsync('auth_token');
     try {
-      axios.defaults.headers.common['Authorization'] = 
-        `Bearer ${accessToken}`;
-      const response = await axiosInstance.post('/payments/create-payment-intent', {checkoutId:id});
-      set({ clientSecret: response.data.clientSecret, loading: false });
+      const accessToken = await SecureStore.getItemAsync('auth_token');
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      
+      // Make the API call to create payment intent
+      const response = await axiosInstance.post('/payments/create-payment-intent', {
+        checkoutId: id
+      });
+      
+      // Set the client secret in the store
+      set({ 
+        clientSecret: response.data.clientSecret, 
+        loading: false 
+      });
+      
       return response.data;
     } catch (error) {
+      console.error('Payment creation error:', error.response?.data || error.message);
       set({ 
-        error: error.response?.data?.message || 'Failed to place order',
+        error: error.response?.data?.message || 'Failed to create payment intent',
         loading: false 
       });
       throw error;

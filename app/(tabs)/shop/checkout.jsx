@@ -18,7 +18,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import useCartStore from "../../../src/store/cartStore";
 import useAddressStore from "../../../src/store/addressStore";
 import useCheckoutStore from "../../../src/store/checkoutStore";
-import { useStripe, CardField } from "@stripe/stripe-react-native";
+import { useStripe, CardField, useConfirmPayment } from "@stripe/stripe-react-native";
 import StripeWrapper from "../../../src/components/StripeWraper";
 import axiosInstance from "../../../src/utils/axiosInstance";
 
@@ -350,7 +350,7 @@ export default function Checkout() {
   // Payment processing
   const handleCompleteOrder = async () => {
     if (!cardDetails?.complete) {
-      Alert.alert("Incomplete Card Details", "Please enter complete card details.");
+      Alert.alert("Incomplete Card Details", "Please enter complete card information.");
       return;
     }
 
@@ -363,32 +363,36 @@ export default function Checkout() {
         name: `${formData.firstName} ${formData.lastName}`,
       };
 
+      // Use confirmPayment with proper error handling
       const { error, paymentIntent } = await confirmPayment(clientSecret, {
+        type: 'Card',
         paymentMethodType: 'Card',
-        paymentMethodData: {
-          billingDetails,
-        },
+        billingDetails,
       });
 
       if (error) {
         console.error('Payment confirmation error:', error);
-        Alert.alert('Payment Failed', error.message);
+        Alert.alert('Payment Failed', error.message || 'An error occurred during payment');
       } else if (paymentIntent) {
-        const response = await axiosInstance.get(
-          `/payments/confirm/${paymentIntent.id}?orderId=${orderId}`
-        );
-        
-        if (response.data.success) {
-  
-          clearCheckoutData(); // Now this should work
-          router.push('/shop/order-confirmation');
-        } else {
-          Alert.alert('Payment Error', 'Payment was processed but order confirmation failed.');
+        try {
+          const response = await axiosInstance.get(
+            `/payments/confirm/${paymentIntent.id}?orderId=${orderId}`
+          );
+          
+          if (response.data.success) {
+            clearCheckoutData();
+            router.push('/shop/order-confirmation');
+          } else {
+            Alert.alert('Payment Error', 'Payment was processed but order confirmation failed.');
+          }
+        } catch (confirmError) {
+          console.error('Confirmation error:', confirmError);
+          Alert.alert('Confirmation Error', 'Payment succeeded but order confirmation failed');
         }
       }
     } catch (error) {
       console.error('Payment error:', error);
-      Alert.alert('Payment Error', error.message || 'An error occurred during payment processing');
+      Alert.alert('Payment Error', 'An unexpected error occurred during payment processing');
     } finally {
       setPaymentProcessing(false);
     }
