@@ -67,7 +67,7 @@ export default function index() {
           {/* Settings Menu Items */}
           <Link href="/(tabs)/(profile)/personalInfo" asChild>
             <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-200">
-              <Ionicons name="person-circle-outline" size={24} color="#4b5563" className="mr-3" />
+              <Ionicons name="location-outline" size={24} color="#4b5563" className="mr-3" />
               <Text className="flex-1 text-base">Addresses</Text>
               <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
             </TouchableOpacity>
