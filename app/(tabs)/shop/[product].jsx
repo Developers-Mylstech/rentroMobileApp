@@ -23,13 +23,14 @@ import CartNotificationDialog from '../../../src/components/common/CartNotificat
 import useWishlistStore from '../../../src/store/wishlistStore';
 import { useAuthStore } from '../../../src/store/authStore';
 
+
 const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { addToWishlist , removeFromWishlist,wishlistItems ,isLoading: wishlistLoading,fetchWishlist } = useWishlistStore();
-  const productId = params.product;
+  const  productId = params?.product;
   const { fetchProductById, currentProduct, isLoading, error, clearCurrentProduct } = useProductStore();
   const { 
     addToCart, 
@@ -40,7 +41,8 @@ export default function ProductDetails() {
     removeFromCart, 
     updateQuantity, 
     clearCart,
-    getCartItemCount 
+    getCartItemCount,
+    fetchCartItems 
   } = useCartStore();
   const { directCheckout } = useCheckoutStore();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -49,7 +51,10 @@ export default function ProductDetails() {
   const [productQuantity, setProductQuantity] = useState(1); // Add quantity state
   const [localLoading, setLocalLoading] = useState(true);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isCartItem, setIsCartItem] = useState(null);
   const { isAuthenticated } = useAuthStore();
+
+  console.log(productId,'product id');
 
   // Dialog state should be inside the component
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -70,23 +75,28 @@ export default function ProductDetails() {
   };
   
   // Load product data
-  const loadProductData = useCallback(async () => {
-    if (productId) {
-      setLocalLoading(true);
-      await fetchProductById(productId);
-      setLocalLoading(false);
-    }
-  }, [productId, fetchProductById]);
+  
   
   // Initial load
   useEffect(() => {
+    if(productId){
     loadProductData();
+    }
     
     // Clear current product when component unmounts
     return () => {
       clearCurrentProduct();
     };
   }, [loadProductData]);
+
+  const loadProductData = useCallback(async () => {
+    console.log(productId,'in local load product data');
+    if (productId) {
+      setLocalLoading(true);
+      await fetchProductById(productId);
+      setLocalLoading(false);
+    }
+  }, [productId, fetchProductById]);
 
   const handleImageScroll = (event) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
@@ -152,8 +162,8 @@ export default function ProductDetails() {
       router.push({
         pathname: '/(tabs)/(home)/RequestQoutation',
         params: {
-          productId: currentProduct.productId,
-          productName: currentProduct.name,
+          productId: currentProduct?.productId,
+          productName: currentProduct?.name,
           productImage: currentProduct.images && currentProduct.images.length > 0 
             ? currentProduct.images[0].imageUrl 
             : null,
@@ -165,6 +175,35 @@ export default function ProductDetails() {
       });
     }
   };
+ 
+
+  const handleAddToCartText = () => {
+    const foundItem = cartItems?.items?.find((item) => item?.productId === currentProduct?.productId)
+    console.log("Found item in cart:", foundItem);
+
+
+      if(foundItem?.productDetail?.quantity>0){
+        setIsCartItem(foundItem)
+      }
+      else {
+        setIsCartItem(null)
+      }
+  }
+
+  useEffect(() => {
+   
+    handleAddToCartText(); 
+    
+  }, [cartItems,isCartItem,removeFromCart, ]);
+
+  useEffect(() => {
+    fetchCartItems()
+ 
+  },[])
+
+
+
+
 
   // Get benefits based on active tab
   const getBenefits = () => {
@@ -202,9 +241,9 @@ export default function ProductDetails() {
     fetchWishlist();
 
     if (currentProduct?.productFor) {
-      if (currentProduct.productFor.rent) setActiveTab('rent');
-      else if (currentProduct.productFor.sell) setActiveTab('sell');
-      else if (currentProduct.productFor.service) setActiveTab('service');
+      if (currentProduct?.productFor.rent) setActiveTab('rent');
+      else if (currentProduct?.productFor.sell) setActiveTab('sell');
+      else if (currentProduct?.productFor.service) setActiveTab('service');
     }
   }, [currentProduct]);
 
@@ -408,7 +447,7 @@ useEffect(() => {
       
       // Create simplified payload for cart API
       const payload = {
-        productId: currentProduct.productId,
+        productId: currentProduct?.productId,
         productType: productType,
         quantity: productQuantity || 1,
         // Add product details to payload for non-logged in users
@@ -484,7 +523,7 @@ useEffect(() => {
       pathname: '/shop/checkout',
       params: { 
         direct: 'true',
-        productId: currentProduct.productId,
+        productId: currentProduct?.productId,
         productType: 'SERVICE', // This is just for our frontend routing
         quantity: 1,
         serviceType: serviceType, // This will be used as the actual productType in the API call
@@ -506,7 +545,7 @@ useEffect(() => {
         pathname: '/shop/checkout',
         params: { 
           direct: 'true',
-          productId: currentProduct.productId,
+          productId: currentProduct?.productId,
           productType: productType,
           quantity: productQuantity || 1
         }
@@ -528,7 +567,7 @@ useEffect(() => {
       }
       return;
     }else{
-      const res = await addToWishlist(currentProduct.productId);
+      const res = await addToWishlist(currentProduct?.productId);
       if (res?.status === 200) {
         setIsWishlisted(true);
         console.log('Product added to wishlist');
@@ -603,7 +642,7 @@ useEffect(() => {
               <View 
                 key={index} 
                 className={`h-2 w-2 rounded-full mx-1 ${
-                  index === activeImageIndex ? 'bg-blue-500' : 'bg-gray-300'
+                  index === activeImageIndex ? 'bg-blue-500' : 'bg-gray-200'
                 }`} 
               />
             ))}
@@ -611,7 +650,7 @@ useEffect(() => {
         </View>
         
         {/* Action Buttons */}
-        <View className="bg-blue-50 rounded-t-[50px]">
+        <View className="bg-gray-100/75 border-t border-gray-200/50 border  rounded-t-xl">
           <View className={`flex-row justify-center py-3  w-[100%] ${currentProduct?.productFor?.isAvailableForRequestQuotation === true? 'border-none' : ' border-b border-gray-200'}`}>
             {shouldShowTab('rent') && (
               <TouchableOpacity onPress={() => setActiveTab('rent')} className="items-center">
@@ -640,7 +679,7 @@ useEffect(() => {
         
           {/* Product Info */}
           <View className="p-4">
-            <Text className="font-bold text-xl text-gray-800">{currentProduct.name}</Text>
+            <Text className="font-bold text-xl text-blue-600">{currentProduct?.name}</Text>
              
             <View className="flex-row items-start mt-1 gap-2">
               <Text className="text-gray-500  pr-2 border-r border-gray-200">
@@ -799,7 +838,7 @@ useEffect(() => {
                 <Text className="font-bold text-lg text-gray-800 my-2">Specifications</Text>
                 {specifications.map((spec, index) => (
                   <View key={index} className="flex-row items-center mt-1 border-b border-gray-200 py-2">
-                    <Text className="text-gray-600">{spec.name}: {spec.value}</Text>
+                    <Text className="text-gray-600"> <Text className="font-semibold">{spec.name} -</Text> {spec.value}</Text>
                   </View>
                 ))}
               </View>
@@ -808,7 +847,7 @@ useEffect(() => {
         </View>
       </ScrollView>
       
-      {/* Sticky bottom action buttons - Only show for Rent and Sell tabs if not a quotation product */}
+  
       {activeTab !== 'service' && !isQuotationProduct() && (
         <View className="absolute bottom-0 left-0 right-0 flex-row bg-white border-t border-gray-200 px-4 py-3 shadow-lg">
           <TouchableOpacity 
@@ -817,11 +856,11 @@ useEffect(() => {
                 ? 'bg-white border-blue-500' 
                 : 'bg-gray-100 border-gray-300'
             }`}
-            onPress={handleAddToCart}
+            onPress={ isCartItem?()=> removeFromCart(isCartItem?.cartItemId): handleAddToCart}
             disabled={!priceInfo.isAvailable || dialogVisible}
           >
             <Text className={`font-bold ${priceInfo.isAvailable ? 'text-blue-500' : 'text-gray-400'}`}>
-              Add To Cart
+              { isCartItem!=null ? 'Remove From Cart' : 'Add To Cart'}
             </Text>
           </TouchableOpacity>
           

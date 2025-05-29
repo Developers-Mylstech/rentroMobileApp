@@ -57,7 +57,10 @@ export default function Shop() {
   }
 
   const handleProductPress = (product) => {
+    console.log('Product:', product);
+  console.log('Product ID:', product?.productId);
     router.push(`/shop/${product?.productId}`);
+
   };
 
   const handleSearchItemPress = (product) => {

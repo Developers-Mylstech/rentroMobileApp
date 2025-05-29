@@ -250,8 +250,41 @@ export default function Checkout() {
     if (currentStep === 1) {
       // Validate basic details
       const { firstName, lastName, email, mobile } = formData;
-      if (!firstName || !lastName || !email || !mobile) {
-        Alert.alert("Missing Information", "Please fill all basic details.");
+      // if (!firstName || !lastName || !email || !mobile) {
+      //   Alert.alert("Missing Information", "Please fill all basic details.");
+      //   return;
+      // }
+
+      const nameRegex = /^[A-Za-z\s]{2,50}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const uaeMobileRegex = /^(?:\+971|0|971)(50|52|54|55|56|58|59|4)\d{7}$/;
+
+      if (!nameRegex.test(formData.firstName)) {
+        Alert.alert(
+          "Validation Error",
+          "Please enter a valid first name (only letters, min 2 chars)."
+        );
+        return;
+      }
+
+      if (!nameRegex.test(formData.lastName)) {
+        Alert.alert(
+          "Validation Error",
+          "Please enter a valid last name (only letters, min 2 chars)."
+        );
+        return;
+      }
+
+      if (!emailRegex.test(formData.email)) {
+        Alert.alert("Validation Error", "Please enter a valid email address.");
+        return;
+      }
+
+      if (!uaeMobileRegex.test(formData.mobile)) {
+        Alert.alert(
+          "Validation Error",
+          "Please enter a valid UAE mobile number "
+        );
         return;
       }
       setCurrentStep(2);
@@ -454,6 +487,7 @@ export default function Checkout() {
         className="border border-gray-300 rounded-lg px-4 py-3 mb-4"
         placeholder="Enter here..."
         keyboardType="phone-pad"
+        type="number"
         value={formData.mobile}
         onChangeText={(text) => handleInputChange("mobile", text)}
       />

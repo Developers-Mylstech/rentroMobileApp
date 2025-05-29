@@ -57,6 +57,7 @@ export const useProductStore = create((set, get) => ({
   },
   
   fetchProductById: async (productId) => {
+    console.log(productId, "Fetching product details");
     try {
       set({ isLoading: true, error: null });
       const response = await axiosInstance.get(`/products/${productId}`);
