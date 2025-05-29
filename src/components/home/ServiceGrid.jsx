@@ -12,7 +12,7 @@ export default function ServiceGrid({
   const renderServiceItem = ({ item }) => (
     <TouchableOpacity 
       onPress={() => onServicePress(item)}
-      className=" w-[48.5%] bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200"
+      className=" w-[48.5%] bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200 mb-1"
       activeOpacity={0.7}
     >
       <Image
