@@ -1,6 +1,6 @@
 import { View, Text, Image, FlatList, TouchableOpacity, SafeAreaView, TextInput, Pressable } from 'react-native';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useProductStore } from '../../../src/store/productStore';
 import useCartStore from '../../../src/store/cartStore';
@@ -183,12 +183,13 @@ export default function Shop() {
                     handleProducts('SELL');
                   }
                 }}
-                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex items-center justify-center ${
+                className={`rounded-lg flex-row items-center gap-2 px-5 py-2 mr-2 w-[32%]  justify-center ${
                   localType === 'SELL' ? 'bg-blue-500' : 'bg-gray-100'
                 }`}
               >
-                <Text className={`${localType === 'SELL' ? 'text-white' : 'text-gray-700'}`}>
-                  Sell
+                <MaterialIcons name="sell" size={12} color={localType === 'SELL'?"white":'black'} /> 
+                <Text className={` font-bold uppercase text-xs ${localType === 'SELL' ? 'text-white' : 'text-gray-700'}`}>
+                  For sell
                 </Text>
               </TouchableOpacity>
               
@@ -202,12 +203,13 @@ export default function Shop() {
                     handleProducts('RENT');
                   }
                 }}
-                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex items-center justify-center ${
+                className={`rounded-lg flex-row px-5 py-2 mr-2 w-[32%] gap-2 items-center justify-center ${
                   localType === 'RENT' ? 'bg-blue-500' : 'bg-gray-100'
                 }`}
               >
-                <Text className={`${localType === 'RENT' ? 'text-white' : 'text-gray-700'}`}>
-                  Rent
+                <Feather name="box" size={12} color={localType === 'RENT'?"white":'black'} />
+                <Text className={`font-bold uppercase text-xs ${localType === 'RENT' ? 'text-white' : 'text-gray-700'}`}>
+                  For Rent
                 </Text>
               </TouchableOpacity>
               
@@ -216,11 +218,12 @@ export default function Shop() {
                   setLocalType(null);
                   handleProducts(null);
                 }}
-                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex items-center justify-center ${
+                className={`rounded-lg px-5 py-2 mr-2 w-[32%] flex-row gap-2 items-center justify-center ${
                   localType === null ? 'bg-blue-500' : 'bg-gray-100'
                 }`}
               >
-                <Text className={`${localType === null ? 'text-white' : 'text-gray-700'}`}>
+                <FontAwesome name="list-ul" size={12} color={localType== null?"white":'black'} />
+                <Text className={`font-bold uppercase text-xs ${localType === null ? 'text-white' : 'text-gray-700'}`}>
                   All
                 </Text>
               </TouchableOpacity>

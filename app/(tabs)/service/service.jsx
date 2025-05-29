@@ -24,7 +24,7 @@ export default function Service() {
   const renderServiceItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => handleServicePress(item)}
-      className={`${viewMode === 'grid' ? 'w-[49%]' : 'w-full'} mb-5 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200`}
+      className={`${viewMode === 'grid' ? 'w-[49%]' : 'w-full'} my-1 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200`}
       activeOpacity={0.7}
     >
       <View className={viewMode === 'grid' ? 'flex' : 'flex-row'}>
@@ -68,6 +68,7 @@ export default function Service() {
       end={{ x: 1, y: 0 }}
       className="rounded-xl mt-2 mb-6"
       style={{
+        marginTop: 20,
         borderRadius: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
