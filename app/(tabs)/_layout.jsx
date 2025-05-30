@@ -7,15 +7,18 @@ import { useEffect, useState } from "react";
 import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import LottieView from "lottie-react-native";
 import SplashScreen from "../../src/components/widget/SplashScreen";
+import BiometricScreen from "../../src/components/BiometricScreen";
 
 export default function TabLayout() {
   const { isAuthenticated, initAuth, isLoadingAuth } = useAuthStore();
   const [isFirstVisit, setIsFirstVisit] = useState(true);
+  
 
   useEffect(() => {
     initAuth();
     checkFirstVisit();
   }, []);
+
 
   const checkFirstVisit = async () => {
     try {
@@ -58,6 +61,7 @@ export default function TabLayout() {
       </View>
     );
   }
+
 
   if (isFirstVisit) {
     return <SplashScreen onComplete={handleSplashComplete} />;
