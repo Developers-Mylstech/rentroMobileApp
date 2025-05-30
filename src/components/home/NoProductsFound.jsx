@@ -140,15 +140,15 @@ const NoProductsFound = () => {
   return (
     <Animated.View 
       style={{ transform: [{ scale: pulseAnim }] }}
-      className="flex-1 rounded-2xl overflow-hidden shadow-xl m-4 "
+      className="flex-1 rounded-2xl overflow-hidden shadow-xl "
     >
       <LinearGradient
         colors={['#3e35ee23', '#80bef120']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="p-6"
+        // className="p-12"
       >
-        <View className="flex-row items-center justify-between ">
+        <View className="flex-row  p-3 items-center justify-between ">
           <View className="flex-1 pr-4">
             <Text className="text-blue-500 text-sm  font-semibold mb-1 text-left">
               Didn't find what you're looking for?

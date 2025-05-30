@@ -164,7 +164,7 @@ export default function Shop() {
             </View>
             <View className="flex-row items-center justify-between px-2 py-4 border-b border-gray-200">
               <TouchableOpacity onPress={openCart} className="relative">
-                <Ionicons name="cart-outline" size={24} color="black" />
+                <Ionicons name="cart-outline" size={24} color="green" />
                 {totalItems > 0 && (
                   <View className="absolute -top-2 -right-2 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center">
                     <Text className="text-white text-xs font-bold">{totalItems}</Text>

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, Animated, Easing, Image } from 'react-native';
+import { View, Text, Animated, Easing, Image, Platform } from 'react-native';
 import { InteractionManager } from 'react-native';
 import useBrandStore from '../../store/brandStore';
 
@@ -33,8 +33,6 @@ export default function BrandMarquee({
     }
   }, [containerWidth.current, contentWidth.current]);
 
-  console.log(brands, 'brands');
-
   const startAnimation = () => {
     const distance = contentWidth.current + containerWidth.current;
     const duration = distance * speed;
@@ -63,38 +61,87 @@ export default function BrandMarquee({
     if (containerWidth.current) startAnimation();
   };
 
+  // Platform-specific shadow styles
+  const containerStyle = Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+    },
+    android: {
+      elevation: 2,
+    },
+  });
+
   return (
     <View
-      className="overflow-hidden my-4 py-3 rounded-lg"
+      className="overflow-hidden my-4 py-3 rounded-lg bg-white"
+      style={containerStyle}
       onLayout={handleContainerLayout}
     >
+      <View className="mb-2 px-4">
+        <Text className="text-gray-800 font-semibold text-base">Our Partners</Text>
+      </View>
+      
       <Animated.View
-        className="flex-row"
+        className="flex-row items-center"
         style={{ transform: [{ translateX: scrollAnim }] }}
         onLayout={handleContentLayout}
         shouldRasterizeIOS={true}
         renderToHardwareTextureAndroid={true}
       >
         {brands?.map((brand, index) => (
-          <Text
+          <View 
             key={index}
-            className="mx-4 text-gray-700 font-medium"
-            style={textStyle}
+            className="mx-4 items-center justify-center"
           >
-            {brand?.name}
-          </Text>
-        ))}
-
-        {brands.map((brand, index) => (
-          <>
-            <View key={`dup-${index}`} >
+            {brand?.image?.imageUrl && (
               <Image
                 source={{ uri: brand?.image?.imageUrl }}
-                className="w-10 h-10"
+                className="w-12 h-12 rounded-full"
                 resizeMode="contain"
+                style={{
+                  backgroundColor: '#f9fafb',
+                  borderWidth: 1,
+                  borderColor: '#f3f4f6',
+                }}
               />
-            </View>
-          </>
+            )}
+            <Text
+              className="text-gray-700 text-xs mt-1 font-medium"
+              style={textStyle}
+            >
+              {brand?.name}
+            </Text>
+          </View>
+        ))}
+
+        {/* Duplicate brands for seamless looping */}
+        {brands.map((brand, index) => (
+          <View 
+            key={`dup-${index}`}
+            className="mx-4 items-center justify-center"
+          >
+            {brand?.image?.imageUrl && (
+              <Image
+                source={{ uri: brand?.image?.imageUrl }}
+                className="w-12 h-12 rounded-full"
+                resizeMode="contain"
+                style={{
+                  backgroundColor: '#f9fafb',
+                  borderWidth: 1,
+                  borderColor: '#f3f4f6',
+                }}
+              />
+            )}
+            <Text
+              className="text-gray-700 text-xs mt-1 font-medium"
+              style={textStyle}
+            >
+              {brand?.name}
+            </Text>
+          </View>
         ))}
       </Animated.View>
     </View>
