@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { Ionicons, EvilIcons } from '@expo/vector-icons'
@@ -29,13 +29,15 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
   }
 
   const handleGoogleLogin = () => {
-    // Implement Google login logic here
-    console.log('Google login pressed')
+    return(
+      Alert.alert('Feature not available', 'Google login is not available yet.')
+    )
   }
 
   const handleAppleLogin = () => {
-    // Implement Apple login logic here
-    console.log('Apple login pressed')
+   return(
+      Alert.alert('Feature not available', 'Apple login is not available yet.')
+    )
   }
 
   return (

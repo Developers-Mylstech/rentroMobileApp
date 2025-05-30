@@ -9,6 +9,7 @@ import CategorySection from '../../../src/components/home/CategorySection';
 import ProductGrid from '../../../src/components/home/ProductGrid';
 import ServiceGrid from '../../../src/components/home/ServiceGrid';
 import BannerCarousel from '../../../src/components/home/BannerCarousel';
+import BrandMarquee from '../../../src/components/home/BrandMarquee';
 
 import ProductSkeleton from '../../../src/components/Skeleton/ProductSkeleton';
 import BannerCarouselSkeleton from '../../../src/components/Skeleton/BannerCarouselSkeleton';
@@ -93,6 +94,9 @@ export default function Home() {
                             )
                         )
                     }
+
+                    {/* <BrandMarquee /> */}
+
                     <CategorySection
                         onCategoryPress={(route) => router.push(route)}
                     />

@@ -10,7 +10,7 @@
         "buildConfiguration": "Debug"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://pvq9bktjsbzy.share.zrok.io/api/v1",
+        "EXPO_PUBLIC_API_URL": "https://leax40erzx0f.share.zrok.io/api/v1",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RLOsxP9oSOUDJBLqZRCqPycQ0pD06U65h5e6oDLNOdao4GGbWAsd2s8A0Mfb4Hs5Ty1lENR0VgaF0UrsJPTjizn00WMqTFFDP"
       }
     },
@@ -20,7 +20,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://pvq9bktjsbzy.share.zrok.io/api/v1",
+        "EXPO_PUBLIC_API_URL": "https://leax40erzx0f.share.zrok.io/api/v1",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RLOsxP9oSOUDJBLqZRCqPycQ0pD06U65h5e6oDLNOdao4GGbWAsd2s8A0Mfb4Hs5Ty1lENR0VgaF0UrsJPTjizn00WMqTFFDP"
       }
     },
@@ -32,7 +32,7 @@
         "enterpriseProvisioning": "universal"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://pvq9bktjsbzy.share.zrok.io/api/v1",
+        "EXPO_PUBLIC_API_URL": "https://leax40erzx0f.share.zrok.io/api/v1",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RLOsxP9oSOUDJBLqZRCqPycQ0pD06U65h5e6oDLNOdao4GGbWAsd2s8A0Mfb4Hs5Ty1lENR0VgaF0UrsJPTjizn00WMqTFFDP"
       }
     }

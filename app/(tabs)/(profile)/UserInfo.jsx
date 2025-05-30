@@ -1,6 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, SafeAreaView } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import useProfileStore from '../../../src/store/profileStore'
 
 export default function UserInfo() {
@@ -13,8 +13,8 @@ export default function UserInfo() {
     verified: false
   });
 
-  // Function to get initials from name
   const getInitials = (name) => {
+    
     if (!name) return '';
     const names = name.split(' ');
     let initials = names[0].substring(0, 1).toUpperCase();
@@ -76,22 +76,22 @@ export default function UserInfo() {
 
   if (isLoading && !profile) {
     return (
-      <View className="flex-1 justify-center items-center bg-blue-50">
+      <View className="flex-1 justify-center items-center bg-white">
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className="mt-3 text-blue-800 text-base font-medium">Loading your profile...</Text>
+        <Text className="mt-3 text-gray-700 text-base font-medium">Loading your profile...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center bg-blue-50 p-5">
-        <View className="bg-blue-100 p-5 rounded-full mb-4">
-          <Ionicons name="alert-circle-outline" size={50} color="#3b82f6" />
+      <View className="flex-1 justify-center items-center bg-white p-5">
+        <View className="bg-red-50 p-5 rounded-full mb-4">
+          <Ionicons name="alert-circle" size={50} color="#ef4444" />
         </View>
-        <Text className="mt-3 text-blue-800 text-center text-base font-medium">{error}</Text>
+        <Text className="mt-3 text-gray-800 text-center text-base font-medium">{error}</Text>
         <TouchableOpacity 
-          className="mt-5 bg-blue-600 py-3 px-6 rounded-full shadow-sm"
+          className="mt-5 bg-blue-600 py-3 px-6 rounded-lg shadow-sm"
           onPress={() => {
             clearError();
             fetchProfile();
@@ -104,112 +104,117 @@ export default function UserInfo() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-blue-50">
-      {/* Header */}
-      <View className="bg-blue-400 px-6 py-4 rounded-b-3xl shadow-md">
-        <View className="flex-row justify-between items-center">
-          <Text className="text-2xl font-bold text-white"></Text>
-          <TouchableOpacity 
-            className="bg-white py-2 px-2 rounded-full shadow"
-            onPress={() => setIsEditing(!isEditing)}
-          >
-            <Text className="text-blue-600 font-semibold">
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="flex-1">
+        {/* Header with gradient background */}
+        <View className="bg-blue-600 px-6 pt-6 pb-20">
+          <View className="flex-row justify-between items-center">
+            <Text className="text-2xl font-bold text-white">Profile</Text>
+            <TouchableOpacity 
+              className="bg-white/20 p-2 rounded-full"
+              onPress={() => setIsEditing(!isEditing)}
+            >
+              <Ionicons name={isEditing ? "close" : "pencil"} size={22} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Profile Card */}
+        <View className="mx-5 -mt-16 bg-white rounded-xl shadow-md overflow-hidden">
+          {/* Profile Picture Section */}
+          <View className="items-center pt-6 pb-4">
+            <View className="w-28 h-28 rounded-full bg-blue-100 border-4 border-white justify-center items-center shadow-lg">
+              <Text className="text-blue-600 text-3xl font-bold">
+                {getInitials(profile?.name)}
+              </Text>
+            </View>
+            <Text className="text-xl font-bold text-gray-800 mt-4">{profile?.name}</Text>
+            {profile?.verified && (
+              <View className="flex-row items-center bg-blue-50 px-4 py-1.5 rounded-full mt-2">
+                <Ionicons name="shield-checkmark" size={16} color="#3b82f6" />
+                <Text className="text-blue-700 font-medium ml-1">Verified Account</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Profile Details */}
+          <View className="px-6 py-6 border-t border-gray-100">
+            {/* Name Field */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="person" size={18} color="#3b82f6" />
+                <Text className="text-xs text-gray-500 font-medium ml-2">FULL NAME</Text>
+              </View>
               {isEditing ? (
-                <Ionicons name="close" size={18} color="#3b82f6" />
+                <TextInput
+                  className="border border-gray-200 rounded-lg py-3 px-4 text-base text-gray-800 font-medium bg-gray-50"
+                  value={formData.name}
+                  onChangeText={(text) => handleInputChange('name', text)}
+                  placeholder="Enter your full name"
+                />
               ) : (
-                <Ionicons name="pencil" size={18} color="#3b82f6" />
+                <Text className="text-base text-gray-800 font-medium py-2">{profile?.name || 'Not provided'}</Text>
               )}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            </View>
 
-      {/* Profile Picture Section */}
-      <View className="items-center -mt-12 mb-4">
-        <View className="w-28 h-28 rounded-full bg-white border-4 border-blue-400 justify-center items-center shadow-lg">
-          <View className="w-24 h-24 rounded-full bg-blue-600 justify-center items-center">
-            <Text className="text-white text-3xl font-bold">
-              {getInitials(profile?.name)}
-            </Text>
+            {/* Email Field */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="mail" size={18} color="#3b82f6" />
+                <Text className="text-xs text-gray-500 font-medium ml-2">EMAIL ADDRESS</Text>
+              </View>
+              {isEditing ? (
+                <TextInput
+                  className="border border-gray-200 rounded-lg py-3 px-4 text-base text-gray-500 font-medium bg-gray-100"
+                  value={formData.email}
+                  editable={false}
+                  placeholder="Enter your email"
+                />
+              ) : (
+                <Text className="text-base text-gray-800 font-medium py-2">{profile?.email || 'Not provided'}</Text>
+              )}
+            </View>
+
+            {/* Phone Field */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="call" size={18} color="#3b82f6" />
+                <Text className="text-xs text-gray-500 font-medium ml-2">PHONE NUMBER</Text>
+              </View>
+              {isEditing ? (
+                <TextInput
+                  className="border border-gray-200 rounded-lg py-3 px-4 text-base text-gray-800 font-medium bg-gray-50"
+                  value={formData.phone}
+                  onChangeText={(text) => handleInputChange('phone', text)}
+                  placeholder="Enter your phone number"
+                  keyboardType="phone-pad"
+                />
+              ) : (
+                <Text className="text-base text-gray-800 font-medium py-2">{profile?.phone || 'Not provided'}</Text>
+              )}
+            </View>
           </View>
-        </View>
-        <Text className="text-xl font-bold text-blue-900 mt-4">{profile?.name}</Text>
-        {profile?.verified && (
-          <View className="flex-row items-center bg-blue-100 px-4 py-1.5 rounded-full mt-2">
-            <Ionicons name="checkmark-circle" size={16} color="#3b82f6" />
-            <Text className="text-blue-800 font-medium ml-1">Verified Account</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Profile Details */}
-      <View className="px-6 pb-8">
-        <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-          {/* Name Field */}
-          <View className="mb-6">
-            <Text className="text-xs text-blue-500 font-medium mb-1">FULL NAME</Text>
-            {isEditing ? (
-              <TextInput
-                className="border-b border-blue-200 py-3 text-base text-blue-900 font-medium"
-                value={formData.name}
-                onChangeText={(text) => handleInputChange('name', text)}
-                placeholder="Enter your full name"
-              />
-            ) : (
-              <Text className="text-base text-blue-900 font-medium py-2">{profile?.name || 'Not provided'}</Text>
-            )}
-          </View>
-
-          {/* Email Field */}
-          <View className="mb-6">
-            <Text className="text-xs text-blue-500 font-medium mb-1">EMAIL ADDRESS</Text>
-            {isEditing ? (
-              <TextInput
-                className="border-b border-blue-200 py-3 text-base text-blue-400 font-medium bg-blue-50 rounded px-2"
-                value={formData.email}
-                editable={false}
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            ) : (
-              <Text className="text-base text-blue-900 font-medium py-2">{profile?.email || 'Not provided'}</Text>
-            )}
-          </View>
-
-          {/* Phone Field */}
-          <View className="mb-6">
-            <Text className="text-xs text-blue-500 font-medium mb-1">PHONE NUMBER</Text>
-            {isEditing ? (
-              <TextInput
-                className="border-b border-blue-200 py-3 text-base text-blue-900 font-medium"
-                value={formData.phone}
-                onChangeText={(text) => handleInputChange('phone', text)}
-                placeholder="Enter your phone number"
-                keyboardType="phone-pad"
-              />
-            ) : (
-              <Text className="text-base text-blue-900 font-medium py-2">{profile?.phone || 'Not provided'}</Text>
-            )}
-          </View>
-
-
         </View>
 
         {isEditing && (
-          <TouchableOpacity 
-            className="bg-blue-600 py-4 rounded-full shadow-md items-center"
-            onPress={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#FFF" />
-            ) : (
-              <Text className="text-white font-bold text-base">SAVE CHANGES</Text>
-            )}
-          </TouchableOpacity>
+          <View className="mx-5 mt-6 mb-10">
+            <TouchableOpacity 
+              className="bg-blue-600 py-4 rounded-lg shadow-md items-center flex-row justify-center"
+              onPress={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <>
+                  <Ionicons name="save-outline" size={20} color="white" />
+                  <Text className="text-white font-bold text-base ml-2">SAVE CHANGES</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
         )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

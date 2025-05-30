@@ -18,6 +18,7 @@ import { useForm, Controller } from 'react-hook-form';
 import axiosInstance from '../../utils/axiosInstance';
 import axios from 'axios';
 import { Platform } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons'; // or any other icon set
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
@@ -38,6 +39,8 @@ const RequestQuotationModal = ({
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [productImageUrl, setProductImageUrl] = useState(productImage || null);
+  const placeholderTextColor = Platform.OS === 'ios' ? '#999' : '#757575';
+
 
   const { control, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
@@ -377,17 +380,22 @@ const RequestQuotationModal = ({
 
             <Text className="text-lg font-bold text-gray-800 mb-3">Contact Information</Text>
 
-            {/* Name and Mobile */}
             <Controller
               control={control}
               name="name"
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg p-3 mb-3"
-                  placeholder="Your Name"
-                  value={value}
-                  onChangeText={onChange}
-                />
+                <View className="flex-row items-center border border-gray-300 p-3 rounded-lg mb-3 bg-white">
+                  <View className="flex-row items-center gap-3 mx-3">
+                    <MaterialIcons name="person" size={20} color="gray" />
+                  </View>
+                  <TextInput
+                    className="flex-1"
+                    placeholder="Your Name"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                </View>
               )}
             />
 
@@ -395,13 +403,20 @@ const RequestQuotationModal = ({
               control={control}
               name="mobile"
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg p-3 mb-3 dark:text-gray-900"
-                  placeholder="Mobile Number"
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="phone-pad"
-                />
+                <View className="flex-row items-center border border-gray-300 p-3 rounded-lg mb-3 bg-white">
+                  <View className="flex-row items-center gap-3 mx-3">
+                    <MaterialIcons name="phone" size={20} color="gray" />
+                  </View>
+                  <TextInput
+                    className="flex-1"
+                    placeholder="Mobile Number"
+                    placeholderTextColor={placeholderTextColor}
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+
               )}
             />
 
@@ -409,12 +424,19 @@ const RequestQuotationModal = ({
               control={control}
               name="companyName"
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="border border-gray-300 rounded-lg p-3 mb-3"
-                  placeholder="Company Name (Optional)"
-                  value={value}
-                  onChangeText={onChange}
-                />
+                <View className="flex-row items-center border border-gray-300 p-3 rounded-lg mb-3 bg-white">
+                  <View className="flex-row items-center gap-3 mx-3">
+                    <MaterialIcons name="business" size={20} color="gray" />
+                  </View>
+                  <TextInput
+                    className="flex-1"
+                    placeholder="Company Name (Optional)"
+                    placeholderTextColor={placeholderTextColor}
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                </View>
+
               )}
             />
 
@@ -425,26 +447,33 @@ const RequestQuotationModal = ({
               name="locationCountry"
               render={({ field: { value } }) => (
                 <View className="mb-3">
+                  
                   <TouchableOpacity
                     className="border border-gray-300 rounded-lg p-3 flex-row justify-between items-center"
                     onPress={() => setShowCountryDropdown(!showCountryDropdown)}
                   >
+                    <View className="flex-row items-center gap-3">
+                    <MaterialIcons name="map" size={20} color="gray" />
                     <Text>{value}</Text>
+                    </View>
                     <Text>▼</Text>
                   </TouchableOpacity>
 
                   {showCountryDropdown && (
                     <View className="border border-gray-300 rounded-lg mt-1 bg-white">
                       {emiratesOptions.map((emirate) => (
+                        <>
                         <TouchableOpacity
                           key={emirate}
+                          
                           className={`p-3 ${emirate === value ? 'bg-blue-50' : ''}`}
                           onPress={() => selectCountry(emirate)}
-                        >
+                          >
                           <Text className={emirate === value ? 'text-blue-600' : ''}>
                             {emirate}
                           </Text>
                         </TouchableOpacity>
+                          </>
                       ))}
                     </View>
                   )}
@@ -454,23 +483,29 @@ const RequestQuotationModal = ({
 
             {/* Other location fields */}
             {[
-              { name: 'locationStreet', placeholder: 'Street' },
-              { name: 'locationArea', placeholder: 'Area' },
-              { name: 'locationBuilding', placeholder: 'Building' },
-              { name: 'locationVillaNo', placeholder: 'Villa No' },
-              { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)' },
-            ].map(({ name, placeholder }) => (
+              { name: 'locationStreet', placeholder: 'Street', icon: 'place' },
+              { name: 'locationArea', placeholder: 'Area', icon: 'public' },
+              { name: 'locationBuilding', placeholder: 'Building', icon: 'home-work' },
+              { name: 'locationVillaNo', placeholder: 'Villa No', icon: 'domain' },
+              { name: 'locationGmapLink', placeholder: 'Google Maps Link (Optional)', icon: 'link' },
+            ].map(({ name, placeholder, icon }) => (
               <Controller
                 key={name}
                 control={control}
                 name={name}
                 render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    className="border border-gray-300 rounded-lg p-3 mb-3"
-                    placeholder={placeholder}
-                    value={value}
-                    onChangeText={onChange}
-                  />
+                  <View className="flex-row items-center border border-gray-300 p-3 rounded-lg mb-3 bg-white">
+                    <View className="flex-row items-center gap-3 mx-3">
+                      <MaterialIcons name={icon} size={20} color="gray" />
+                    </View>
+                    <TextInput
+                      placeholderTextColor={placeholderTextColor}
+                      className="flex-1"
+                      placeholder={placeholder}
+                      value={value}
+                      onChangeText={onChange}
+                    />
+                  </View>
                 )}
               />
             ))}
