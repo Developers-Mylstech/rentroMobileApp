@@ -149,7 +149,7 @@ export default function Shop() {
       />
 
 
-      {products.length <= 0 ? (
+      {products?.length < 0 ? (
         <ShopSkeleton />
       ) : (
         <>

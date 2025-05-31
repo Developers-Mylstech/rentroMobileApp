@@ -4,7 +4,7 @@ export default function ServiceLayout() {
   return (
     <Stack>
       <Stack.Screen 
-        name="service" 
+        name="index" 
         options={{ 
           title: "Our Services",
           headerShown: false 
