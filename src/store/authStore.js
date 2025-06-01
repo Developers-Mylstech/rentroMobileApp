@@ -12,6 +12,7 @@ export const useAuthStore = create((set, get) => ({
   isLoadingAuth: false,
 
   login: async (payload) => {
+    console.log(payload, 'login payload')
     try {
       set({ isLoading: true, error: null });
       const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/initiate-auth`, payload);
@@ -72,7 +73,6 @@ export const useAuthStore = create((set, get) => ({
       return null;
     }
   },
-
 
   logout: async () => {
     try {
