@@ -257,7 +257,7 @@ export default function Checkout() {
 
       const nameRegex = /^[A-Za-z\s]{2,50}$/;
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const uaeMobileRegex = /^(?:\+971|0|971)(50|52|54|55|56|58|59|4)\d{7}$/;
+      const uaeMobileRegex = /^(50|52|54|55|56|58|59)\d{7}$/;
 
       if (!nameRegex.test(formData.firstName)) {
         Alert.alert(
