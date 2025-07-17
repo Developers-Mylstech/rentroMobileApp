@@ -4,18 +4,18 @@ import { useForm, Controller } from 'react-hook-form'
 import { Ionicons, EvilIcons } from '@expo/vector-icons'
 import { useAuthStore } from '../../store/authStore'
 
-export default function LoginForm({ onVerifyRequest, setEmail }) {
+export default function LoginForm({ onVerifyRequest, setEmail, otpModalVisible }) {
   const { control, formState: { errors }, handleSubmit } = useForm()
   const { login, isLoading, error: authError, clearError } = useAuthStore()
   const [formError, setFormError] = useState(null)
-  
+
   useEffect(() => {
     if (authError) {
       setFormError(authError)
       clearError()
     }
   }, [authError])
-  
+
   const onSubmit = async (data) => {
     setFormError(null)
     const payload = {
@@ -29,13 +29,13 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
   }
 
   const handleGoogleLogin = () => {
-    return(
+    return (
       Alert.alert('Feature not available', 'Google login is not available yet.')
     )
   }
 
   const handleAppleLogin = () => {
-   return(
+    return (
       Alert.alert('Feature not available', 'Apple login is not available yet.')
     )
   }
@@ -77,7 +77,7 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
         <Text className="text-red-500 mt-1">{formError}</Text>
       )}
 
-      <TouchableOpacity 
+      <TouchableOpacity
         className="bg-blue-500 rounded-xl p-4 flex flex-row justify-center gap-3 items-center mt-5"
         onPress={handleSubmit(onSubmit)}
         disabled={isLoading}
@@ -87,6 +87,7 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
         ) : (
           <Text className="text-white font-bold text-heading-4">Sent OTP</Text>
         )}
+
       </TouchableOpacity>
 
       <View className="flex-row items-center my-6">
@@ -96,7 +97,7 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
       </View>
 
       <View className="flex gap-3">
-        <TouchableOpacity 
+        <TouchableOpacity
           className="flex-row items-center justify-center border border-gray-300 rounded-xl p-3.5"
           onPress={handleGoogleLogin}
         >
@@ -104,7 +105,7 @@ export default function LoginForm({ onVerifyRequest, setEmail }) {
           <Text className="text-gray-700 font-medium ml-2">Continue with Google</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           className="flex-row items-center justify-center border border-gray-300 rounded-xl p-3.5"
           onPress={handleAppleLogin}
         >

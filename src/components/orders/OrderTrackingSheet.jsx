@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Modal from 'react-native-modal';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function OrderTrackingSheet({ isVisible, onClose, orderData }) {
   if (!orderData) return null;
@@ -56,19 +56,19 @@ export default function OrderTrackingSheet({ isVisible, onClose, orderData }) {
         <ScrollView className="px-4 pt-4" showsVerticalScrollIndicator={false}>
           {trackingSteps.map((step, index) => (
             <View key={step.id} className="flex-row mb-6">
-              {/* Status indicator */}
+              
               <View className="items-center mr-4">
                 <View className={`w-10 h-10 rounded-full items-center justify-center ${step.id <= currentStep ? 'bg-blue-500' : 'bg-gray-200'}`}>
                   <Ionicons name={step.icon} size={20} color={step.id <= currentStep ? 'white' : '#9ca3af'} />
                 </View>
                 
-                {/* Connecting line */}
+          
                 {index < trackingSteps.length - 1 && (
                   <View className={`w-1 flex-1 my-1 ${step.id < currentStep ? 'bg-blue-500' : 'bg-gray-200'}`} />
                 )}
               </View>
               
-              {/* Step details */}
+            
               <View className="flex-1 pt-1 pb-4">
                 <View className="flex-row justify-between items-start">
                   <Text className={`font-bold ${step.id <= currentStep ? 'text-gray-800' : 'text-gray-400'}`}>
@@ -91,6 +91,7 @@ export default function OrderTrackingSheet({ isVisible, onClose, orderData }) {
           >
             <Text className="text-white font-bold">Close</Text>
           </TouchableOpacity>
+          
         </ScrollView>
       </View>
     </Modal>

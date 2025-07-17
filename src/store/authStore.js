@@ -3,6 +3,7 @@ import axiosInstance from '../utils/axiosInstance';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { baseurl } from '../constant/API_URL';
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -12,10 +13,9 @@ export const useAuthStore = create((set, get) => ({
   isLoadingAuth: false,
 
   login: async (payload) => {
-    console.log(payload, 'login payload')
     try {
       set({ isLoading: true, error: null });
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/initiate-auth`, payload);
+      const response = await axios.post(`${baseurl}/auth/initiate-auth`, payload);
       return response;
     } catch (error) {
       set({
@@ -26,11 +26,10 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-
   singup: async (userData) => {
     try {
       set({ isLoading: true, error: null });
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/register`, userData);
+      const response = await axios.post(`${baseurl}/auth/register`, userData);
       console.log(response, 'response')
       set({ isLoading: false, });
       return response;
@@ -47,7 +46,7 @@ export const useAuthStore = create((set, get) => ({
   verifyOtp: async (payload) => {
     try {
       set({ isLoading: true, error: null });
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/complete-auth`, payload);
+      const response = await axios.post(`${baseurl}/auth/complete-auth`, payload);
 
       if (response.status === 200) {
         if (response.data.accessToken) {

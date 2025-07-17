@@ -53,7 +53,7 @@ export default function Login() {
 
         {activeTab === 'signup' ? 
           <SignupForm onVerifyRequest={handleVerifyRequest} setEmail={setEmail} /> : 
-          <LoginForm onVerifyRequest={handleVerifyRequest} setEmail={setEmail} />
+          <LoginForm otpModalVisible={otpModalVisible} onVerifyRequest={handleVerifyRequest} setEmail={setEmail} />
         }
       </View>
       

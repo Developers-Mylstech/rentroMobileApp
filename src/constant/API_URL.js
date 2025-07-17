@@ -1,0 +1,1 @@
+export const baseurl = "https://erni1iib8ptn.share.zrok.io/api/v1";

@@ -4,9 +4,9 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { useAuthStore } from '../store/authStore';
-import { useNavigation } from 'expo-router';
+import { baseurl } from '../constant/API_URL';
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+const apiUrl = baseurl;
 
 const axiosInstance = axios.create({
     baseURL: apiUrl,
@@ -14,7 +14,6 @@ const axiosInstance = axios.create({
 
 axiosInstance.defaults.headers.common['skip_zrok_interstitial'] = 'true';
 
-// Request interceptor
 axiosInstance.interceptors.request.use(
     async (config) => {
         const accessToken = await SecureStore.getItemAsync('auth_token');
@@ -51,7 +50,7 @@ axiosInstance.interceptors.response.use(
                 try {
                     delete axiosInstance.defaults.headers.common['Authorization'];
 
-                    const response = await axios.post(`${apiUrl}/auth/refresh-token`,
+                    const response = await axios.post(`${baseurl}/auth/refresh-token`,
                         { refreshToken: refreshToken }, {
                         headers: {
                             'skip_zrok_interstitial': 'true',

@@ -19,6 +19,7 @@ import axiosInstance from '../../utils/axiosInstance';
 import axios from 'axios';
 import { Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // or any other icon set
+import { baseurl } from '../../constant/API_URL';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
@@ -146,7 +147,7 @@ const RequestQuotationModal = ({
           console.log("Image URI:", selectedImage.uri);
 
           // Use fetch instead of axios for more reliable file uploads in React Native
-          const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/image-entities/upload?quality=80&fallbackToJpeg=true`, {
+          const response = await fetch(`${baseurl}/image-entities/upload?quality=80&fallbackToJpeg=true`, {
             method: 'POST',
             headers: {
               'Content-Type': 'multipart/form-data',
