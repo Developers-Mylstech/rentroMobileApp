@@ -2,53 +2,60 @@
   "expo": {
     "name": "rentroApp",
     "slug": "rentroApp",
+    "owner": "mohdyaseen",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
+
     "plugins": [
       "expo-router",
       "expo-secure-store",
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.xyaistic.rentroApp",
+          "merchantIdentifier": "merchant.com.mohdyaseen.rentroApp",
           "enableGooglePay": true
         }
       ]
     ],
+
     "splash": {
-      "image": "assets/icon.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.xyaistic.rentroApp",
+      "bundleIdentifier": "com.mohdyaseen.rentroApp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app uses the camera to scan credit cards."
       },
       "icon": "./assets/icon.png"
     },
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.xyaistic.rentroApp",
+      "package": "com.mohdyaseen.rentroApp",
       "permissions": ["CAMERA"]
     },
+
     "web": {
       "bundler": "metro",
       "favicon": "./assets/icon.png"
     },
+
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6a19e35a-8b7f-439e-9282-8efcece5b623"
+        "projectId": "3eaa55f7-cd4b-4cd5-a873-f7c9dedaa2ed"
       }
     }
   }

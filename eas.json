@@ -1,10 +1,13 @@
 {
+  "cli": {
+    "version": ">= 3.6.0"
+  },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
       "android": {
-        "gradleCommand": ":app:assembleDebug"
+        "buildType": "apk"
       },
       "ios": {
         "buildConfiguration": "Debug"
@@ -14,30 +17,32 @@
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RLOsxP9oSOUDJBLqZRCqPycQ0pD06U65h5e6oDLNOdao4GGbWAsd2s8A0Mfb4Hs5Ty1lENR0VgaF0UrsJPTjizn00WMqTFFDP"
       }
     },
+
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
+      "ios": {
+        "simulator": false
+      },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://leax40erzx0f.share.zrok.io/api/v1",
+        "EXPO_PUBLIC_API_URL": "https://api.rentro.ae/api/v1",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RLOsxP9oSOUDJBLqZRCqPycQ0pD06U65h5e6oDLNOdao4GGbWAsd2s8A0Mfb4Hs5Ty1lENR0VgaF0UrsJPTjizn00WMqTFFDP"
       }
     },
+
     "production": {
       "android": {
         "buildType": "app-bundle"
       },
       "ios": {
-        "enterpriseProvisioning": "universal"
+        "buildConfiguration": "Release"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://leax40erzx0f.share.zrok.io/api/v1",
+        "EXPO_PUBLIC_API_URL": "https://api.rentro.ae/api/v1",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RLOsxP9oSOUDJBLqZRCqPycQ0pD06U65h5e6oDLNOdao4GGbWAsd2s8A0Mfb4Hs5Ty1lENR0VgaF0UrsJPTjizn00WMqTFFDP"
       }
     }
-  },
-  "cli": {
-    "version": ">= 3.6.0"
   }
 }

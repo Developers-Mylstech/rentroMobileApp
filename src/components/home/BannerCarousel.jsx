@@ -65,7 +65,7 @@ export default function BannerCarousel({
         renderItem={({ item }) => (
           <View className='' style={{ width: width - 40 }}>
             <Banner
-              imageUrl={item.imageUrl}
+              imageUrl={item?.imageUrl}
               onPress={() => onBannerPress(item)}
             />
           </View>
@@ -81,6 +81,7 @@ export default function BannerCarousel({
 import { ImageBackground, TouchableOpacity, Text } from 'react-native';
 
 const Banner = ({ imageUrl, onPress }) => {
+
   return (
     <TouchableOpacity 
       onPress={onPress} 
@@ -88,7 +89,7 @@ const Banner = ({ imageUrl, onPress }) => {
       activeOpacity={0.8}
     >
       <ImageBackground
-        source={{ uri: imageUrl }}
+        source={{ uri: `https://api.rentro.ae/uploads/${imageUrl}` }}
         className="w-full h-40 justify-end"
         imageStyle={{ borderRadius: 12 }}
         resizeMode="cover"
