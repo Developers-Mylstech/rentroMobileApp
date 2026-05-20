@@ -151,11 +151,12 @@ export default function OtpModal({ visible, onClose, email }) {
             <Animated.View
               className="bg-white rounded-t-3xl p-6"
               style={{
+                minHeight: '80%',
                 transform: [
                   {
                     translateY: slideAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [300, 0],
+                      outputRange: [600, 0],
                     }),
                   },
                 ],

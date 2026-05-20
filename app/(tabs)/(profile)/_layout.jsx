@@ -50,6 +50,13 @@ export default function ProfileLayout() {
           headerShown: true
         }}
       />
+      <Stack.Screen
+        name="tickets"
+        options={{
+          title: "Support Tickets",
+          headerShown: true
+        }}
+      />
 
       <Stack.Screen
         name="(orders)"
@@ -59,6 +66,20 @@ export default function ProfileLayout() {
           headerBackTitle: "Back",
 
         })}
+      />
+      <Stack.Screen
+        name="(tickets)"
+        options={{
+          headerShown: false,
+          title: "Support Ticket"
+        }}
+      />
+      <Stack.Screen
+        name="(invoices)"
+        options={{
+          headerShown: false,
+          title: "Invoice"
+        }}
       />
     </Stack>
   );
